@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VA Use-Case Matrix v1.3 · Finan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@600;700&family=Outfit:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --ink:#16201C; --muted:#6a746e; --line:#e3e8e4; --card:#ffffff; --bg:#f4f6f4;
+  --own:#0B5D4B; --neg:#B3402E; --soft:#eaf3ef; --warn:#8a5a12; --warnbg:#fff9e8;
+  --collect:#0B5D4B;    /* thu về của mình - emerald */
+  --collectbg:#E1F5EE; --collectink:#085041;
+  --onbehalf:#4a3aa7;   /* thu hộ / chia lại - tím */
+  --onbehalfbg:#EEEDFE; --onbehalfink:#26215C;
+  --internal:#8a5a12;   /* nội bộ - nâu/vàng */
+  --internalbg:#FAEEDA; --internalink:#633806;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Outfit',sans-serif;font-size:13.5px}
+.top{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.top h1{margin:0;font-family:'Noto Serif Display',serif;font-size:19px;color:var(--ink);font-weight:700}
+.ver-badge{background:var(--own);color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:8px;margin-left:8px}
+.rel-stamp{font-size:10.5px;color:var(--muted);margin-left:8px}
+.tabs{display:flex;gap:6px;padding:10px 20px 0}
+.tab{font-size:13px;font-weight:700;padding:8px 16px;border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;background:#eef1ee;cursor:pointer;color:var(--muted)}
+.tab.on{background:var(--card);color:var(--own)}
+.wrap{padding:0 20px 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:0 12px 12px 12px;padding:16px}
+.panel{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:14px;background:var(--card)}
+.panel h3{margin:0 0 10px;font-size:14px;font-family:'Noto Serif Display',serif;color:var(--own)}
+.btn{font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;padding:6px 11px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer;color:var(--ink)}
+.btn:hover{border-color:var(--own)}
+.btn.on{background:var(--own);color:#fff;border-color:var(--own)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-bottom:12px;align-items:center}
+.legend .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.filtrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+.filtrow .lbl{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-right:6px}
+.chip-f{font-size:11.5px;font-weight:600;padding:4px 9px;border:1px solid var(--line);border-radius:14px;background:var(--card);cursor:pointer;color:var(--ink)}
+.chip-f.on{background:var(--soft);border-color:var(--own);color:var(--own)}
+table.mx{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:11.5px}
+table.mx col.mh{width:120px}
+table.mx th{background:var(--ink);color:#fff;text-align:left;padding:7px 6px;font-size:11px;font-weight:600;vertical-align:bottom;position:sticky;top:0;z-index:2}
+table.mx th.rowhdr{background:#0B2E24}
+table.mx td{padding:7px 6px;border-bottom:1px solid #eef1ee;vertical-align:top;line-height:1.35}
+td.rn{font-weight:800;color:var(--ink);background:#f1f6f2;font-family:'Outfit'}
+td.rn .hy{display:inline-block;font-size:9.5px;font-weight:800;color:var(--onbehalfink);background:var(--onbehalfbg);border:1px solid #cecbf6;border-radius:5px;padding:0 5px;margin-top:3px}
+td.uc{cursor:pointer;transition:outline .1s}
+td.uc:hover{outline:2px solid var(--own);outline-offset:-2px}
+td.uc.collect{background:var(--collectbg);color:var(--collectink)}
+td.uc.onbehalf{background:var(--onbehalfbg);color:var(--onbehalfink)}
+td.uc.internal{background:var(--internalbg);color:var(--internalink)}
+td.empty{background:var(--card);color:#c3ccc6;text-align:center}
+td.dim{opacity:.18}
+.uc-name{font-weight:800;display:block;margin-bottom:2px}
+.uc-arrow{font-size:9px;opacity:.55;float:right}
+.hint{font-size:11.5px;color:var(--muted);margin-top:10px;font-style:italic}
+/* tab2 */
+.back{font-size:12px;font-weight:600;color:var(--own);cursor:pointer;margin-bottom:14px;display:inline-block}
+.uc-detail{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.uc-head{padding:14px 16px;border-bottom:1px solid var(--line)}
+.uc-head.collect{background:var(--collectbg)} .uc-head.onbehalf{background:var(--onbehalfbg)} .uc-head.internal{background:var(--internalbg)}
+.uc-head h2{margin:0 0 4px;font-family:'Noto Serif Display',serif;font-size:17px}
+.uc-head.collect h2{color:var(--collectink)} .uc-head.onbehalf h2{color:var(--onbehalfink)} .uc-head.internal h2{color:var(--internalink)}
+.uc-meta{font-size:11.5px;font-weight:600}
+.uc-head.collect .uc-meta{color:var(--collectink)} .uc-head.onbehalf .uc-meta{color:var(--onbehalfink)} .uc-head.internal .uc-meta{color:var(--internalink)}
+.pill{display:inline-block;font-size:10px;font-weight:800;border-radius:6px;padding:2px 8px;margin-right:6px}
+.pill.collect{background:#fff;color:var(--collectink)} .pill.onbehalf{background:#fff;color:var(--onbehalfink)} .pill.internal{background:#fff;color:var(--internalink)}
+.uc-body{padding:14px 16px}
+.uc-body h4{margin:0 0 6px;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase}
+.uc-body p{margin:0 0 12px;line-height:1.55}
+.flow{list-style:none;padding:0;margin:0 0 12px;counter-reset:s}
+.flow li{counter-increment:s;padding:6px 0 6px 30px;position:relative;border-bottom:1px dashed var(--line);line-height:1.45}
+.flow li:last-child{border-bottom:none}
+.flow li::before{content:counter(s);position:absolute;left:0;top:5px;width:20px;height:20px;background:var(--own);color:#fff;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;font-family:'DM Mono'}
+.note{background:var(--warnbg);border:1px solid #ead39b;border-radius:8px;padding:9px 12px;font-size:12px;color:var(--warn);line-height:1.5}
+.note b{color:var(--warn)}
+.uc-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.uc-nav .btn{font-size:11px}
+/* ratings */
+.rate-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:4px 0 14px}
+.rate-box{border:1px solid var(--line);border-radius:10px;padding:10px 12px;text-align:center}
+.rate-box.net{border-color:var(--own);background:var(--soft)}
+.rate-box .rl{font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+.rate-box.net .rl{color:var(--own)}
+.stars{font-size:15px;letter-spacing:1px;line-height:1}
+.stars .on{color:var(--warn)} .stars .off{color:#d9ddd7}
+.rate-box.net .stars .on{color:var(--own)}
+.rate-num{font-family:'DM Mono';font-size:11px;color:var(--muted);margin-top:4px}
+.formula{font-family:'DM Mono';font-size:10.5px;color:var(--muted);text-align:center;margin:-8px 0 14px}
+.alt-box{background:#f1f6f2;border:1px solid var(--line);border-left:3px solid var(--muted);border-radius:0 8px 8px 0;padding:9px 12px;font-size:12px;line-height:1.5;color:var(--ink)}
+.alt-box b{color:var(--muted)}
+/* matrix top badge */
+td.uc.top{outline:2px solid var(--own);outline-offset:-2px}
+td.uc.top5{background:#cfe8dd !important}
+.net-badge{display:inline-block;font-family:'DM Mono';font-size:9px;font-weight:800;color:#fff;background:var(--own);border-radius:5px;padding:0 5px;margin-left:4px;vertical-align:1px}
+.net-badge.b5{background:#083d31}
+/* chart */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;font-size:12px}
+.bar-row .bl{width:130px;text-align:right;color:var(--ink);font-weight:600;flex-shrink:0;font-size:11.5px}
+.bar-track{flex:1;background:#eef1ee;border-radius:5px;height:20px;position:relative;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;background:var(--own);display:flex;align-items:center;padding-left:8px;color:#fff;font-size:10.5px;font-weight:700;font-family:'DM Mono';white-space:nowrap}
+.bar-row .bn{width:150px;font-size:10.5px;color:var(--muted);flex-shrink:0}
+.mono{font-family:'DM Mono',monospace}
+/* tool badge */
+.tool-badge{display:inline-block;font-size:9px;font-weight:800;border-radius:5px;padding:1px 6px;font-family:'Outfit'}
+.tool-badge.va{background:#e6f1fb;color:#0c447c}
+.tool-badge.vc{background:#EEEDFE;color:#26215C}
+td.uc .tool-badge{margin-top:4px}
+/* flowchart (HTML) */
+.fc{display:flex;flex-direction:column;margin:4px 0 14px}
+.fc-node{border:1.5px solid var(--line);border-radius:10px;padding:9px 12px 9px 40px;position:relative;background:var(--card);line-height:1.4;font-size:12.5px}
+.fc-node.collect{border-color:#9FE1CB;background:var(--collectbg)}
+.fc-node.onbehalf{border-color:#CECBF6;background:var(--onbehalfbg)}
+.fc-node.internal{border-color:#FAC775;background:var(--internalbg)}
+.fc-node .fcn{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;font-family:'DM Mono'}
+.fc-node.collect .fcn{background:var(--collect)} .fc-node.onbehalf .fcn{background:var(--onbehalf)} .fc-node.internal .fcn{background:var(--internal)}
+.fc-arrow{height:20px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:15px}
+/* benefit/cost points */
+.rate-detail{margin:0 0 14px}
+.rate-detail .col{margin-bottom:10px}
+.rate-detail h5{margin:0 0 5px;font-size:11px;font-weight:800;text-transform:uppercase;color:var(--muted)}
+.rate-detail ul{margin:0;padding-left:18px}
+.rate-detail li{margin-bottom:3px;line-height:1.4;font-size:12.5px}
+/* card features tab */
+.cf-caps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0 22px}
+.cf-cap{border:1px solid var(--line);border-radius:12px;padding:14px}
+.cf-cap .ci{font-size:20px;margin-bottom:6px;font-family:'DM Mono';font-weight:500;color:var(--own)}
+.cf-cap h4{margin:0 0 6px;font-size:14px;font-family:'Noto Serif Display',serif;color:var(--own)}
+.cf-cap p{margin:0;font-size:12px;line-height:1.5;color:var(--muted)}
+table.cmp{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;table-layout:fixed;margin-bottom:8px}
+table.cmp col.fh{width:150px}
+table.cmp th{background:var(--ink);color:#fff;padding:8px 7px;font-size:11px;font-weight:600;text-align:center;vertical-align:bottom}
+table.cmp th.us{background:var(--own)}
+table.cmp th.fh{background:#0B2E24;text-align:left}
+table.cmp td{padding:8px 7px;border-bottom:1px solid #eef1ee;text-align:center;vertical-align:top;line-height:1.35}
+table.cmp td.fn{text-align:left;font-weight:700;background:#f1f6f2;font-size:11.5px}
+table.cmp td.us{background:var(--soft)}
+.yn{font-weight:800;font-size:14px} .yn.y{color:var(--own)} .yn.p{color:var(--warn)} .yn.n{color:var(--neg)}
+.yn-t{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:1px}
+@media(max-width:720px){
+  table.mx{font-size:10px} table.mx col.mh{width:80px}
+  .bar-row .bn{display:none}
+  .cf-caps{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Ma trận Use-Case Tài khoản ảo</h1>
+  <span class="ver-badge">v1.3</span>
+  <span class="rel-stamp">Released 11/07/2026 · + filter Card-only</span>
+</div>
+<div class="tabs">
+  <div class="tab on" id="tab1btn" onclick="showTab(1)">Ma trận</div>
+  <div class="tab" id="tab2btn" onclick="showTab(2)">Chi tiết use case</div>
+  <div class="tab" id="tab3btn" onclick="showTab(3)">Tính năng thẻ (Card)</div>
+</div>
+<div class="wrap">
+
+<!-- TAB 1 -->
+<div id="tab1" class="card">
+  <div class="panel">
+    <h3>Bộ lọc</h3>
+    <div class="filtrow">
+      <span class="lbl">Bản chất dòng tiền</span>
+      <span class="chip-f on" data-nat="collect" onclick="toggleNat(this)">Thu về của mình</span>
+      <span class="chip-f on" data-nat="onbehalf" onclick="toggleNat(this)">Thu hộ / chia lại</span>
+      <span class="chip-f on" data-nat="internal" onclick="toggleNat(this)">Nội bộ / kiểm soát</span>
+    </div>
+    <div class="filtrow">
+      <span class="lbl">Công cụ</span>
+      <span class="chip-f on" data-tool="VA" onclick="toggleTool(this)">VA (thu / payout)</span>
+      <span class="chip-f on" data-tool="VA+Card" onclick="toggleTool(this)">VA + Card</span>
+      <span class="chip-f on" data-tool="Card" onclick="toggleTool(this)">Card-only (chi)</span>
+    </div>
+    <div class="filtrow" id="modelFilters">
+      <span class="lbl">Mô hình</span>
+    </div>
+    <div class="filtrow">
+      <button class="btn" onclick="allModels(true)">Chọn hết</button>
+      <button class="btn" onclick="allModels(false)">Bỏ hết</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="sw" style="background:var(--collect)"></span>Thu về của mình</span>
+    <span><span class="sw" style="background:var(--onbehalf)"></span>Thu hộ / chia lại</span>
+    <span><span class="sw" style="background:var(--internal)"></span>Nội bộ / kiểm soát</span>
+    <span><span class="sw" style="background:var(--card);border:1px solid var(--line)"></span>Hiếm / không điển hình</span>
+    <span><span class="tool-badge vc">+Card</span>= có lớp chi qua thẻ</span>
+    <span style="color:var(--own);font-weight:600">Click ô use case → xem chi tiết</span>
+  </div>
+
+  <div style="overflow-x:auto">
+    <table class="mx" id="matrix"></table>
+  </div>
+  <div class="hint">Đường chéo (mỗi mô hình × tệp khách "tự nhiên" nhất) là nơi use case đậm đặc nhất. Cột "Đơn vị nội bộ" cắt ngang gần như mọi mô hình. Ô gắn <span class="tool-badge vc">+Card</span> là nơi cần thêm lớp chi qua thẻ, VA payout không thay được.</div>
+
+  <div class="panel" id="cardOnlyPanel" style="margin-top:22px">
+    <h3>Use case chi thuần — chỉ dùng Virtual Card <span style="font-size:11px;font-weight:400;color:var(--muted)">(không map theo tệp khách — trục là "loại chi")</span></h3>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5">Nhóm này nằm ngoài ma trận thu ở trên vì trục của nó là loại chi tiêu, không phải tệp khách hàng. Ba năng lực tự phục vụ của thẻ (phát hành/thu hồi · set hạn mức · khóa mục đích) mạnh nhất ở đây.</div>
+    <div style="overflow-x:auto"><table class="mx" id="cardMatrix"></table></div>
+  </div>
+
+  <div class="panel" style="margin-top:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <h3 style="margin:0">Quy mô số lượng DN theo mô hình tại Việt Nam</h3>
+      <button class="btn" id="chartToggle" onclick="toggleChart()">Hiện biểu đồ</button>
+    </div>
+    <div id="chartBody" style="display:none;margin-top:14px">
+      <div style="font-size:11.5px;color:var(--warn);background:var(--warnbg);border:1px solid #ead39b;border-radius:8px;padding:8px 12px;margin-bottom:14px;line-height:1.5">
+        <b>⚠ Ước lượng định hướng — KHÔNG phải thống kê chính thức.</b> Thang tương đối 1–5 để cảm nhận lớn/nhỏ, hiệu chỉnh theo bối cảnh thị trường VN (>1 triệu DN đang hoạt động, ~5 triệu hộ kinh doanh). Không dùng làm số liệu trích dẫn.
+      </div>
+      <div id="chart"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2 -->
+<div id="tab2" class="card" style="display:none">
+  <span class="back" onclick="showTab(1)">← Về ma trận</span>
+  <div class="uc-nav" id="ucNav"></div>
+  <div id="ucDetail"></div>
+</div>
+
+<!-- TAB 3 -->
+<div id="tab3" class="card" style="display:none">
+  <div id="cardFeatures"></div>
+</div>
+
+</div>
+
+<script>
+/* ============ DATA ============ */
+const NAT_LABEL = {collect:'Thu về của mình', onbehalf:'Thu hộ / chia lại', internal:'Nội bộ / kiểm soát'};
+
+const MODELS = [
+  {id:'retail', name:'Bán lẻ chuỗi', size:4},
+  {id:'fmcg', name:'FMCG / phân phối', size:3},
+  {id:'saas', name:'SaaS / subscription', size:2},
+  {id:'platform', name:'Platform / marketplace', size:2},
+  {id:'devshop', name:'Dự án / dev shop', size:2},
+  {id:'fnb', name:'F&B', size:5},
+  {id:'beauty', name:'Làm đẹp & chăm sóc', size:4},
+  {id:'edu', name:'Giáo dục / đào tạo', size:4},
+  {id:'health', name:'Y tế / phòng khám', size:3},
+  {id:'logistics', name:'Logistics / vận tải', size:3},
+  {id:'ecom', name:'E-commerce merchant', size:4, hybrid:true}
+];
+
+const CUSTS = [
+  {id:'b2c', name:'B2C khách cuối'},
+  {id:'sub', name:'Subscriber thuê bao'},
+  {id:'dist', name:'Đối tác phân phối'},
+  {id:'b2b', name:'B2B / dự án'},
+  {id:'seller', name:'Seller thứ ba'},
+  {id:'internal', name:'Đơn vị nội bộ'}
+];
+
+/* use cases keyed by model|cust */
+const UC = {
+  'retail|b2c': {nat:'collect', name:'Đối soát thu tại quầy', short:'VA-per-order / QR động; khớp thu QR·CK theo chi nhánh/ca',
+    desc:'Khách trả bằng QR/chuyển khoản tại điểm bán. Gán VA hoặc mã QR động theo chi nhánh, ca, thậm chí máy POS → mỗi giao dịch tự khớp về đúng điểm bán, đúng ca. Giải quyết cảnh cuối ca không biết tiền QR nào của giao dịch nào.',
+    flow:['Khách quét QR động / chuyển vào VA gắn chi nhánh·ca','Tiền về, hệ thống nhận diện đúng điểm bán + thời điểm','Đối chiếu tự động với doanh số POS ghi nhận','Phát hiện lệch (thiếu/thừa) ngay trong ca'],
+    note:'VA thường dùng-một-lần hoặc theo phiên, không gắn cố định theo người mua.'},
+  'retail|dist': {nat:'collect', name:'Công nợ khách sỉ / đại lý', short:'VA theo khách sỉ; tự gạch nợ khi tiền về',
+    desc:'Chuỗi bán lẻ có nhóm khách mua sỉ/đại lý. VA cố định theo từng khách sỉ → tiền về tự gạch đúng công nợ, biết ngay ai còn nợ, nợ bao lâu.',
+    flow:['Cấp VA cố định cho từng khách sỉ','Xuất đơn ghi công nợ vào VA tương ứng','Khách trả → tự động gạch nợ đúng đối tượng','Theo dõi tuổi nợ realtime'],
+    note:''},
+  'retail|internal': {nat:'internal', name:'Tách quỹ & spend control chi nhánh', short:'VA theo chi nhánh; cash sweep; kiểm soát ngân sách chi',
+    desc:'Mỗi chi nhánh một VA riêng: tách doanh thu tại nguồn, kiểm soát tiền mặt nộp về (cash sweep), cấp hạn mức chi vận hành tại chỗ mà không cần mở tài khoản ngân hàng thật cho từng điểm.',
+    flow:['Mỗi chi nhánh gắn VA doanh thu + VA quỹ vận hành','Doanh thu rơi đúng VA chi nhánh, hợp nhất lên nền tảng','Chi nhánh nộp tiền mặt vào VA → khớp doanh số ngày','Chi vận hành trong hạn mức VA, tổng công ty giám sát'],
+    note:'Đây không phải "khách" bên ngoài mà là chủ thể thu-chi nội bộ.'},
+
+  'fmcg|dist': {nat:'collect', name:'Đối soát công nợ NPP + credit limit + thu field', short:'VA theo NPP; gạch nợ realtime; chặn vượt hạn mức; thu hồi field',
+    desc:'Use case lõi của FMCG. Hàng trăm NPP/đại lý trả rải rác, nội dung CK không chuẩn. VA gắn từng NPP → tiền tự khớp công nợ, gạch nợ realtime. Số dư + công nợ cho phép chặn/cảnh báo khi NPP vượt hạn mức tín dụng trước khi xuất đơn tiếp. Đội sales thu field gán VA theo salesman/tuyến → khớp đúng người thu, chống thất thoát.',
+    flow:['VA cố định theo từng NPP + VA theo salesman/tuyến','Xuất hàng ghi công nợ; kiểm tra hạn mức trước khi duyệt','NPP/điểm bán trả tiền → gạch nợ đúng đối tượng','Cảnh báo vượt credit limit, chặn đơn mới','Đối soát tiền đội field thu về theo tuyến'],
+    note:'Đối soát chương trình trade/chiết khấu (khoản dễ rò rỉ nhất FMCG) cũng gắn vào VA theo NPP/chương trình.'},
+  'fmcg|b2b': {nat:'collect', name:'Thanh toán NCC nguyên liệu', short:'Chi trả NCC nguyên liệu/bao bì/gia công theo lô',
+    desc:'Đầu vào FMCG là nguyên vật liệu, bao bì, gia công. Điều phối chi trả từ VA theo lô, có audit trail per-transaction, khớp với đơn nhập.',
+    flow:['Gom công nợ NCC theo lô nhập','Điều phối chi trả từ VA tập trung','Ghi audit trail từng giao dịch','Khớp chi với đơn nhập / hợp đồng NCC'],
+    note:''},
+  'fmcg|internal': {nat:'internal', name:'Hợp nhất đa vùng / đa pháp nhân', short:'VA theo entity/vùng; tách sổ, hợp nhất dòng tiền',
+    desc:'FMCG thường nhiều pháp nhân/chi nhánh vùng. VA theo entity/vùng → hợp nhất dòng tiền lên nền tảng nhưng vẫn tách sổ từng pháp nhân.',
+    flow:['Gắn VA theo từng entity/vùng miền','Dòng tiền vùng rơi đúng VA của entity','Hợp nhất lên nền tảng để nhìn tổng','Vẫn tách sổ riêng từng pháp nhân khi cần'],
+    note:''},
+
+  'saas|sub': {nat:'collect', name:'Thu subscription định kỳ', short:'VA cố định theo tenant; gắn cohort; theo dõi gia hạn',
+    desc:'Use case lõi SaaS. Mỗi khách/hợp đồng/tenant một VA cố định. Khách trả kỳ nào hệ thống tự nhận diện, gắn vào đúng subscription/cohort — không cần đối chiếu nội dung CK. Hợp với khách doanh nghiệp trả qua chuyển khoản thay vì thẻ. Đây chính là mô hình gần với SBH.',
+    flow:['Cấp VA cố định cho mỗi tenant khi ký hợp đồng','Đến kỳ, khách chuyển vào VA của mình','Hệ thống tự nhận diện, gắn vào cohort/subscription','Cập nhật tình trạng gia hạn/đến hạn realtime'],
+    note:'Số dư/lịch sử VA phản ánh tình trạng thanh toán realtime của thuê bao.'},
+  'saas|b2b': {nat:'collect', name:'Đối soát hợp đồng enterprise', short:'Khách lớn trả qua hóa đơn/CK; khớp theo hợp đồng',
+    desc:'Khách enterprise thường trả qua hóa đơn/chuyển khoản theo hợp đồng thay vì thẻ. VA theo hợp đồng → đối soát revenue recognition theo product line/kênh dễ hơn.',
+    flow:['VA theo từng hợp đồng enterprise','Phát hành hóa đơn gắn VA tương ứng','Khách trả → khớp đúng hợp đồng','Đối soát doanh thu theo product line / kênh'],
+    note:''},
+  'saas|internal': {nat:'internal', name:'Tách quỹ & burn theo BU', short:'VA theo BU/dự án; kiểm soát burn theo segment',
+    desc:'Startup/scale-up công nghệ nhiều pháp nhân (VN + offshore), nhiều BU. VA theo entity/BU/dự án → kiểm soát burn theo từng đơn vị, hợp nhất lên nền tảng nhưng tách sổ được. Hợp với ai theo dõi burn/runway theo segment.',
+    flow:['Gắn VA theo BU/entity/dự án','Phân bổ ngân sách vào từng VA','Theo dõi chi tiêu & burn theo đơn vị','Hợp nhất runway toàn công ty, vẫn tách được segment'],
+    note:''},
+
+  'platform|b2c': {nat:'onbehalf', name:'Thu hộ từ người mua cuối', short:'VA theo phiên; giữ tiền người mua trước khi chia',
+    desc:'Nền tảng thu tiền người mua cuối rồi chia lại cho bên bán. VA theo phiên giao dịch làm điểm hội tụ, giữ tiền trước khi tách phí sàn và payout.',
+    flow:['Người mua trả vào VA phiên giao dịch của nền tảng','Nền tảng giữ tiền (có thể escrow đến khi giao xong)','Tính phí sàn/phí dịch vụ','Release phần còn lại cho seller'],
+    note:'Chạm compliance giữ hộ tiền người khác — cần ledger tách "tiền của mình vs tiền hộ".'},
+  'platform|seller': {nat:'onbehalf', name:'Tách phí sàn + revenue-share + payout', short:'VA theo seller/dev; chia doanh thu tự động; payout theo lô',
+    desc:'Mỗi seller/developer/partner một VA. Tiền người mua trả tách đúng partner, tính revenue-share/phí nền tảng tự động trước khi payout. Rất giống mô hình 25% revenue-share SBH↔F5.',
+    flow:['VA theo từng seller/partner','Tiền từ người mua tách về đúng seller','Tự động tính phí sàn / revenue-share','Payout phần của seller theo lô, có audit trail'],
+    note:'VA là điểm tách "tiền của mình" vs "tiền hộ người khác" — bản chất phức tạp nhất.'},
+
+  'devshop|b2b': {nat:'collect', name:'Thu theo milestone + escrow', short:'VA theo hợp đồng; tạm ứng→nghiệm thu→quyết toán',
+    desc:'Mảng project-based (build-for-hire, white-label — như Partnership L2 của Finan). VA theo hợp đồng, thu theo milestone: tạm ứng → nghiệm thu từng phase → quyết toán. Số dư VA phản ánh tình trạng thu hợp đồng, tránh lẫn dòng tiền giữa dự án.',
+    flow:['VA theo từng hợp đồng/dự án','Thu tạm ứng vào VA khi ký','Nghiệm thu từng phase → release/ghi nhận milestone','Quyết toán cuối, đối soát toàn hợp đồng'],
+    note:'Escrow: giữ tiền ở VA đến khi nghiệm thu/điều kiện hoàn tất mới release.'},
+  'devshop|seller': {nat:'onbehalf', name:'Payout affiliate / reseller', short:'Chi hoa hồng kênh theo lô, có audit trail',
+    desc:'Chi hoa hồng cho affiliate/reseller/kênh phân phối theo lô, có audit trail per-transaction — thay cho chi thủ công dễ sai.',
+    flow:['Ghi nhận hoa hồng theo affiliate/reseller','Gom theo kỳ payout','Chi trả từ VA theo lô','Audit trail từng khoản hoa hồng'],
+    note:''},
+  'devshop|internal': {nat:'internal', name:'Tách dòng tiền giữa dự án', short:'VA theo dự án; tránh lẫn tiền dự án song song',
+    desc:'Nhiều dự án chạy song song → VA theo dự án giữ dòng tiền tách bạch, tránh lẫn thu-chi giữa các dự án.',
+    flow:['Gắn VA cho từng dự án nội bộ','Thu-chi dự án rơi đúng VA','Theo dõi P&L từng dự án tách bạch','Hợp nhất lên nền tảng khi báo cáo'],
+    note:''},
+
+  'fnb|b2c': {nat:'collect', name:'Đối soát thu quầy + app giao hàng', short:'QR theo ca/chi nhánh + đối soát payout app giao đồ ăn',
+    desc:'F&B: giao dịch nhỏ tần suất cực cao + nhiều kênh. Đối soát QR/CK theo chi nhánh/ca (giống bán lẻ nhưng dày hơn). Riêng F&B: tiền app giao hàng (GrabFood/ShopeeFood thu hộ) payout lệch ngày, phí chồng phí → cần đối soát riêng.',
+    flow:['QR động theo chi nhánh/ca cho khách tại quầy','App giao hàng thu hộ, payout về sau (lệch ngày)','Đối soát payout app vs đơn đã bán (trừ phí)','Khớp tổng doanh thu đa kênh theo ngày'],
+    note:'Đối soát tiền app giao hàng là nỗi đau riêng của F&B, khác retail thuần.'},
+  'fnb|b2b': {nat:'collect', name:'Cọc đặt tiệc / sự kiện', short:'VA giữ cọc đến ngày tổ chức',
+    desc:'Đặt tiệc/sự kiện có cọc trước. VA giữ khoản cọc đến ngày tổ chức mới ghi nhận, tách bạch với doanh thu bán tại quầy.',
+    flow:['Khách đặt tiệc, chuyển cọc vào VA sự kiện','VA giữ cọc, theo dõi đến ngày tổ chức','Tổ chức xong → ghi nhận doanh thu + quyết toán','Hoàn cọc nếu hủy theo điều kiện'],
+    note:''},
+  'fnb|internal': {nat:'internal', name:'Cash sweep & quỹ chi nhánh F&B', short:'VA theo điểm bán; nộp tiền mặt, kiểm soát chi',
+    desc:'Chuỗi F&B nhiều điểm: VA theo chi nhánh để tách doanh thu, cash sweep tiền mặt nộp về, kiểm soát chi mua nguyên liệu tươi tại chỗ.',
+    flow:['VA doanh thu + VA quỹ mua hàng theo điểm bán','Tiền mặt nộp về VA, khớp doanh số ca','Chi mua nguyên liệu tươi trong hạn mức','Hợp nhất, phát hiện lệch quỹ'],
+    note:''},
+
+  'beauty|sub': {nat:'collect', name:'Thẻ trả trước & gói liệu trình', short:'VA theo khách/gói; theo dõi buổi đã dùng vs còn lại',
+    desc:'Đặc thù quan trọng: thu trước theo gói/liệu trình/thẻ thành viên → doanh thu chưa thực hiện (deferred revenue). VA theo khách/gói theo dõi số buổi đã dùng vs còn lại; tiền khách nạp = nghĩa vụ, không phải doanh thu ngay.',
+    flow:['Khách mua gói/nạp thẻ → tiền vào VA (deferred)','VA ghi nhận số buổi/số dư = nghĩa vụ chưa thực hiện','Mỗi lần dùng dịch vụ → trừ buổi, ghi nhận doanh thu','Theo dõi số dư còn lại + hạn dùng'],
+    note:'VA ở đây là sổ theo dõi nghĩa vụ tài chính chưa hoàn thành, không chỉ định danh dòng tiền.'},
+  'beauty|internal': {nat:'internal', name:'Đối soát chi nhánh + hoa hồng KTV', short:'VA theo điểm; tách doanh thu, tính hoa hồng kỹ thuật viên',
+    desc:'Spa/salon nhiều điểm: VA theo chi nhánh tách doanh thu, làm cơ sở tính hoa hồng kỹ thuật viên, kiểm soát chi tại chỗ.',
+    flow:['VA doanh thu theo từng chi nhánh','Ghi nhận dịch vụ theo KTV thực hiện','Tính hoa hồng KTV trên doanh thu khớp','Kiểm soát chi vận hành điểm'],
+    note:''},
+
+  'edu|sub': {nat:'collect', name:'Học phí theo kỳ + deferred revenue', short:'VA theo học viên/khóa; ghi nhận dần theo tiến độ',
+    desc:'Học phí thu theo kỳ/khóa, phân bổ dần theo tiến độ học (deferred revenue có điểm kết thúc). VA theo học viên/khóa → thu tự khớp, biết ai đóng đủ/còn nợ; hỗ trợ thu theo đợt/trả góp + nhắc nợ.',
+    flow:['VA theo học viên/khóa học','Thu học phí cả khóa hoặc theo đợt vào VA','Ghi nhận doanh thu dần theo buổi/tháng học','Nhắc nợ tự động với khoản trả góp/đến hạn'],
+    note:'Giống subscription nhưng có điểm kết thúc rõ (hết khóa) → deferred revenue phân bổ hữu hạn.'},
+  'edu|internal': {nat:'internal', name:'Hợp nhất đa cơ sở', short:'VA theo cơ sở/chi nhánh; tách sổ, hợp nhất',
+    desc:'Trung tâm/trường nhiều cơ sở: VA theo cơ sở tách học phí tại nguồn, hợp nhất lên nền tảng, vẫn tách sổ từng cơ sở.',
+    flow:['VA theo từng cơ sở/chi nhánh','Học phí rơi đúng VA cơ sở','Hợp nhất doanh thu toàn hệ thống','Tách sổ riêng từng cơ sở khi cần'],
+    note:''},
+
+  'health|b2c': {nat:'collect', name:'Thu bệnh nhân tự trả', short:'VA theo lượt/bệnh nhân; khớp thu tại phòng khám',
+    desc:'Bệnh nhân tự trả qua QR/CK. VA khớp thu theo lượt khám/bệnh nhân tại phòng khám.',
+    flow:['Bệnh nhân trả qua VA/QR theo lượt khám','Khớp thu với dịch vụ đã cung cấp','Đối soát doanh thu theo ngày/bác sĩ','Tách với nguồn thu bảo hiểm'],
+    note:''},
+  'health|dist': {nat:'collect', name:'Đối soát công nợ bảo hiểm', short:'VA theo bên bảo hiểm; theo dõi khoản chi trả',
+    desc:'Thu hỗn hợp: bệnh nhân tự trả + bảo hiểm chi trả (công nợ với bên bảo hiểm). VA tách nguồn thu bảo hiểm, đối soát công nợ với từng đơn vị bảo hiểm.',
+    flow:['VA theo từng đơn vị bảo hiểm','Ghi nhận khoản bảo hiểm phải thu theo hồ sơ','Bảo hiểm chi trả → gạch nợ đúng đơn vị','Theo dõi tuổi nợ + hồ sơ chờ duyệt'],
+    note:''},
+  'health|internal': {nat:'internal', name:'Hợp nhất đa cơ sở y tế', short:'VA theo cơ sở; tách sổ, hợp nhất dòng tiền',
+    desc:'Chuỗi phòng khám nhiều cơ sở: VA theo cơ sở tách doanh thu, hợp nhất, tách sổ.',
+    flow:['VA theo từng cơ sở khám','Doanh thu rơi đúng VA cơ sở','Hợp nhất toàn hệ thống','Tách sổ từng cơ sở'],
+    note:''},
+
+  'logistics|b2c': {nat:'onbehalf', name:'Thu hộ COD', short:'VA tách tiền COD (hộ) vs cước phí (của mình)',
+    desc:'Use case kinh điển logistics. Shipper thu tiền hộ người bán → VA tách rõ tiền COD (hộ) vs cước phí (của mình), đối soát trả về cho merchant. Bản chất giống marketplace nhưng ở tầng vật lý.',
+    flow:['Shipper thu COD từ người nhận','Tiền vào VA, tách phần COD (hộ) vs cước (của mình)','Đối soát COD theo từng merchant/đơn','Trả COD về merchant, giữ lại cước phí'],
+    note:'Chạm compliance giữ hộ tiền — cần ledger tách bạch tiền COD vs doanh thu cước.'},
+  'logistics|dist': {nat:'collect', name:'Công nợ cước với khách gửi', short:'VA theo khách doanh nghiệp gửi hàng; gạch nợ cước',
+    desc:'Khách doanh nghiệp gửi hàng thường xuyên có công nợ cước. VA theo khách → gạch nợ cước khi tiền về.',
+    flow:['VA theo khách doanh nghiệp gửi hàng','Ghi công nợ cước theo đơn vận','Khách trả → gạch nợ đúng đối tượng','Theo dõi tuổi nợ cước'],
+    note:''},
+  'logistics|internal': {nat:'internal', name:'Tách quỹ theo vùng/kho', short:'VA theo vùng/kho/đội xe; kiểm soát chi vận hành',
+    desc:'VA theo vùng/kho/đội xe tách dòng tiền vận hành, kiểm soát chi nhiên liệu/bảo trì tại chỗ.',
+    flow:['VA theo vùng/kho/đội xe','Tách dòng tiền vận hành theo đơn vị','Kiểm soát chi nhiên liệu/bảo trì','Hợp nhất chi phí vận hành'],
+    note:''},
+
+  'ecom|b2c': {nat:'collect', name:'Đối soát COD + thu web/social', short:'VA-per-order/QR bán trực tiếp; đối soát COD giao nhận',
+    desc:'Merchant ecom bán trực tiếp (website/social/livestream) — giống bán lẻ không mặt tiền. Thu qua VA-per-order/QR + COD. Đối soát COD (shipper thu hộ, trả về lệch ngày) + thu QR/CK theo đơn.',
+    flow:['Đơn từ web/social → gắn VA-per-order hoặc QR','Khách trả trước qua VA, hoặc COD khi giao','Đối soát COD từ đơn vị giao nhận (lệch ngày)','Hợp nhất dòng tiền đa kênh (web+social) về một chỗ'],
+    note:'Mô hình lai: dùng lại use case bán lẻ (QR) + logistics (COD).'},
+  'ecom|seller': {nat:'onbehalf', name:'Đối soát payout đa sàn', short:'VA theo sàn; khớp payout gộp đã trừ n loại phí',
+    desc:'Use case flagship của ecom merchant. Merchant bán trên Shopee/Lazada/TikTok Shop: sàn thu hộ → giữ vài ngày → payout gộp nhiều đơn (đã trừ phí sàn, vận, quảng cáo). VA theo sàn giúp khớp payout về vs đơn đã giao, tách doanh thu thực nhận sau phí, hợp nhất nhiều sàn.',
+    flow:['VA theo từng sàn TMĐT merchant đang bán','Sàn payout gộp nhiều đơn (đã trừ n loại phí) về VA','Đối soát payout vs đơn đã giao + bóc từng loại phí','Tách doanh thu thực nhận (gross trên sàn ≠ tiền về)','Hợp nhất dòng tiền nhiều sàn về một nơi'],
+    note:'Payout gộp, đã trừ nhiều loại phí, lệch ngày → một trong những nỗi đau đối soát mạnh nhất và khó thay thế nhất ngoài thị trường.'},
+  'ecom|internal': {nat:'internal', name:'Hợp nhất dòng tiền đa kênh', short:'VA theo kênh; hợp nhất web+sàn+social về một chỗ',
+    desc:'Merchant đa kênh (web + nhiều sàn + social) → VA theo kênh hợp nhất toàn bộ dòng tiền về một điểm để nhìn tổng doanh thu thực và kiểm soát.',
+    flow:['VA theo từng kênh bán (web/sàn/social)','Dòng tiền mỗi kênh rơi đúng VA','Hợp nhất về một điểm nhìn tổng','Tách được doanh thu thực nhận theo kênh'],
+    note:''}
+};
+
+/* ============ SCORES (benefit/cost 1-5, net = round(benefit - 0.4*(cost-1))) ============ */
+const WEIGHT = 0.4;
+const RAW = {
+  'retail|b2c':[4,2], 'retail|dist':[3,2], 'retail|internal':[4,3],
+  'fmcg|dist':[5,3], 'fmcg|b2b':[3,2], 'fmcg|internal':[3,2],
+  'saas|sub':[5,2], 'saas|b2b':[3,2], 'saas|internal':[4,3],
+  'platform|b2c':[4,4], 'platform|seller':[4,4],
+  'devshop|b2b':[4,3], 'devshop|seller':[3,3], 'devshop|internal':[3,2],
+  'fnb|b2c':[5,3], 'fnb|b2b':[3,2], 'fnb|internal':[3,3],
+  'beauty|sub':[5,3], 'beauty|internal':[3,3],
+  'edu|sub':[5,3], 'edu|internal':[3,2],
+  'health|b2c':[3,2], 'health|dist':[4,3], 'health|internal':[3,2],
+  'logistics|b2c':[4,4], 'logistics|dist':[3,2], 'logistics|internal':[3,2],
+  'ecom|b2c':[4,3], 'ecom|seller':[5,4], 'ecom|internal':[4,3]
+};
+const SCORES = {};
+Object.keys(RAW).forEach(k=>{
+  const [b,c]=RAW[k];
+  const net=Math.max(1,Math.min(5,Math.round(b - WEIGHT*(c-1))));
+  SCORES[k]={benefit:b, cost:c, net:net};
+});
+
+/* ============ ALT: giải pháp thay thế thị trường hiện tại (không dùng VA) ============ */
+const ALT = {
+  'retail|b2c':'Kế toán tải sao kê ngân hàng cuối ngày, dò tay nội dung CK để khớp đơn POS; hoặc gắn cổng thanh toán riêng từng máy POS.',
+  'retail|dist':'Sổ công nợ Excel + đối chiếu tay theo nội dung chuyển khoản.',
+  'retail|internal':'Mở tài khoản ngân hàng thật cho từng chi nhánh (chi phí, thủ tục), hoặc gộp chung một tài khoản rồi phân bổ tay cuối kỳ.',
+  'fmcg|dist':'DMS + kế toán công nợ dò sao kê thủ công; hạn mức tín dụng kiểm bằng Excel, thường phát hiện vượt SAU khi đã xuất hàng.',
+  'fmcg|b2b':'Chi tay từng NCC qua internet banking, đối chiếu đơn nhập thủ công.',
+  'fmcg|internal':'Nhiều tài khoản ngân hàng thật theo pháp nhân + hợp nhất bằng Excel.',
+  'saas|sub':'Thu qua cổng thẻ (phí cao, tỷ lệ fail thẻ) hoặc CK rồi kế toán dò nội dung; nhắc gia hạn thủ công.',
+  'saas|b2b':'Đối chiếu hóa đơn với sao kê ngân hàng bằng tay.',
+  'saas|internal':'Nhiều tài khoản thật theo entity, hoặc phân bổ chi phí/burn bằng tay cuối kỳ.',
+  'platform|b2c':'Dùng ví trung gian / cổng thanh toán bên thứ ba giữ tiền; hoặc gom về một tài khoản rồi chia tay.',
+  'platform|seller':'Bảng tính chia doanh thu thủ công + chi payout tay theo kỳ — chậm và dễ sai.',
+  'devshop|b2b':'Hợp đồng ghi milestone, thu tay qua CK, theo dõi tiến độ trên Excel/PM tool; escrow (nếu cần) qua bên thứ ba.',
+  'devshop|seller':'Bảng tính hoa hồng + chi trả tay theo kỳ.',
+  'devshop|internal':'Gắn mã dự án trong phần mềm kế toán, phân bổ thu-chi bằng tay.',
+  'fnb|b2c':'Đối soát tay QR + tải báo cáo từng app giao hàng rồi ghép Excel — chậm, phí sàn khó bóc tách.',
+  'fnb|b2b':'Nhận cọc qua CK/tiền mặt, ghi sổ tay, theo dõi bằng lịch.',
+  'fnb|internal':'Nộp tiền mặt về tài khoản chung, đối chiếu ca thủ công.',
+  'beauty|sub':'Phần mềm quản lý spa/salon ghi số buổi, nhưng tiền nạp để ở tài khoản chung; deferred revenue theo dõi tay trên Excel.',
+  'beauty|internal':'Phần mềm POS spa + tính hoa hồng kỹ thuật viên bằng tay.',
+  'edu|sub':'Phần mềm quản lý trung tâm ghi học phí, thu qua CK dò tay; deferred phân bổ Excel; nhắc nợ thủ công.',
+  'edu|internal':'Nhiều tài khoản theo cơ sở, hoặc hợp nhất bằng Excel.',
+  'health|b2c':'Phần mềm phòng khám + thu tại quầy, đối soát doanh thu bằng tay.',
+  'health|dist':'Kế toán bảo hiểm theo dõi hồ sơ + công nợ trên Excel, dò khoản chi trả thủ công.',
+  'health|internal':'Nhiều tài khoản theo cơ sở, hợp nhất bằng tay.',
+  'logistics|b2c':'Đơn vị giao nhận đối soát COD bằng file, chuyển gộp về merchant lệch ngày, bóc phí bằng tay.',
+  'logistics|dist':'Sổ công nợ cước Excel, dò sao kê ngân hàng.',
+  'logistics|internal':'Phân bổ chi phí vận hành theo vùng/kho bằng tay.',
+  'ecom|b2c':'Tải báo cáo từng kênh + file COD từ đơn vị giao, ghép Excel thủ công.',
+  'ecom|seller':'Tải file settlement từng sàn, bóc từng loại phí rồi ghép nhiều sàn bằng Excel — cực nhọc, dễ sai. Phần mềm quản lý bán đa sàn đọc API sàn nhưng vẫn không giải quyết dòng tiền THẬT về tài khoản.',
+  'ecom|internal':'Gộp thủ công báo cáo dòng tiền các kênh vào một file.'
+};
+
+/* Cập nhật ALT cho use case thu quầy: phân định QR động */
+ALT['retail|b2c'] = 'QR động gắn trên MỘT tài khoản thật (chỉ mã hóa nội dung định danh, không có VA riêng) → vẫn phải dò tách thủ công khi nhiều điểm bán; hoặc kế toán tải sao kê cuối ngày khớp tay với đơn POS. Khác với QR-động-trên-VA của nền tảng: mỗi chi nhánh/ca là một VA nên tự tách.';
+ALT['fnb|b2c'] = 'QR động trên tài khoản thật + tải báo cáo từng app giao hàng ghép Excel — phí sàn khó bóc, chậm. QR-động-trên-VA của nền tảng tự tách theo chi nhánh/ca; đối soát app vẫn cần lớp riêng.';
+ALT['health|b2c'] = 'Phần mềm phòng khám + QR động trên tài khoản thật/thu quầy, đối soát doanh thu bằng tay. VA-QR giúp tự tách theo lượt khám.';
+
+/* ============ TOOL: công cụ áp dụng cho mỗi use case ============ */
+/* VA = thu + payout chuyển khoản. VA+Card = có thêm lớp chi qua card rail (mua ở merchant, ads/cloud, fuel...) */
+const TOOL = {};
+Object.keys(UC).forEach(k=>TOOL[k]='VA');
+['retail|internal','saas|internal','fnb|internal','logistics|internal'].forEach(k=>TOOL[k]='VA+Card');
+
+/* ============ POINTS: gạch đầu dòng lý do cho điểm Lợi ích + Chi phí ============ */
+const POINTS = {
+  'retail|b2c':{b:['Loại bỏ dò sao kê cuối ngày, khớp tự động theo chi nhánh/ca','Tần suất giao dịch cao → tiết kiệm nhân công tích lũy lớn','Phát hiện lệch quỹ ngay trong ca'],c:['Triển khai đơn giản, tận dụng hạ tầng VietQR','Chủ yếu cấu hình, ít tích hợp hệ thống']},
+  'retail|dist':{b:['Gạch nợ tự động khách sỉ/đại lý','Giảm sai sót đối chiếu công nợ'],c:['Số lượng khách sỉ ít → quy mô nhỏ','Triển khai đơn giản']},
+  'retail|internal':{b:['Kiểm soát burn từng điểm bán','Thay tiền mặt bằng card hạn mức (chi tại chỗ an toàn)','Cash sweep tiền mặt tự động'],c:['Cần phân quyền hạn mức chi','Lớp card dính BIN sponsor/compliance','Nhiều đầu mối chi nhánh cần quản lý']},
+  'fmcg|dist':{b:['Giải nỗi đau lõi: hàng trăm NPP trả rải rác','Chặn vượt credit limit TRƯỚC khi xuất hàng','Chống thất thoát thu field theo salesman/tuyến','Đối soát trade/chiết khấu (khoản dễ rò rỉ nhất)'],c:['Cần credit engine + quản hạn mức','Tích hợp DMS','Nhiều đầu mối NPP/salesman']},
+  'fmcg|b2b':{b:['Chi NCC theo lô có audit trail','Khớp chi với đơn nhập'],c:['Chi tập trung, ít đầu mối','Chuyển khoản đơn giản']},
+  'fmcg|internal':{b:['Hợp nhất đa vùng không cần nhiều TK thật','Tách sổ từng pháp nhân'],c:['Chủ yếu cấu hình VA theo entity']},
+  'saas|sub':{b:['Tự khớp thu định kỳ hoàn toàn','Không phí thẻ/tỷ lệ fail thẻ như cổng card','Gắn cohort/subscription tự động','Số dư VA = tình trạng thanh toán realtime'],c:['VA cố định, triển khai gọn','Không cần ledger phức tạp']},
+  'saas|b2b':{b:['Khớp hóa đơn enterprise tự động','Đối soát theo product line/kênh'],c:['Đơn giản, vai trò bổ trợ']},
+  'saas|internal':{b:['Kiểm soát burn/runway theo BU','Card kiểm soát chi cloud/SaaS/ads','Tách entity VN/offshore'],c:['Lớp card compliance','Cần rule hạn mức theo BU']},
+  'platform|b2c':{b:['Giữ tiền hộ minh bạch','Tách "tiền của mình" vs "tiền hộ"'],c:['Compliance giữ hộ tiền nặng','Cần ledger tách bạch + có thể escrow']},
+  'platform|seller':{b:['Chia doanh thu tự động trước payout','Payout theo lô có audit trail','Tách phí sàn minh bạch'],c:['Phức tạp nhất: ledger tiền hộ','Compliance thu hộ','Nhiều seller × rule chia doanh thu']},
+  'devshop|b2b':{b:['Thu milestone tách bạch từng hợp đồng','Escrow tạo niềm tin giao dịch B2B','Tránh lẫn dòng tiền giữa dự án'],c:['Cần logic điều kiện release/escrow','Ít giao dịch nhưng giá trị lớn']},
+  'devshop|seller':{b:['Chi hoa hồng theo lô','Audit trail affiliate/reseller'],c:['Cần rule tính hoa hồng','Đối soát theo kênh']},
+  'devshop|internal':{b:['Tách P&L từng dự án','Tránh lẫn thu-chi dự án song song'],c:['Gắn mã dự án, đơn giản']},
+  'fnb|b2c':{b:['Tần suất cực cao → tiết kiệm nhân công lớn nhất','Đối soát payout app giao hàng riêng (phí chồng phí, lệch ngày)','Khớp doanh thu đa kênh theo ngày'],c:['Đa kênh (quầy + app) phức tạp vừa','Bóc phí app giao hàng']},
+  'fnb|b2b':{b:['Giữ cọc tiệc/sự kiện tách bạch','Ghi nhận đúng ngày tổ chức'],c:['Tần suất thấp hơn','Giữ cọc đơn giản']},
+  'fnb|internal':{b:['Cash sweep tiền mặt điểm bán','Card mua nguyên liệu tươi tại chỗ'],c:['Chồng lấn với đối soát quầy','Lớp card compliance']},
+  'beauty|sub':{b:['Quản deferred revenue (tiền nạp = nghĩa vụ, không phải doanh thu ngay)','Theo dõi số buổi đã dùng vs còn lại','Tệp đông: spa/salon/gym/nha khoa'],c:['Cần ledger buổi/số dư','Rule hạn dùng/hết hạn']},
+  'beauty|internal':{b:['Tách doanh thu theo chi nhánh','Cơ sở tính hoa hồng kỹ thuật viên'],c:['Cần rule hoa hồng','Nhiều điểm']},
+  'edu|sub':{b:['Tệp cực đông ở VN (trung tâm/trường tư)','Deferred revenue phân bổ theo buổi/tháng','Nhắc nợ/trả góp học phí tự động'],c:['Deferred có kỳ hạn → phân bổ phức tạp vừa','Rule trả góp']},
+  'edu|internal':{b:['Hợp nhất đa cơ sở','Tách sổ từng cơ sở'],c:['Cấu hình VA theo cơ sở']},
+  'health|b2c':{b:['Khớp thu theo lượt khám','Tách với nguồn thu bảo hiểm'],c:['Đơn giản','Tần suất khá']},
+  'health|dist':{b:['Giải công nợ bảo hiểm dai dẳng','Theo dõi hồ sơ chờ duyệt + tuổi nợ'],c:['Hồ sơ duyệt phức tạp','Nhiều đơn vị bảo hiểm']},
+  'health|internal':{b:['Hợp nhất đa cơ sở y tế'],c:['Cấu hình đơn giản']},
+  'logistics|b2c':{b:['Tách COD (hộ) vs cước phí (của mình)','Đối soát COD theo merchant/đơn'],c:['Compliance giữ hộ tiền COD','Ledger tách bạch','Payout hoàn merchant lệch ngày']},
+  'logistics|dist':{b:['Gạch nợ cước tự động','Theo dõi tuổi nợ cước'],c:['Triển khai đơn giản']},
+  'logistics|internal':{b:['Tách quỹ theo vùng/kho','Fuel card theo xe/tuyến (khóa MCC xăng dầu)'],c:['Cấu hình theo vùng','Fuel card dính compliance nếu dùng lớp thẻ']},
+  'ecom|b2c':{b:['Đối soát COD từ đơn vị giao nhận','Hợp nhất dòng tiền web + social'],c:['Đa kênh','COD lệch ngày']},
+  'ecom|seller':{b:['Giải nỗi đau payout gộp đa sàn (đã trừ n loại phí)','Bóc tách phí sàn/vận/ads từng đơn','Ít bị thay thế nhất ngoài thị trường','Hợp nhất nhiều sàn về một nơi'],c:['Bóc n loại phí phức tạp','Mỗi sàn format settlement khác','Đối soát settlement nặng']},
+  'ecom|internal':{b:['Hợp nhất dòng tiền đa kênh','Tách doanh thu thực nhận theo kênh'],c:['Nhiều kênh cần cấu hình']}
+};
+
+/* ============ CARD-ONLY use cases (trục "loại chi", không map tệp khách) ============ */
+/* caps: issue=tự phát hành/thu hồi · limit=tự set hạn mức · mcc=tự khóa mục đích */
+const CARDUC = {
+  'corp_expense':{name:'Corporate expense — thẻ nhân viên', benefit:5, cost:3, caps:['issue','limit','mcc'],
+    desc:'Cấp thẻ ảo cho nhân viên với hạn mức + chính sách chi, ghi nhận chi phí tự động thay quy trình hoàn ứng giấy tờ.',
+    flow:['DN tự phát hành thẻ ảo cho nhân viên','Set hạn mức + khóa loại chi (MCC) theo chính sách','Nhân viên chi → ghi nhận chi phí tự động realtime','Thu hồi thẻ tức thì khi nghỉ/hết chuyến'],
+    b:['Bỏ quy trình hoàn ứng giấy tờ chậm chạp','Kiểm soát chi TRƯỚC khi tiêu (hạn mức + MCC)','Ghi nhận chi phí tự động vào sổ'],
+    c:['Phát hành card dính BIN sponsor/license','Cần tích hợp chính sách chi của DN','Vòng đời thẻ cần quản lý'],
+    alt:'Hoàn ứng bằng tiền mặt + hóa đơn giấy, kế toán nhập tay (chậm, dễ sai); hoặc thẻ tín dụng công ty dùng chung không kiểm soát được từng người.'},
+  'ad_spend':{name:'Ad spend card — thẻ theo campaign', benefit:4, cost:3, caps:['issue','limit','mcc'],
+    desc:'Mỗi campaign/kênh marketing một thẻ ảo, hạn mức = ngân sách, khóa merchant (chỉ Facebook/Google/TikTok Ads).',
+    flow:['Phát hành thẻ ảo cho từng campaign/kênh','Set hạn mức = ngân sách campaign','Khóa MCC chỉ nền tảng ads được phép','Theo dõi chi realtime, thu hồi khi kết thúc'],
+    b:['Chặn đốt vượt ngân sách marketing','Tách chi phí theo campaign chính xác','Chống chi sai mục đích (khóa MCC)'],
+    c:['Lớp card rail compliance','Nhiều campaign → nhiều thẻ quản lý'],
+    alt:'Một thẻ công ty đổ tất cả ads → không tách được campaign, dễ vượt ngân sách, khó kiểm soát mục đích.'},
+  'vendor_card':{name:'Vendor / subscription card', benefit:4, cost:2, caps:['issue','limit'],
+    desc:'Mỗi NCC hoặc mỗi subscription (SaaS/cloud) một thẻ ảo → chặn auto-renew ngoài ý muốn, kiểm soát từng dòng chi.',
+    flow:['Phát hành thẻ riêng cho mỗi NCC/subscription','Set hạn mức đúng gói dịch vụ','Hủy thẻ tức thì khi ngừng dịch vụ','Chặn auto-renew "quên hủy"'],
+    b:['Chặn auto-renew quên hủy (rò rỉ chi phí phổ biến)','Kiểm soát từng subscription độc lập','Hủy tức thì không cần gọi ngân hàng'],
+    c:['Lớp card rail compliance','Cần theo dõi vòng đời thẻ'],
+    alt:'Dùng một thẻ công ty cho mọi subscription → quên hủy bị trừ tiền, khó truy dòng chi, phải gọi ngân hàng để chặn.'},
+  'fuel_perdiem':{name:'Fuel / per-diem card', benefit:4, cost:3, caps:['issue','limit','mcc'],
+    desc:'Thẻ ảo theo xe/tuyến (đội xe) hoặc theo chuyến/người (công tác phí), khóa MCC đúng mục đích.',
+    flow:['Phát hành thẻ theo xe/tuyến hoặc theo chuyến','Set hạn mức nhiên liệu/công tác phí','Khóa MCC (xăng dầu / ăn ở đi lại)','Thu hồi khi kết thúc chuyến'],
+    b:['Chống lạm dụng nhiên liệu (khóa MCC xăng dầu)','Kiểm soát per-diem theo chuyến/người','Bỏ tạm ứng tiền mặt'],
+    c:['Lớp card rail compliance','Nhiều đầu mối xe/nhân viên'],
+    alt:'Tạm ứng tiền mặt + hóa đơn, hoặc fuel card ngân hàng không cho tự khóa MCC/set hạn mức per-card.'}
+};
+Object.keys(CARDUC).forEach(k=>{
+  const u=CARDUC[k];
+  u.net=Math.max(1,Math.min(5,Math.round(u.benefit - WEIGHT*(u.cost-1))));
+});
+
+/* ============ STATE ============ */
+let natOn = {collect:true, onbehalf:true, internal:true};
+let toolOn = {'VA':true, 'VA+Card':true, 'Card':true};
+let modelOn = {};
+MODELS.forEach(m=>modelOn[m.id]=true);
+
+/* ============ RENDER MATRIX ============ */
+function buildModelFilters(){
+  const box = document.getElementById('modelFilters');
+  MODELS.forEach(m=>{
+    const s=document.createElement('span');
+    s.className='chip-f on'; s.textContent=m.name; s.dataset.mid=m.id;
+    s.onclick=()=>{modelOn[m.id]=!modelOn[m.id]; s.classList.toggle('on',modelOn[m.id]); renderMatrix();};
+    box.appendChild(s);
+  });
+}
+function allModels(v){
+  MODELS.forEach(m=>modelOn[m.id]=v);
+  document.querySelectorAll('#modelFilters .chip-f').forEach(c=>c.classList.toggle('on',v));
+  renderMatrix();
+}
+function toggleNat(el){
+  const n=el.dataset.nat; natOn[n]=!natOn[n]; el.classList.toggle('on',natOn[n]); renderMatrix();
+}
+function toggleTool(el){
+  const tt=el.dataset.tool; toolOn[tt]=!toolOn[tt]; el.classList.toggle('on',toolOn[tt]);
+  const p=document.getElementById('cardOnlyPanel');
+  if(p) p.style.display = toolOn['Card'] ? 'block':'none';
+  renderMatrix();
+}
+function toggleChart(){
+  const body=document.getElementById('chartBody'), btn=document.getElementById('chartToggle');
+  const show = body.style.display==='none';
+  body.style.display = show?'block':'none';
+  btn.textContent = show?'Ẩn biểu đồ':'Hiện biểu đồ';
+  try{ localStorage.setItem('va_chart_open', show?'1':'0'); }catch(e){}
+}
+function renderMatrix(){
+  const t=document.getElementById('matrix');
+  let cols='<colgroup><col class="mh">'+CUSTS.map(()=>'<col>').join('')+'</colgroup>';
+  let head='<thead><tr><th class="rowhdr">Mô hình \\ Tệp KH</th>'+CUSTS.map(c=>`<th>${c.name}</th>`).join('')+'</tr></thead>';
+  let body='<tbody>';
+  MODELS.forEach(m=>{
+    if(!modelOn[m.id]) return;
+    body+='<tr>';
+    body+=`<td class="rn">${m.name}${m.hybrid?'<br><span class="hy">MÔ HÌNH LAI</span>':''}</td>`;
+    CUSTS.forEach(c=>{
+      const key=m.id+'|'+c.id; const uc=UC[key];
+      if(!uc){ body+='<td class="empty">—</td>'; return; }
+      const tool = TOOL[key]||'VA';
+      const dim = (!natOn[uc.nat] || !toolOn[tool]) ? ' dim':'';
+      const sc = SCORES[key];
+      const top = sc && sc.net>=4 ? (sc.net===5?' top top5':' top') : '';
+      const badge = sc && sc.net>=4 ? `<span class="net-badge${sc.net===5?' b5':''}">NET ${sc.net}★</span>` : '';
+      const toolBadge = tool==='VA+Card' ? `<br><span class="tool-badge vc">+Card</span>` : '';
+      body+=`<td class="uc ${uc.nat}${dim}${top}" onclick="openUC('${key}')">
+        <span class="uc-name">${uc.name}<span class="uc-arrow">↗</span></span>
+        <span>${uc.short}</span>${badge}${toolBadge}</td>`;
+    });
+    body+='</tr>';
+  });
+  body+='</tbody>';
+  t.innerHTML=cols+head+body;
+}
+
+/* ============ CHART ============ */
+function renderChart(){
+  const box=document.getElementById('chart');
+  const sorted=[...MODELS].sort((a,b)=>b.size-a.size);
+  const sizeLabel={5:'Rất lớn',4:'Lớn',3:'Trung bình',2:'Vừa/nhỏ',1:'Nhỏ'};
+  box.innerHTML=sorted.map(m=>{
+    const pct=(m.size/5*100);
+    return `<div class="bar-row">
+      <span class="bl">${m.name}</span>
+      <span class="bar-track"><span class="bar-fill" style="width:${pct}%">${m.size}/5</span></span>
+      <span class="bn">${sizeLabel[m.size]}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ============ TAB 2 ============ */
+function buildUCNav(){
+  const nav=document.getElementById('ucNav');
+  const keys=Object.keys(UC);
+  nav.innerHTML=keys.map(k=>{
+    const m=MODELS.find(x=>x.id===k.split('|')[0]);
+    return `<button class="btn" onclick="openUC('${k}')">${m.name} · ${UC[k].name}</button>`;
+  }).join('');
+}
+/* flowchart renderer (HTML, vertical) */
+function flowChart(steps, nat){
+  return `<div class="fc">`+steps.map((s,i)=>{
+    const arrow = i<steps.length-1 ? `<div class="fc-arrow">↓</div>` : '';
+    return `<div class="fc-node ${nat}"><span class="fcn">${i+1}</span>${s}</div>${arrow}`;
+  }).join('')+`</div>`;
+}
+function pointsBlock(pts){
+  if(!pts) return '';
+  return `<div class="rate-detail">
+    <div class="col"><h5 style="color:var(--own)">Vì sao lợi ích cao/thấp</h5><ul>${pts.b.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    <div class="col"><h5 style="color:var(--warn)">Vì sao chi phí cao/thấp</h5><ul>${pts.c.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+  </div>`;
+}
+function openUC(key){
+  const uc=UC[key]; if(!uc) return;
+  const [mid,cid]=key.split('|');
+  const m=MODELS.find(x=>x.id===mid), c=CUSTS.find(x=>x.id===cid);
+  const sc=SCORES[key];
+  const tool=TOOL[key]||'VA';
+  const stars=(n)=>Array.from({length:5},(_,i)=>`<span class="${i<n?'on':'off'}">★</span>`).join('');
+  const d=document.getElementById('ucDetail');
+  d.innerHTML=`<div class="uc-detail">
+    <div class="uc-head ${uc.nat}">
+      <h2>${uc.name}</h2>
+      <div class="uc-meta">
+        <span class="pill ${uc.nat}">${NAT_LABEL[uc.nat]}</span>
+        ${m.name} × ${c.name}
+        <span class="tool-badge ${tool==='VA+Card'?'vc':'va'}" style="margin-left:6px">${tool}</span>
+      </div>
+    </div>
+    <div class="uc-body">
+      <h4>Đánh giá</h4>
+      <div class="rate-grid">
+        <div class="rate-box"><div class="rl">Lợi ích</div><div class="stars">${stars(sc.benefit)}</div><div class="rate-num">${sc.benefit}/5</div></div>
+        <div class="rate-box"><div class="rl">Chi phí</div><div class="stars">${stars(sc.cost)}</div><div class="rate-num">${sc.cost}/5</div></div>
+        <div class="rate-box net"><div class="rl">Lợi ích ròng</div><div class="stars">${stars(sc.net)}</div><div class="rate-num">${sc.net}/5</div></div>
+      </div>
+      <div class="formula">net = round( ${sc.benefit} − 0.4 × (${sc.cost} − 1) ) = ${sc.net}</div>
+      ${pointsBlock(POINTS[key])}
+      <h4>Mô tả</h4>
+      <p>${uc.desc}</p>
+      <h4>Flow ${tool==='VA+Card'?'VA + Card':'VA'}</h4>
+      ${flowChart(uc.flow, uc.nat)}
+      <h4>Giải pháp thay thế hiện tại (không dùng VA/Card)</h4>
+      <div class="alt-box"><b>Thị trường đang làm:</b> ${ALT[key]||'—'}</div>
+      ${uc.note?`<h4 style="margin-top:12px">Lưu ý / compliance</h4><div class="note">${uc.note}</div>`:''}
+    </div>
+  </div>`;
+  showTab(2);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function openCardUC(key){
+  const u=CARDUC[key]; if(!u) return;
+  const capName={issue:'Tự phát hành / thu hồi',limit:'Tự set hạn mức',mcc:'Tự khóa mục đích (MCC)'};
+  const stars=(n)=>Array.from({length:5},(_,i)=>`<span class="${i<n?'on':'off'}">★</span>`).join('');
+  const d=document.getElementById('ucDetail');
+  d.innerHTML=`<div class="uc-detail">
+    <div class="uc-head internal">
+      <h2>${u.name}</h2>
+      <div class="uc-meta">
+        <span class="pill internal">Chi thuần — Virtual Card</span>
+        <span class="tool-badge vc" style="margin-left:6px">Card-only</span>
+      </div>
+    </div>
+    <div class="uc-body">
+      <h4>Đánh giá</h4>
+      <div class="rate-grid">
+        <div class="rate-box"><div class="rl">Lợi ích</div><div class="stars">${stars(u.benefit)}</div><div class="rate-num">${u.benefit}/5</div></div>
+        <div class="rate-box"><div class="rl">Chi phí</div><div class="stars">${stars(u.cost)}</div><div class="rate-num">${u.cost}/5</div></div>
+        <div class="rate-box net"><div class="rl">Lợi ích ròng</div><div class="stars">${stars(u.net)}</div><div class="rate-num">${u.net}/5</div></div>
+      </div>
+      <div class="formula">net = round( ${u.benefit} − 0.4 × (${u.cost} − 1) ) = ${u.net}</div>
+      <div style="margin-bottom:14px"><h5 style="margin:0 0 6px;font-size:11px;font-weight:800;text-transform:uppercase;color:var(--muted)">Năng lực thẻ sử dụng</h5>
+      ${u.caps.map(cp=>`<span class="tool-badge vc" style="margin-right:6px">${capName[cp]}</span>`).join('')}</div>
+      <div class="rate-detail">
+        <div class="col"><h5 style="color:var(--own)">Vì sao lợi ích</h5><ul>${u.b.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+        <div class="col"><h5 style="color:var(--warn)">Vì sao chi phí</h5><ul>${u.c.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+      </div>
+      <h4>Mô tả</h4>
+      <p>${u.desc}</p>
+      <h4>Flow Card</h4>
+      ${flowChart(u.flow, 'internal')}
+      <h4>Giải pháp thay thế hiện tại</h4>
+      <div class="alt-box"><b>Thị trường đang làm:</b> ${u.alt}</div>
+    </div>
+  </div>`;
+  showTab(2);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ============ CARD-ONLY MATRIX ============ */
+function renderCardMatrix(){
+  const t=document.getElementById('cardMatrix');
+  const keys=Object.keys(CARDUC);
+  let head='<thead><tr><th class="rowhdr" style="width:180px">Use case chi thuần</th><th>Mô tả ngắn</th><th style="width:70px">Net</th><th style="width:130px">Năng lực</th></tr></thead>';
+  const capShort={issue:'Phát hành',limit:'Hạn mức',mcc:'MCC'};
+  let body='<tbody>'+keys.map(k=>{
+    const u=CARDUC[k];
+    const top = u.net>=4?' top':'';
+    const badge = u.net>=4?`<span class="net-badge${u.net===5?' b5':''}">NET ${u.net}★</span>`:`<span class="mono" style="color:var(--muted)">${u.net}/5</span>`;
+    return `<tr>
+      <td class="uc internal${top}" style="cursor:pointer" onclick="openCardUC('${k}')"><span class="uc-name">${u.name}<span class="uc-arrow">↗</span></span></td>
+      <td style="font-size:11.5px;color:var(--muted)">${u.desc}</td>
+      <td style="text-align:center">${badge}</td>
+      <td style="font-size:10px">${u.caps.map(cp=>`<span class="tool-badge vc" style="margin:1px">${capShort[cp]}</span>`).join('')}</td>
+    </tr>`;
+  }).join('')+'</tbody>';
+  t.innerHTML='<colgroup><col><col><col><col></colgroup>'+head+body;
+}
+
+/* ============ TAB 3: CARD FEATURES ============ */
+function renderCardFeatures(){
+  const caps=[
+    {ic:'01',t:'Tự phát hành / thu hồi',d:'DN chủ động tạo và hủy thẻ ảo tức thì — cấp cho nhân viên/campaign/NCC mới, thu hồi ngay khi nghỉ việc hoặc ngừng dịch vụ, không chờ ngân hàng.'},
+    {ic:'02',t:'Tự set hạn mức',d:'Đặt hạn mức riêng cho từng thẻ = ngân sách của đầu mối đó. Chặn vượt chi ngay tại điểm thanh toán, không phải phát hiện sau khi đã tiêu.'},
+    {ic:'03',t:'Tự khóa mục đích (MCC)',d:'Khóa thẻ chỉ chi được ở nhóm merchant cho phép (xăng dầu, ads, ăn ở đi lại) — chống chi sai mục đích và lạm dụng.'}
+  ];
+  const rows=[
+    {f:'Tự phát hành / thu hồi tức thì', us:['y','DN tự làm trên nền tảng'], cred:['n','Chờ ngân hàng cấp'], cash:['n','Không có thẻ'], shared:['n','Một thẻ cố định']},
+    {f:'Set hạn mức per-card', us:['y','Từng thẻ một hạn mức'], cred:['p','Hạn mức chung, khó tách'], cash:['n','—'], shared:['n','Chung một hạn mức']},
+    {f:'Khóa mục đích (MCC/merchant)', us:['y','DN tự cấu hình'], cred:['n','Thường không có'], cash:['n','—'], shared:['n','Không kiểm soát']},
+    {f:'Ghi nhận chi phí tự động', us:['y','Realtime vào sổ'], cred:['p','Sao kê cuối kỳ'], cash:['n','Nhập tay từ hóa đơn'], shared:['p','Sao kê cuối kỳ']},
+    {f:'Tách chi theo đầu mối', us:['y','NV / campaign / NCC'], cred:['n','Gộp chung'], cash:['p','Theo hóa đơn'], shared:['n','Gộp chung']},
+    {f:'Tốc độ triển khai', us:['y','Ngay, self-service'], cred:['n','Thủ tục ngân hàng'], cash:['y','Không cần setup'], shared:['p','Mở thẻ ngân hàng']}
+  ];
+  const yn=(v,t)=>{const cls=v==='y'?'y':v==='p'?'p':'n';const sym=v==='y'?'✓':v==='p'?'~':'✗';return `<span class="yn ${cls}">${sym}</span><span class="yn-t">${t}</span>`;};
+  const cols=['fh','us','','',''];
+  let table=`<table class="cmp"><colgroup><col class="fh"><col><col><col><col></colgroup>
+    <thead><tr>
+      <th class="fh">Tiêu chí</th>
+      <th class="us">Virtual Card<br>(của bạn)</th>
+      <th>Thẻ tín dụng DN<br>(ngân hàng)</th>
+      <th>Hoàn ứng tiền mặt<br>+ hóa đơn</th>
+      <th>Thẻ công ty<br>dùng chung</th>
+    </tr></thead><tbody>`;
+  rows.forEach(r=>{
+    table+=`<tr>
+      <td class="fn">${r.f}</td>
+      <td class="us">${yn(r.us[0],r.us[1])}</td>
+      <td>${yn(r.cred[0],r.cred[1])}</td>
+      <td>${yn(r.cash[0],r.cash[1])}</td>
+      <td>${yn(r.shared[0],r.shared[1])}</td>
+    </tr>`;
+  });
+  table+='</tbody></table>';
+
+  const cardList=Object.keys(CARDUC).map(k=>{
+    const u=CARDUC[k];
+    return `<button class="btn" onclick="openCardUC('${k}')">${u.name} · NET ${u.net}★</button>`;
+  }).join(' ');
+
+  document.getElementById('cardFeatures').innerHTML=`
+    <div class="panel">
+      <h3>Ba năng lực tự phục vụ của Virtual Card</h3>
+      <div style="font-size:12.5px;color:var(--muted);line-height:1.55">DN tự kiểm soát chi qua thẻ ảo mà không phụ thuộc ngân hàng ở từng thao tác. Đây là điểm khác biệt cốt lõi so với thẻ tín dụng doanh nghiệp truyền thống.</div>
+      <div class="cf-caps">
+        ${caps.map(c=>`<div class="cf-cap"><div class="ci">${c.ic}</div><h4>${c.t}</h4><p>${c.d}</p></div>`).join('')}
+      </div>
+    </div>
+    <div class="panel">
+      <h3>So sánh với các giải pháp đang có</h3>
+      <div style="overflow-x:auto">${table}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px"><span class="yn y" style="font-size:12px">✓</span> đầy đủ · <span class="yn p" style="font-size:12px">~</span> một phần / gián tiếp · <span class="yn n" style="font-size:12px">✗</span> không có</div>
+    </div>
+    <div class="panel">
+      <h3>Use case chi thuần (Card-only)</h3>
+      <div style="font-size:12.5px;color:var(--muted);margin-bottom:10px;line-height:1.5">Bốn use case dưới đây chỉ cần Virtual Card, không dính Virtual Account. Click để xem chi tiết + flow + so sánh giải pháp thay thế.</div>
+      <div class="uc-nav">${cardList}</div>
+    </div>`;
+}
+
+/* ============ TABS ============ */
+function showTab(n){
+  document.getElementById('tab1').style.display = n===1?'block':'none';
+  document.getElementById('tab2').style.display = n===2?'block':'none';
+  document.getElementById('tab3').style.display = n===3?'block':'none';
+  document.getElementById('tab1btn').classList.toggle('on',n===1);
+  document.getElementById('tab2btn').classList.toggle('on',n===2);
+  document.getElementById('tab3btn').classList.toggle('on',n===3);
+}
+
+/* init */
+buildModelFilters();
+renderMatrix();
+renderCardMatrix();
+renderChart();
+buildUCNav();
+renderCardFeatures();
+try{ if(localStorage.getItem('va_chart_open')==='1'){ toggleChart(); } }catch(e){}
+</script>
+</body>
+</html>
