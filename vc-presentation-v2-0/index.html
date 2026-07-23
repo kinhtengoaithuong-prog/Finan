@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vận hành tài chính thông minh — Value Tool v2.0 · FinanOne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f8f7; --surface:#ffffff; --ink:#0e1a16; --ink2:#4a5854; --ink3:#8b968f;
+  --line:#e4eae7; --line2:#eef2f0;
+  --action:#0e8a5f; --action-hover:#0b6f4c; --action-soft:#e8f5ef; --action-press:#095c3f;
+  --deep:#0a2620; --deep2:#0f342b;
+  --gold:#c79a3b; --gold-soft:#fbf6e9;
+  --neg:#c2412d; --neg-soft:#fbeae7;
+  --warn:#9a6410; --warn-soft:#fdf6e6;
+  --ok:#0e8a5f; --ok-soft:#e8f5ef;
+  --radius:18px; --radius-sm:12px; --radius-pill:999px;
+  --sh-sm:0 1px 3px rgba(14,26,22,.05),0 1px 2px rgba(14,26,22,.03);
+  --sh:0 4px 20px rgba(14,26,22,.07);
+  --sh-lg:0 18px 50px rgba(14,26,22,.13);
+  --tier-free:#0e8a5f; --tier-basic:#2563a8; --tier-pro:#7c3aed;
+  /* mechanism colors */
+  --m1:#2563a8; --m1bg:#e7f0fb;
+  --m2:#9a6410; --m2bg:#fdf6e6;
+  --m3:#0e8a5f; --m3bg:#e8f5ef;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  font-feature-settings:'cv05','ss01';font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:60;background:rgba(246,248,247,.85);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar-inner{display:flex;align-items:center;gap:20px;height:62px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;letter-spacing:-.02em}
+.brand .logo{width:30px;height:30px;border-radius:9px;background:var(--action);
+  display:grid;place-items:center;color:#fff;flex-shrink:0}
+.brand .logo svg{width:17px;height:17px}
+.brand .sub{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--action);
+  text-transform:uppercase;background:var(--action-soft);padding:2px 7px;border-radius:6px}
+.spacer{flex:1}
+.topbar .doc-label{font-size:12.5px;color:var(--ink3);font-weight:500}
+@media(max-width:820px){.topbar .doc-label{display:none}}
+
+/* tab nav */
+.tabnav{position:sticky;top:62px;z-index:55;background:var(--surface);
+  border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabnav::-webkit-scrollbar{display:none}
+.tabnav-inner{display:flex;gap:2px;min-width:max-content;max-width:1180px;margin:0 auto;padding:0 24px}
+.tab-btn{appearance:none;border:none;background:none;cursor:pointer;font-family:inherit;
+  font-size:13.5px;font-weight:600;color:var(--ink2);padding:15px 16px;position:relative;
+  white-space:nowrap;display:flex;align-items:center;gap:8px;transition:color .15s}
+.tab-btn .tn{width:20px;height:20px;border-radius:6px;background:var(--line2);color:var(--ink3);
+  display:grid;place-items:center;font-size:11px;font-weight:800;transition:all .15s}
+.tab-btn:hover{color:var(--ink)}
+.tab-btn.on{color:var(--action)}
+.tab-btn.on .tn{background:var(--action);color:#fff}
+.tab-btn.on::after{content:'';position:absolute;left:12px;right:12px;bottom:-1px;height:2.5px;
+  background:var(--action);border-radius:2px}
+.tab-btn.feature{color:var(--action)}
+.tab-btn.feature .tn{background:var(--action);color:#fff}
+.tab-btn.feature .star{color:var(--gold);margin-left:1px}
+.tab-btn.feature:not(.on){background:var(--action-soft)}
+.tab-btn.feature:not(.on):hover{background:#dbeee4}
+
+/* panels */
+.panel{display:none;animation:fade .35s ease}
+.panel.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+section{padding:48px 0}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--action);margin-bottom:14px}
+h1{font-size:clamp(28px,4vw,42px);line-height:1.1;letter-spacing:-.035em;font-weight:900}
+h2{font-size:clamp(22px,3vw,30px);line-height:1.15;letter-spacing:-.03em;font-weight:800}
+h3{font-size:18px;letter-spacing:-.01em;font-weight:700}
+.lead{font-size:clamp(15px,1.7vw,17.5px);color:var(--ink2);line-height:1.6;max-width:64ch}
+.muted{color:var(--ink2)} .small{font-size:13px}
+.section-head{margin-bottom:32px}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){.g3{grid-template-columns:1fr}}
+@media(max-width:620px){.g2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:26px;box-shadow:var(--sh-sm)}
+
+/* central message */
+.central{background:linear-gradient(160deg,var(--deep) 0%,var(--deep2) 62%,#12463a 100%);
+  color:#fff;border-radius:var(--radius);padding:38px 42px;position:relative;overflow:hidden;
+  box-shadow:var(--sh-lg);margin-bottom:34px}
+.central::before{content:'';position:absolute;top:-40%;right:-12%;width:420px;height:420px;
+  background:radial-gradient(circle,rgba(199,154,59,.16),transparent 68%);pointer-events:none}
+.central .eyebrow{color:var(--gold)}
+.central p{font-size:clamp(17px,2.2vw,23px);line-height:1.4;font-weight:700;letter-spacing:-.02em;
+  max-width:44ch;position:relative;z-index:2}
+
+/* mechanism cards */
+.mech{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:26px;box-shadow:var(--sh-sm);border-top:4px solid}
+.mech.m1{border-top-color:var(--m1)} .mech.m2{border-top-color:var(--m2)} .mech.m3{border-top-color:var(--m3)}
+.mech .mno{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
+  border-radius:9px;color:#fff;font-weight:800;font-size:13px;margin-bottom:14px}
+.mech.m1 .mno{background:var(--m1)} .mech.m2 .mno{background:var(--m2)} .mech.m3 .mno{background:var(--m3)}
+.mech h3{margin-bottom:10px}
+.mech .lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--ink3);margin:16px 0 5px}
+.mech p{font-size:13.5px;color:var(--ink2);line-height:1.55}
+.mech .val{display:inline-block;font-size:11px;font-weight:800;border-radius:var(--radius-pill);
+  padding:4px 12px;margin-top:16px}
+.val.pl{background:var(--ok-soft);color:var(--ok)} .val.bs{background:var(--gold-soft);color:var(--warn)}
+.note-method{background:var(--gold-soft);border:1px solid #ecdcae;border-radius:var(--radius-sm);
+  padding:16px 20px;font-size:13.5px;color:var(--warn);margin-top:24px;line-height:1.55}
+.note-method b{color:#7a4f0c}
+
+/* use cases */
+.ucg{margin-bottom:30px}
+.ucg-h{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+.ucg-h .dot{width:30px;height:30px;border-radius:9px;color:#fff;display:grid;place-items:center;
+  font-weight:800;font-size:13px;flex-shrink:0}
+.ucg-h.m1 .dot{background:var(--m1)} .ucg-h.m2 .dot{background:var(--m2)} .ucg-h.m3 .dot{background:var(--m3)}
+.ucg-h h3{margin:0}
+.uc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.uc{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:18px 20px;box-shadow:var(--sh-sm)}
+.uc.deep{border-color:#cfe9dd;background:linear-gradient(160deg,#fbfdfc,var(--action-soft))}
+.uc .uh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.uc .un{font-weight:700;font-size:14px;line-height:1.3}
+.tool-badge{display:inline-block;font-size:10px;font-weight:800;border-radius:6px;padding:3px 8px;flex-shrink:0;letter-spacing:.03em}
+.tool-badge.vc{background:#f2edfd;color:var(--tier-pro)}
+.tool-badge.va{background:#e7f0fb;color:var(--tier-basic)}
+.uc .ud{font-size:12.5px;color:var(--ink2);line-height:1.5}
+.uc .deep-tag{display:inline-block;font-size:10px;font-weight:800;color:var(--action);
+  background:var(--action-soft);padding:3px 9px;border-radius:var(--radius-pill);margin-top:11px}
+
+/* simulation */
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;align-items:center}
+.presets .plabel{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-right:2px}
+.preset{appearance:none;border:1px solid var(--line);background:var(--surface);cursor:pointer;
+  font-family:inherit;font-size:13px;font-weight:600;color:var(--ink2);padding:9px 16px;
+  border-radius:var(--radius-pill);transition:all .15s}
+.preset:hover{border-color:var(--action);color:var(--action)}
+.preset.on{background:var(--action);border-color:var(--action);color:#fff}
+.simgrid{display:grid;grid-template-columns:minmax(300px,390px) 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.simgrid{grid-template-columns:1fr}}
+.sgroup{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px;box-shadow:var(--sh-sm);margin-bottom:14px}
+.sgroup h4{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:18px}
+.slider{margin-bottom:17px}
+.slider:last-child{margin-bottom:0}
+.slider .sl-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:10px}
+.slider .sl-name{font-size:13px;font-weight:600;color:var(--ink2)}
+.slider .sl-val{font-size:14px;font-weight:800;color:var(--action);white-space:nowrap}
+.slider input[type=range]{width:100%;accent-color:var(--action);height:5px;cursor:pointer}
+.slider.assume .sl-val{color:var(--warn)}
+.slider.assume input[type=range]{accent-color:var(--gold)}
+.assume-note{background:var(--gold-soft);border:1px solid #ecdcae;border-radius:var(--radius-sm);
+  padding:14px 17px;font-size:12.5px;color:var(--warn);margin-bottom:14px;line-height:1.5}
+.assume-note b{color:#7a4f0c}
+/* results */
+.res-hero{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+@media(max-width:620px){.res-hero{grid-template-columns:1fr}}
+.rh{border-radius:var(--radius);padding:26px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--sh)}
+.rh.pl{background:linear-gradient(140deg,#0e8a5f,#0b6f4c)}
+.rh.bs{background:linear-gradient(140deg,var(--deep),var(--deep2))}
+.rh::after{content:'';position:absolute;top:-40%;right:-15%;width:220px;height:220px;
+  background:radial-gradient(circle,rgba(199,154,59,.18),transparent 68%);pointer-events:none}
+.rh .rl{font-size:12px;font-weight:700;opacity:.85;position:relative;z-index:2}
+.rh .rv{font-size:clamp(26px,3.6vw,36px);font-weight:900;letter-spacing:-.03em;margin-top:6px;position:relative;z-index:2;line-height:1.05}
+.rh .rs{font-size:12px;opacity:.8;margin-top:6px;position:relative;z-index:2;line-height:1.45}
+.res-break{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 24px;box-shadow:var(--sh-sm);margin-bottom:16px}
+.res-break h4{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:18px}
+.brow{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line2)}
+.brow:last-child{border:none;padding-bottom:0}
+.brow .bi{width:32px;height:32px;border-radius:9px;flex-shrink:0;display:grid;place-items:center;
+  font-weight:800;font-size:13px;color:#fff}
+.brow.m1 .bi{background:var(--m1)} .brow.m2 .bi{background:var(--m2)} .brow.m3 .bi{background:var(--m3)}
+.brow .bt{flex:1;min-width:0}
+.brow .btn2{font-size:13.5px;font-weight:700}
+.brow .bd{font-size:11.5px;color:var(--ink3);line-height:1.4;margin-top:1px}
+.brow .bv{font-size:17px;font-weight:800;text-align:right;white-space:nowrap;letter-spacing:-.02em}
+.brow.m1 .bv{color:var(--m1)} .brow.m2 .bv{color:var(--m2)} .brow.m3 .bv{color:var(--m3)}
+.disclaimer{font-size:12.5px;color:var(--ink2);background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:16px 20px;line-height:1.55}
+
+/* matrix tab */
+.legend4{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-bottom:18px;align-items:center}
+.legend4 .sw{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px}
+.m4wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;box-shadow:var(--sh-sm)}
+table.m4{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
+table.m4 col.mh{width:150px}
+table.m4 th{background:var(--deep);color:#fff;text-align:left;padding:14px 14px;font-size:12px;font-weight:700;vertical-align:bottom}
+table.m4 th.c1{background:var(--m1)} table.m4 th.c2{background:#7a4f0c} table.m4 th.c3{background:var(--action)}
+table.m4 td{padding:14px;border-bottom:1px solid var(--line2);vertical-align:top;line-height:1.45}
+table.m4 tr:last-child td{border-bottom:none}
+table.m4 td.rn{font-weight:700;background:var(--line2)}
+table.m4 td .u{display:block;margin-bottom:7px;font-size:12px;color:var(--ink2)}
+table.m4 td .u:last-child{margin-bottom:0}
+table.m4 td.empty{color:var(--line);text-align:center}
+.tb-mini{display:inline-block;font-size:9px;font-weight:800;border-radius:4px;padding:1px 5px;margin-right:5px}
+.tb-mini.vc{background:#f2edfd;color:var(--tier-pro)} .tb-mini.va{background:#e7f0fb;color:var(--tier-basic)}
+@media(max-width:820px){table.m4{font-size:10.5px} table.m4 col.mh{width:96px} table.m4 td,table.m4 th{padding:9px}}
+
+
+/* ===== MOCKUP (từ kế hoạch sản phẩm) ===== */
+/* ==== MOCKUP FRAME ==== */
+.mock-intro{background:var(--gold-soft);border:1px solid #ecdcae;border-radius:var(--radius-sm);
+  padding:16px 20px;font-size:13.5px;color:var(--warn);display:flex;gap:12px;align-items:flex-start;margin-bottom:28px}
+.mock-intro svg{width:20px;height:20px;flex-shrink:0;margin-top:1px}
+.mock-picker{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.mp-btn{appearance:none;border:1px solid var(--line);background:var(--surface);cursor:pointer;
+  font-family:inherit;font-size:13px;font-weight:600;color:var(--ink2);padding:10px 16px;
+  border-radius:var(--radius-pill);display:flex;align-items:center;gap:8px;transition:all .15s}
+.mp-btn:hover{border-color:var(--action);color:var(--action)}
+.mp-btn.on{background:var(--action);border-color:var(--action);color:#fff}
+.mp-btn .mtag{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:5px;letter-spacing:.03em}
+.mp-btn .mtag.free{background:var(--action-soft);color:var(--action)}
+.mp-btn.on .mtag.free{background:rgba(255,255,255,.2);color:#fff}
+.mp-btn .mtag.basic{background:#e7f0fb;color:var(--tier-basic)}
+.mp-btn.on .mtag.basic{background:rgba(255,255,255,.2);color:#fff}
+
+.device{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;box-shadow:var(--sh-lg)}
+.device-bar{display:flex;align-items:center;gap:8px;padding:12px 18px;
+  background:var(--deep);border-bottom:1px solid rgba(255,255,255,.08)}
+.device-dots{display:flex;gap:6px}
+.device-dots i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.22)}
+.device-url{flex:1;background:rgba(255,255,255,.08);border-radius:7px;padding:5px 13px;
+  font-size:12px;color:#9fbcb2;text-align:center;font-weight:500}
+.device-body{background:#fbfdfc}
+.mock{display:none}
+.mock.on{display:block}
+
+/* mock: bac si tai chinh */
+.m-hd{padding:20px 26px;border-bottom:1px solid var(--line);display:flex;
+  align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.m-hd h4{font-size:16px;font-weight:800;display:flex;align-items:center;gap:10px}
+.m-hd h4 .mi{width:28px;height:28px;border-radius:8px;background:var(--action);color:#fff;display:grid;place-items:center}
+.m-hd h4 .mi svg{width:16px;height:16px}
+.m-actions{display:flex;gap:8px;flex-wrap:wrap}
+.mbtn{appearance:none;border:1px solid var(--line);background:#fff;cursor:pointer;font-family:inherit;
+  font-size:12.5px;font-weight:600;color:var(--ink);padding:8px 14px;border-radius:9px;
+  display:inline-flex;align-items:center;gap:7px;transition:all .12s}
+.mbtn svg{width:15px;height:15px}
+.mbtn:hover{border-color:var(--action);color:var(--action)}
+.mbtn.primary{background:var(--action);border-color:var(--action);color:#fff}
+.mbtn.primary:hover{background:var(--action-hover);color:#fff}
+.mbtn.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.mbtn.gold:hover{background:#b0872f;color:#fff}
+.m-body{padding:26px}
+
+
+/* mock: dashboard */
+.dash-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+@media(max-width:760px){.dash-kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px}
+.kpi .k-l{font-size:12px;color:var(--ink2);font-weight:600}
+.kpi .k-v{font-size:25px;font-weight:900;letter-spacing:-.02em;margin-top:4px}
+.kpi .k-d{font-size:12px;font-weight:700;margin-top:3px;display:inline-flex;align-items:center;gap:4px}
+.kpi .k-d.up{color:var(--ok)} .kpi .k-d.down{color:var(--neg)}
+
+.cf-head{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+@media(max-width:760px){.cf-head{grid-template-columns:1fr}}
+.cf-card{border-radius:var(--radius-sm);padding:20px;color:#fff}
+.cf-card.in{background:linear-gradient(140deg,#0e8a5f,#0b6f4c)}
+.cf-card.out{background:linear-gradient(140deg,#c2412d,#9c3120)}
+.cf-card.net{background:linear-gradient(140deg,var(--deep),var(--deep2))}
+.cf-card .cf-l{font-size:12px;opacity:.85;font-weight:600}
+.cf-card .cf-v{font-size:26px;font-weight:900;letter-spacing:-.02em;margin-top:4px}
+.cf-card .cf-s{font-size:11.5px;opacity:.8;margin-top:3px}
+.bank-list{display:flex;flex-direction:column;gap:10px}
+.bank{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:14px 18px}
+.bank .bk-logo{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
+  font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
+.bank .bk-name{font-weight:700;font-size:14px}
+.bank .bk-acc{font-size:12px;color:var(--ink3)}
+.bank .bk-bal{margin-left:auto;text-align:right}
+.bank .bk-bal .bb-v{font-weight:800;font-size:15px}
+.bank .bk-bal .bb-s{font-size:11px;color:var(--ok);font-weight:600}
+/* VPBank — đơn vị tổ chức, nổi bật hơn */
+.bank.vpbank{border:1.5px solid #f3c4bf;background:linear-gradient(90deg,#fdf4f3,#fff 60%);
+  padding:18px 20px}
+.bank.vpbank .bk-logo.vp{width:52px;height:52px;background:#fff;border:1px solid #f0d4d0;padding:8px}
+.bank.vpbank .bk-logo.vp img{width:100%;height:100%;object-fit:contain}
+.bank.vpbank .bk-name{font-size:15px}
+.host-tag{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;
+  color:#E00500;background:#fde8e6;padding:2px 8px;border-radius:var(--radius-pill);
+  margin-left:7px;vertical-align:middle}
+.bank.vpbank .bk-bal .bb-v{font-size:16px}
+.approve-list{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.appr{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:14px 18px}
+.appr .ap-i{width:38px;height:38px;border-radius:10px;background:var(--warn-soft);color:var(--warn);
+  display:grid;place-items:center;flex-shrink:0}
+.appr .ap-body{flex:1}
+.appr .ap-t{font-weight:700;font-size:14px}
+.appr .ap-m{font-size:12px;color:var(--ink3)}
+.appr .ap-amt{font-weight:800;font-size:15px;margin-right:6px}
+.appr .ap-btns{display:flex;gap:7px}
+.mini-btn{appearance:none;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;
+  padding:7px 13px;border-radius:8px}
+.mini-btn.yes{background:var(--action);color:#fff}
+.mini-btn.no{background:var(--neg-soft);color:var(--neg)}
+
+/* mock: loans */
+.loan-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.loan-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 24px;margin-bottom:14px}
+.loan-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.loan-name{font-weight:800;font-size:16px;display:flex;align-items:center;gap:10px}
+.loan-name .ln-bank{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px}
+.loan-status{font-size:11px;font-weight:800;padding:5px 12px;border-radius:var(--radius-pill);text-transform:uppercase;letter-spacing:.03em}
+.loan-status.active{background:var(--ok-soft);color:var(--ok)}
+.loan-status.soon{background:var(--warn-soft);color:var(--warn)}
+.loan-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}
+@media(max-width:620px){.loan-meta{grid-template-columns:repeat(2,1fr)}}
+.lm .lm-l{font-size:11px;color:var(--ink3);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.lm .lm-v{font-size:17px;font-weight:800;margin-top:3px}
+.progress{margin-top:18px}
+.progress-bar{height:9px;background:var(--line2);border-radius:6px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--action),#14a874);border-radius:6px}
+.progress-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--ink3);margin-top:7px}
+.next-pay{background:var(--gold-soft);border:1px solid #ecdcae;border-radius:var(--radius-sm);
+  padding:14px 18px;margin-top:16px;display:flex;align-items:center;gap:14px}
+.next-pay .np-i{width:38px;height:38px;border-radius:10px;background:var(--gold);color:#fff;display:grid;place-items:center;flex-shrink:0}
+.next-pay .np-body{flex:1}
+.next-pay .np-t{font-size:12px;color:var(--warn);font-weight:600}
+.next-pay .np-d{font-weight:800;font-size:14px;color:var(--ink)}
+.next-pay .np-amt{font-weight:900;font-size:17px;color:var(--warn)}
+
+/* CTA footer */
+.foot-cta{background:linear-gradient(160deg,var(--deep),var(--deep2));border-radius:var(--radius);
+  padding:44px 46px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.foot-cta::before{content:'';position:absolute;top:-30%;left:50%;transform:translateX(-50%);
+  width:600px;height:400px;background:radial-gradient(circle,rgba(199,154,59,.14),transparent 66%)}
+.foot-cta h2{color:#fff;position:relative}
+.foot-cta p{color:#bcd3cb;max-width:52ch;margin:14px auto 0;position:relative}
+
+footer.site{padding:34px 0;border-top:1px solid var(--line);margin-top:0}
+footer.site .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+footer.site .f-brand{font-weight:800;font-size:15px;color:var(--ink2)}
+footer.site .f-note{font-size:12.5px;color:var(--ink3)}
+
+.section-head{margin-bottom:34px}
+.section-head .lead{margin-top:12px}
+.divider-note{font-size:13px;color:var(--ink3);font-style:italic;margin-top:8px}
+
+.callout{background:var(--action-soft);border:1px solid #cfe9dd;border-radius:var(--radius-sm);
+  padding:18px 22px;display:flex;gap:14px;align-items:flex-start}
+.callout svg{width:22px;height:22px;color:var(--action);flex-shrink:0;margin-top:1px}
+.callout .co-t{font-weight:700;font-size:14.5px;margin-bottom:3px}
+.callout p{font-size:13.5px;color:var(--ink2)}
+
+.metric-note{font-size:12px;color:var(--ink3);margin-top:20px;text-align:center;font-style:italic}
+
+
+/* ==== mock: quan ly chi tieu (VA thu + the chi) ==== */
+.spend-toggle{display:inline-flex;background:var(--line2);border-radius:var(--radius-pill);
+  padding:4px;gap:3px;margin-bottom:22px}
+.spend-toggle button{appearance:none;border:none;background:none;cursor:pointer;font-family:inherit;
+  font-size:13px;font-weight:700;color:var(--ink2);padding:8px 18px;border-radius:var(--radius-pill);
+  display:inline-flex;align-items:center;gap:8px;transition:all .15s}
+.spend-toggle button svg{width:15px;height:15px}
+.spend-toggle button.on{background:var(--surface);color:var(--action);box-shadow:var(--sh-sm)}
+.spend-view{display:none}.spend-view.on{display:block}
+/* VA collection */
+.va-intro{display:flex;gap:12px;align-items:flex-start;background:var(--action-soft);
+  border:1px solid #cfe9dd;border-radius:var(--radius-sm);padding:15px 18px;margin-bottom:20px}
+.va-intro svg{width:20px;height:20px;color:var(--action);flex-shrink:0;margin-top:1px}
+.va-intro p{font-size:13px;color:var(--ink2)}
+.va-intro b{color:var(--ink)}
+.va-list{display:flex;flex-direction:column;gap:10px}
+.va-row{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:15px 18px}
+.va-cust{display:flex;align-items:center;gap:12px}
+.va-cust .va-av{width:38px;height:38px;border-radius:10px;background:var(--action-soft);color:var(--action);
+  display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
+.va-cust .vc-name{font-weight:700;font-size:14px}
+.va-cust .vc-acc{font-size:12px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.va-amt{font-weight:800;font-size:15px;text-align:right}
+.va-badge{font-size:11px;font-weight:800;padding:5px 12px;border-radius:var(--radius-pill);
+  text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+.va-badge.matched{background:var(--ok-soft);color:var(--ok)}
+.va-badge.wait{background:var(--warn-soft);color:var(--warn)}
+@media(max-width:620px){.va-row{grid-template-columns:1fr auto}.va-badge{grid-column:2}}
+/* virtual cards */
+.vc-head{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+@media(max-width:760px){.vc-head{grid-template-columns:1fr}}
+.card-face{border-radius:var(--radius);padding:20px 22px;color:#fff;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--deep),var(--deep2));min-height:150px;
+  display:flex;flex-direction:column;justify-content:space-between}
+.card-face.locked{background:linear-gradient(135deg,#3a4744,#2a3532);opacity:.9}
+.card-face::after{content:'';position:absolute;top:-30%;right:-15%;width:180px;height:180px;
+  background:radial-gradient(circle,rgba(199,154,59,.18),transparent 68%)}
+.card-face .cf-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:2}
+.card-face .cf-owner{font-size:13px;font-weight:700}
+.card-face .cf-dept{font-size:11px;color:#9fbcb2;margin-top:1px}
+.card-face .cf-chip{width:30px;height:22px;border-radius:5px;background:linear-gradient(135deg,#d4af5a,#b08a3a)}
+.card-face .cf-num{font-family:inherit;font-size:15px;letter-spacing:2px;font-weight:600;
+  position:relative;z-index:2;font-variant-numeric:tabular-nums}
+.card-face .cf-foot{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:2}
+.card-face .cf-lim{font-size:11px;color:#9fbcb2}
+.card-face .cf-lim b{color:#fff;font-size:14px;display:block;margin-top:1px}
+.card-face .cf-brand{font-size:12px;font-weight:800;letter-spacing:.02em}
+.card-face .cf-lock{position:absolute;top:14px;right:16px;z-index:3;background:rgba(255,255,255,.15);
+  border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px}
+.card-face .cf-lock svg{width:11px;height:11px}
+.vc-usage{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px}
+.vc-usage h5{font-size:14px;font-weight:800;margin-bottom:16px}
+.usage-row{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.usage-row:last-child{margin-bottom:0}
+.usage-top{display:flex;justify-content:space-between;font-size:13px}
+.usage-top .u-name{font-weight:600}
+.usage-top .u-val{font-weight:700;font-variant-numeric:tabular-nums}
+.usage-bar{height:8px;background:var(--line2);border-radius:5px;overflow:hidden}
+.usage-fill{height:100%;border-radius:5px}
+.spend-recent{margin-top:22px}
+.tx-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--line2)}
+.tx-row:last-child{border:none}
+.tx-i{width:36px;height:36px;border-radius:10px;background:var(--line2);color:var(--ink2);
+  display:grid;place-items:center;flex-shrink:0}
+.tx-i svg{width:17px;height:17px}
+.tx-body{flex:1}
+.tx-t{font-weight:600;font-size:13.5px}
+.tx-m{font-size:12px;color:var(--ink3)}
+.tx-amt{font-weight:800;font-size:14px;font-variant-numeric:tabular-nums}
+
+/* nhãn cơ chế giá trị (từ value tool) */
+.mech-tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;
+  letter-spacing:.02em;padding:3px 9px;border-radius:var(--radius-pill);margin-bottom:8px}
+.mech-tag .mt-no{width:15px;height:15px;border-radius:50%;display:grid;place-items:center;
+  font-size:9px;color:#fff;flex-shrink:0}
+.mech-tag.auto{background:#e7f0fb;color:#1d4e86}
+.mech-tag.auto .mt-no{background:#2563a8}
+.mech-tag.ctrl{background:var(--warn-soft);color:var(--warn)}
+.mech-tag.ctrl .mt-no{background:var(--warn)}
+.mech-tag.flow{background:var(--action-soft);color:var(--action)}
+.mech-tag.flow .mt-no{background:var(--action)}
+.val-line{font-size:12px;color:var(--ink2);line-height:1.5;margin-top:2px}
+.val-line b{color:var(--ink)}
+.va-intro .mech-tag{margin-bottom:6px}
+.usage-note{font-size:11.5px;color:var(--ink3);margin-top:14px;padding-top:12px;
+  border-top:1px dashed var(--line);line-height:1.5}
+.usage-note b{color:var(--warn)}
+
+
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap topbar-inner">
+  <div class="brand">
+    <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 7h6v6"/></svg></span>
+    FinanOne <span class="sub">Value Tool</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="doc-label">Vận hành tài chính thông minh · VPBank × Mastercard · 05/08/2026</div>
+</div></div>
+
+<div class="tabnav"><div class="tabnav-inner">
+  <button class="tab-btn on" data-tab="mech"><span class="tn">1</span>Cơ chế tối ưu hóa</button>
+  <button class="tab-btn" data-tab="uc"><span class="tn">2</span>Use case ứng dụng</button>
+  <button class="tab-btn" data-tab="sim"><span class="tn">3</span>Đánh giá ảnh hưởng</button>
+  <button class="tab-btn feature" data-tab="demo"><span class="tn">4</span>Giao diện demo<span class="star">★</span></button>
+  <button class="tab-btn" data-tab="matrix"><span class="tn">5</span>Ma trận theo ngành</button>
+</div></div>
+
+<div class="wrap">
+
+<!-- TAB 1 -->
+<div class="panel on" id="mech"><section>
+  <div class="central">
+    <div class="eyebrow">Thông điệp trung tâm</div>
+    <p>Doanh nghiệp không thiếu công cụ tài chính. Cái thiếu là kiểm soát ở đúng thời điểm — nên mọi việc dồn về cuối kỳ, khi đã quá muộn để can thiệp.</p>
+  </div>
+  <div class="section-head">
+    <div class="eyebrow">Phần 1</div>
+    <h2>Ba cơ chế tạo ra giá trị</h2>
+    <p class="lead">Trước khi nói về ứng dụng, cần trả lời: tiền tiết kiệm đến từ đâu? Mọi giá trị của tài khoản ảo và thẻ ảo đều quy về ba cơ chế dưới đây.</p>
+  </div>
+  <div class="grid g3">
+    <div class="mech m1">
+      <div class="mno">1</div>
+      <h3>Tự động hóa</h3>
+      <p>Máy làm thay việc lặp lại: đối soát, nhập liệu, hoàn ứng.</p>
+      <div class="lbl">Tiền đến từ đâu</div>
+      <p>Giảm giờ công bộ phận tài chính — kế toán không còn dò sao kê, nhập tay từng dòng, xử lý hoàn ứng.</p>
+      <span class="val pl">Tiết kiệm chi phí · P&amp;L</span>
+    </div>
+    <div class="mech m2">
+      <div class="mno">2</div>
+      <h3>Kiểm soát tại nguồn</h3>
+      <p>Chặn trước khi phát sinh, thay vì phát hiện sau khi đã tiêu.</p>
+      <div class="lbl">Tiền đến từ đâu</div>
+      <p>Giảm rò rỉ: chi sai mục đích, vượt ngân sách, khoản định kỳ quên hủy — chặn ngay tại điểm chi.</p>
+      <span class="val pl">Tiết kiệm chi phí · P&amp;L</span>
+    </div>
+    <div class="mech m3">
+      <div class="mno">3</div>
+      <h3>Tăng tốc dòng tiền</h3>
+      <p>Tiền về nhanh hơn, biết sớm hơn, quyết định kịp thời hơn.</p>
+      <div class="lbl">Tiền đến từ đâu</div>
+      <p>Giảm số ngày thu tiền và vốn lưu động bị kẹt — tiền quay vòng nhanh hơn, giảm nợ xấu.</p>
+      <span class="val bs">Giải phóng vốn · Bảng cân đối</span>
+    </div>
+  </div>
+  <div class="note-method"><b>Lưu ý phương pháp:</b> hai loại giá trị được tách bạch — <b>tiết kiệm chi phí</b> (ảnh hưởng P&amp;L, cơ chế 1–2) và <b>giải phóng vốn</b> (ảnh hưởng bảng cân đối, cơ chế 3). Chúng không được cộng gộp thành một con số duy nhất, vì bản chất tài chính khác nhau.</div>
+</section></div>
+
+<!-- TAB 2 -->
+<div class="panel" id="uc"><section>
+  <div class="section-head">
+    <div class="eyebrow">Phần 2</div>
+    <h2>Use case ứng dụng theo từng cơ chế</h2>
+    <p class="lead">Mỗi use case gắn với một cơ chế và một công cụ — <span class="tool-badge vc">VC</span> thẻ ảo cho dòng tiền ra, <span class="tool-badge va">VA</span> tài khoản ảo cho dòng tiền vào. Use case nền xanh là trọng tâm kể sâu trong bài.</p>
+  </div>
+  <div id="ucGroups"></div>
+</section></div>
+
+<!-- TAB 3 -->
+<div class="panel" id="sim"><section>
+  <div class="section-head">
+    <div class="eyebrow">Phần 3</div>
+    <h2>Lượng hóa tác động tài chính</h2>
+    <p class="lead">Điều chỉnh tham số theo quy mô doanh nghiệp, tác động tài chính cập nhật tức thì. Mọi giả định đều hiển thị công khai và kéo được — không con số nào bị giấu.</p>
+  </div>
+  <div class="presets" id="presets"></div>
+  <div class="simgrid">
+    <div id="sliders"></div>
+    <div id="results"></div>
+  </div>
+</section></div>
+
+<!-- TAB 4: DEMO -->
+<div class="panel" id="demo"><section>
+  <div class="section-head">
+    <div class="eyebrow">Giao diện demo</div>
+    <h2>Hình dung sản phẩm sẽ trông như thế nào</h2>
+    <p class="lead">Bản mô phỏng giao diện cho hai nhóm tính năng trọng tâm của bài trình bày. Dữ liệu minh họa.</p>
+  </div>
+  <div class="mock-intro">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>Đây là <b>bản mô phỏng tĩnh</b> để trình bày ý tưởng — số liệu là ví dụ minh họa. Chọn từng tính năng bên dưới để xem giao diện tương ứng.</div>
+  </div>
+  <div class="mock-picker">
+    <button class="mp-btn on" data-mock="spend"><span class="mtag free">Miễn phí</span>Quản lý chi tiêu</button>
+    <button class="mp-btn" data-mock="cashflow"><span class="mtag basic">Cơ bản</span>Quản trị dòng tiền</button>
+  </div>
+  <div class="device">
+    <div class="device-bar">
+      <div class="device-dots"><i></i><i></i><i></i></div>
+      <div class="device-url" id="mockUrl">finan.one / quan-ly-chi-tieu</div>
+    </div>
+    <div class="device-body">
+<div class="mock" id="mock-spend">
+          <div class="m-hd">
+            <h4><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></span>Quản lý chi tiêu</h4>
+            <div class="m-actions">
+              <div class="spend-toggle">
+                <button class="on" data-spend="collect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Thu tiền</button>
+                <button data-spend="cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Thẻ chi tiêu</button>
+              </div>
+            </div>
+          </div>
+          <div class="m-body">
+
+            <!-- Thu: virtual account collection -->
+            <div class="spend-view on" id="spend-collect">
+              <div class="va-intro">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                <div>
+                  <span class="mech-tag auto"><span class="mt-no">1</span>Tự động hóa</span>
+                  <p>Mỗi khách hàng được cấp <b>một số tài khoản ảo riêng</b>. Tiền vào số nào, hệ thống tự khớp đúng khách và đúng hóa đơn — không phải dò tay từng giao dịch trong sao kê.</p>
+                  <p class="val-line" style="margin-top:6px"><b>Giá trị:</b> kế toán không còn ngồi dò nội dung chuyển khoản — tiền vào biết ngay của ai, cho việc gì.</p>
+                </div>
+              </div>
+              <div class="dash-kpis" style="margin-bottom:20px">
+                <div class="kpi"><div class="k-l">Tài khoản ảo đang mở</div><div class="k-v">128</div><div class="k-d up">▲ 12 mới tháng này</div></div>
+                <div class="kpi"><div class="k-l">Thu về tháng này</div><div class="k-v">3,64 tỷ</div><div class="k-d up">qua 214 giao dịch</div></div>
+                <div class="kpi"><div class="k-l">Tự đối soát</div><div class="k-v">98,6%</div><div class="k-d up">khớp tự động, không cần tay</div></div>
+                <div class="kpi"><div class="k-l">Chờ đối soát</div><div class="k-v">3</div><div class="k-d down">cần xác nhận thủ công</div></div>
+              </div>
+              <h5 style="font-size:14px;font-weight:800;margin-bottom:12px">Giao dịch thu gần đây · tự khớp khách</h5>
+              <div class="va-list">
+                <div class="va-row">
+                  <div class="va-cust"><div class="va-av">ML</div><div><div class="vc-name">Cty TNHH Minh Long</div><div class="vc-acc">VA •••• 8821 · HĐ #2026-0471</div></div></div>
+                  <div class="va-amt">+248,0 tr</div>
+                  <span class="va-badge matched">Đã khớp</span>
+                </div>
+                <div class="va-row">
+                  <div class="va-cust"><div class="va-av">HP</div><div><div class="vc-name">Hộ KD Hồng Phát</div><div class="vc-acc">VA •••• 6014 · HĐ #2026-0468</div></div></div>
+                  <div class="va-amt">+52,5 tr</div>
+                  <span class="va-badge matched">Đã khớp</span>
+                </div>
+                <div class="va-row">
+                  <div class="va-cust"><div class="va-av">TA</div><div><div class="vc-name">Cty CP Thảo Anh</div><div class="vc-acc">VA •••• 3390 · HĐ #2026-0470</div></div></div>
+                  <div class="va-amt">+134,8 tr</div>
+                  <span class="va-badge matched">Đã khớp</span>
+                </div>
+                <div class="va-row">
+                  <div class="va-cust"><div class="va-av">?</div><div><div class="vc-name">Chưa xác định khách</div><div class="vc-acc">VA •••• 0000 · nội dung thiếu mã HĐ</div></div></div>
+                  <div class="va-amt">+9,2 tr</div>
+                  <span class="va-badge wait">Chờ khớp</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chi: virtual cards -->
+            <div class="spend-view" id="spend-cards">
+              <div class="va-intro">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                <div>
+                  <span class="mech-tag ctrl"><span class="mt-no">2</span>Kiểm soát tại nguồn</span>
+                  <p>Phát hành <b>thẻ ảo cho từng nhân viên hoặc phòng ban</b>, đặt hạn mức riêng, khóa hoặc mở tức thì. Mọi khoản chi hiện ngay trên nền tảng — kiểm soát chi tiêu trước khi tiền ra, không phải đợi cuối tháng.</p>
+                  <p class="val-line" style="margin-top:6px"><b>Giá trị:</b> chặn chi sai mục đích, vượt ngân sách, khoản định kỳ quên hủy — ngay tại điểm chi, thay vì phát hiện sau khi đã tiêu.</p>
+                </div>
+              </div>
+              <div class="vc-head">
+                <div class="card-face">
+                  <div class="cf-top"><div><div class="cf-owner">Phòng Marketing</div><div class="cf-dept">Quảng cáo &amp; sự kiện</div></div><div class="cf-chip"></div></div>
+                  <div class="cf-num">•••• •••• •••• 4408</div>
+                  <div class="cf-foot"><div class="cf-lim">Hạn mức tháng<b>50,0 tr</b></div><div class="cf-brand">VISA</div></div>
+                </div>
+                <div class="card-face">
+                  <div class="cf-top"><div><div class="cf-owner">Trần Minh</div><div class="cf-dept">Kinh doanh</div></div><div class="cf-chip"></div></div>
+                  <div class="cf-num">•••• •••• •••• 7712</div>
+                  <div class="cf-foot"><div class="cf-lim">Hạn mức tháng<b>20,0 tr</b></div><div class="cf-brand">VISA</div></div>
+                </div>
+                <div class="card-face locked">
+                  <div class="cf-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Đã khóa</div>
+                  <div class="cf-top"><div><div class="cf-owner">Phòng IT</div><div class="cf-dept">Phần mềm &amp; hạ tầng</div></div><div class="cf-chip"></div></div>
+                  <div class="cf-num">•••• •••• •••• 2093</div>
+                  <div class="cf-foot"><div class="cf-lim">Hạn mức tháng<b>30,0 tr</b></div><div class="cf-brand">VISA</div></div>
+                </div>
+              </div>
+
+              <div class="vc-usage">
+                <h5>Đã dùng trên hạn mức · tháng này</h5>
+                <div class="usage-row">
+                  <div class="usage-top"><span class="u-name">Phòng Marketing</span><span class="u-val">38,2 / 50,0 tr</span></div>
+                  <div class="usage-bar"><div class="usage-fill" style="width:76%;background:linear-gradient(90deg,var(--gold),#d9b968)"></div></div>
+                </div>
+                <div class="usage-row">
+                  <div class="usage-top"><span class="u-name">Trần Minh · Kinh doanh</span><span class="u-val">7,4 / 20,0 tr</span></div>
+                  <div class="usage-bar"><div class="usage-fill" style="width:37%;background:linear-gradient(90deg,var(--action),#14a874)"></div></div>
+                </div>
+                <div class="usage-row">
+                  <div class="usage-top"><span class="u-name">Phòng IT · đã khóa</span><span class="u-val">30,0 / 30,0 tr</span></div>
+                  <div class="usage-bar"><div class="usage-fill" style="width:100%;background:linear-gradient(90deg,var(--neg),#d85c48)"></div></div>
+                </div>
+                <div class="usage-note">Ngân sách trở thành thứ <b>có hiệu lực thật</b> — tiêu hết là dừng, không còn là con số trong file mà ai cũng biết sẽ vượt.</div>
+              </div>
+
+              <div class="spend-recent">
+                <h5 style="font-size:14px;font-weight:800;margin-bottom:6px">Giao dịch chi gần đây</h5>
+                <div class="tx-row">
+                  <div class="tx-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3v4M8 3v4"/></svg></div>
+                  <div class="tx-body"><div class="tx-t">Facebook Ads</div><div class="tx-m">Thẻ Marketing •••• 4408 · hôm nay</div></div>
+                  <div class="tx-amt">−12,5 tr</div>
+                </div>
+                <div class="tx-row">
+                  <div class="tx-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4M16 3l4 4-4 4M8 21l-4-4 4-4M4 17h16"/></svg></div>
+                  <div class="tx-body"><div class="tx-t">Grab — công tác</div><div class="tx-m">Thẻ Trần Minh •••• 7712 · hôm qua</div></div>
+                  <div class="tx-amt">−340 ng</div>
+                </div>
+                <div class="tx-row">
+                  <div class="tx-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/></svg></div>
+                  <div class="tx-body"><div class="tx-t">Google Workspace <span style="font-size:10.5px;font-weight:800;color:var(--neg);background:var(--neg-soft);padding:2px 7px;border-radius:5px;margin-left:4px">Đã chặn</span></div><div class="tx-m">Thẻ IT •••• 2093 · vượt hạn mức, khoản định kỳ tự động bị ngắt</div></div>
+                  <div class="tx-amt" style="color:var(--ink3);text-decoration:line-through">−4,8 tr</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+</div>
+<div class="mock" id="mock-cashflow">
+          <div class="m-hd">
+            <h4><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>Quản trị dòng tiền</h4>
+            <div class="m-actions">
+              <button class="mbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>Kết nối ngân hàng</button>
+              <button class="mbtn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg>Báo cáo dòng tiền</button>
+            </div>
+          </div>
+          <div class="m-body">
+            <div class="cf-head">
+              <div class="cf-card in"><div class="cf-l">Tiền vào tháng này</div><div class="cf-v">5,14 tỷ</div><div class="cf-s">▲ so với 4,63 tỷ kỳ trước</div></div>
+              <div class="cf-card out"><div class="cf-l">Tiền ra tháng này</div><div class="cf-v">4,38 tỷ</div><div class="cf-s">gồm 1,2 tỷ trả nợ vay</div></div>
+              <div class="cf-card net"><div class="cf-l">Dòng tiền thuần</div><div class="cf-v">+760 tr</div><div class="cf-s">số dư hợp nhất: 4,51 tỷ</div></div>
+            </div>
+
+            <h5 style="font-size:14px;font-weight:800;margin-bottom:12px">Tài khoản ngân hàng · gom về một chỗ</h5>
+            <div class="bank-list">
+              <div class="bank vpbank">
+                <div class="bk-logo vp"><img src="data:image/png;base64,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" alt="VPBank"></div>
+                <div><div class="bk-name">VPBank</div><div class="bk-acc">•••• 1979 · tài khoản chính</div></div>
+                <div class="bk-bal"><div class="bb-v">2,26 tỷ</div><div class="bb-s">● đồng bộ 1 phút trước</div></div>
+              </div>
+              <div class="bank">
+                <div class="bk-logo" style="background:#005baa">VCB</div>
+                <div><div class="bk-name">Vietcombank</div><div class="bk-acc">•••• 4821 · tài khoản thu</div></div>
+                <div class="bk-bal"><div class="bb-v">1,18 tỷ</div><div class="bb-s">● đồng bộ 2 phút trước</div></div>
+              </div>
+              <div class="bank">
+                <div class="bk-logo" style="background:#1e4620">VTB</div>
+                <div><div class="bk-name">Vietinbank</div><div class="bk-acc">•••• 0937 · tài khoản phụ</div></div>
+                <div class="bk-bal"><div class="bb-v">612 tr</div><div class="bb-s">● đồng bộ 2 phút trước</div></div>
+              </div>
+              <div class="bank">
+                <div class="bk-logo" style="background:#b01c2e">TCB</div>
+                <div><div class="bk-name">Techcombank</div><div class="bk-acc">•••• 5560 · tài khoản lương</div></div>
+                <div class="bk-bal"><div class="bb-v">458 tr</div><div class="bb-s">● đồng bộ 2 phút trước</div></div>
+              </div>
+            </div>
+
+            <h5 style="font-size:14px;font-weight:800;margin:22px 0 12px">Chờ phê duyệt chi</h5>
+            <div class="approve-list">
+              <div class="appr">
+                <div class="ap-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                <div class="ap-body"><div class="ap-t">Thanh toán nhà cung cấp — Cty Minh Long</div><div class="ap-m">Hóa đơn VAT · đến hạn 3 ngày nữa</div></div>
+                <span class="ap-amt">248 tr</span>
+                <div class="ap-btns"><button class="mini-btn yes">Duyệt</button><button class="mini-btn no">Từ chối</button></div>
+              </div>
+              <div class="appr">
+                <div class="ap-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                <div class="ap-body"><div class="ap-t">Tạm ứng công tác — phòng kinh doanh</div><div class="ap-m">Yêu cầu bởi Trần Minh · hôm nay</div></div>
+                <span class="ap-amt">15 tr</span>
+                <div class="ap-btns"><button class="mini-btn yes">Duyệt</button><button class="mini-btn no">Từ chối</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+</section></div>
+
+<!-- TAB 5 -->
+<div class="panel" id="matrix"><section>
+  <div class="section-head">
+    <div class="eyebrow">Phần 4 · tài liệu để lại</div>
+    <h2>Ma trận use case theo ngành</h2>
+    <p class="lead">Use case nào áp dụng cho ngành nào, thuộc cơ chế nào, dùng công cụ gì.</p>
+  </div>
+  <div class="legend4">
+    <span><span class="sw" style="background:var(--m1)"></span>1 · Tự động hóa</span>
+    <span><span class="sw" style="background:var(--m2)"></span>2 · Kiểm soát tại nguồn</span>
+    <span><span class="sw" style="background:var(--m3)"></span>3 · Tăng tốc dòng tiền</span>
+    <span><span class="tb-mini vc">VC</span>Thẻ ảo · <span class="tb-mini va">VA</span>Tài khoản ảo</span>
+  </div>
+  <div class="m4wrap" style="overflow-x:auto"><table class="m4" id="matrix4"></table></div>
+</section></div>
+
+</div>
+<script>
+/* ============ TAB 2 DATA ============ */
+const UC_GROUPS = [
+  {m:'m1', no:'1', title:'Tự động hóa', cases:[
+    {n:'Ghi nhận chi phí nhân viên tự động', tool:'vc', deep:true, d:'Chi tiêu nhân viên vào sổ ngay khi phát sinh — bỏ hẳn quy trình hoàn ứng giấy tờ, không còn nhập tay, không còn tranh cãi hóa đơn.'},
+    {n:'Đối soát khoản thu tự động', tool:'va', deep:true, d:'Mỗi khách/đơn/hợp đồng một điểm nhận tiền riêng — tiền vào biết ngay của ai, cho việc gì, không phải dò nội dung chuyển khoản.'},
+    {n:'Đối soát dòng tiền nhiều nguồn', tool:'va', deep:false, d:'Gom và khớp tự động dòng tiền từ nhiều kênh/đầu mối về một nơi, thay cho ghép file thủ công.'}
+  ]},
+  {m:'m2', no:'2', title:'Kiểm soát tại nguồn', cases:[
+    {n:'Ngân sách campaign / phòng ban có hiệu lực thật', tool:'vc', deep:true, d:'Mỗi campaign/phòng ban một ngân sách riêng, tiêu hết là dừng — ngân sách trở thành thứ có hiệu lực, không phải con số trong file mà ai cũng biết sẽ vượt.'},
+    {n:'Chặn rò rỉ dịch vụ định kỳ', tool:'vc', deep:false, d:'Dịch vụ đã ngừng dùng bị ngắt được ngay — chặn khoản trừ tiền "quên hủy", loại rò rỉ âm thầm nhất.'},
+    {n:'Chi đúng mục đích', tool:'vc', deep:false, d:'Thẻ chỉ chi được đúng loại (nhiên liệu, công tác) — chống lạm dụng, chi sai bị chặn tại điểm.'}
+  ]},
+  {m:'m3', no:'3', title:'Tăng tốc dòng tiền', cases:[
+    {n:'Công nợ realtime', tool:'va', deep:true, d:'Công nợ cập nhật theo thời gian thực — quyết định cho nợ tiếp dựa trên số của hôm nay, không phải số của tháng trước.'},
+    {n:'Tách dòng tiền nhiều đầu mối', tool:'va', deep:false, d:'Mỗi chi nhánh/đối tác một điểm thu riêng — biết ngay ai đã nộp đủ, tiền quay vòng nhanh hơn.'}
+  ]}
+];
+function renderUCGroups(){
+  document.getElementById('ucGroups').innerHTML = UC_GROUPS.map(g=>`
+    <div class="ucg">
+      <div class="ucg-h ${g.m}"><span class="dot">${g.no}</span><h3>${g.title}</h3></div>
+      <div class="uc-grid">
+        ${g.cases.map(c=>`<div class="uc${c.deep?' deep':''}">
+          <div class="uh"><span class="un">${c.n}</span><span class="tool-badge ${c.tool}">${c.tool.toUpperCase()}</span></div>
+          <div class="ud">${c.d}</div>
+          ${c.deep?'<span class="deep-tag">★ Kể sâu</span>':''}
+        </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+/* ============ TAB 3: SIMULATION ============ */
+const SCALE = [
+  {k:'revenue', name:'Doanh thu năm', unit:'vnd', min:1e9, max:500e9, step:1e9, def:50e9},
+  {k:'finStaff', name:'Số nhân sự kế toán – tài chính', unit:'p', min:1, max:50, step:1, def:5},
+  {k:'txIn', name:'Số giao dịch thu / tháng', unit:'n', min:100, max:50000, step:100, def:8000},
+  {k:'budgetCard', name:'Ngân sách chi vận hành qua thẻ / năm', unit:'vnd', min:100e6, max:50e9, step:100e6, def:3e9},
+  {k:'endpoints', name:'Số đầu mối (nhân viên / chi nhánh / đối tác)', unit:'n', min:1, max:1000, step:1, def:30}
+];
+const ASSUME = [
+  {k:'minPerTx', name:'Thời gian xử lý thủ công / giao dịch', unit:'min', min:1, max:30, step:1, def:8},
+  {k:'hourlyCost', name:'Chi phí giờ công nhân sự tài chính', unit:'vnd', min:30000, max:400000, step:10000, def:120000},
+  {k:'avgTx', name:'Giá trị trung bình / giao dịch chi', unit:'vnd', min:100000, max:5000000, step:100000, def:500000},
+  {k:'autoRate', name:'Tỷ lệ công việc tự động hóa được', unit:'pct', min:30, max:100, step:5, def:70},
+  {k:'leakRate', name:'Tỷ lệ rò rỉ trên ngân sách chi', unit:'pct', min:0, max:15, step:1, def:4},
+  {k:'blockRate', name:'Tỷ lệ rò rỉ chặn được', unit:'pct', min:30, max:100, step:5, def:80},
+  {k:'dsoNow', name:'Số ngày thu tiền hiện tại (DSO)', unit:'day', min:5, max:120, step:5, def:45},
+  {k:'dsoImprove', name:'Mức giảm DSO nhờ đối soát tức thì', unit:'pct', min:0, max:50, step:5, def:20},
+  {k:'capitalCost', name:'Chi phí vốn / năm', unit:'pct', min:5, max:25, step:1, def:12}
+];
+const PRESETS = {
+  'Bán lẻ chuỗi':{revenue:50e9, finStaff:5, txIn:8000, budgetCard:3e9, endpoints:20},
+  'F&B':{revenue:30e9, finStaff:3, txIn:12000, budgetCard:2e9, endpoints:15},
+  'FMCG / phân phối':{revenue:120e9, finStaff:8, txIn:5000, budgetCard:4e9, endpoints:200},
+  'SaaS / dịch vụ':{revenue:40e9, finStaff:4, txIn:2000, budgetCard:2.5e9, endpoints:30}
+};
+let SIM = {};
+[...SCALE,...ASSUME].forEach(s=>SIM[s.k]=s.def);
+let curPreset = null;
+
+function fmtVND(n){
+  if(n>=1e9) return (n/1e9).toLocaleString('vi-VN',{maximumFractionDigits:2})+' tỷ';
+  if(n>=1e6) return (n/1e6).toLocaleString('vi-VN',{maximumFractionDigits:0})+' triệu';
+  return Math.round(n).toLocaleString('vi-VN')+' đ';
+}
+function fmtSlider(s){
+  const v=SIM[s.k];
+  if(s.unit==='vnd') return fmtVND(v);
+  if(s.unit==='pct') return v+'%';
+  if(s.unit==='min') return v+' phút';
+  if(s.unit==='day') return v+' ngày';
+  if(s.unit==='p') return v+' người';
+  return v.toLocaleString('vi-VN');
+}
+function calc(){
+  const S=SIM;
+  const txOutYear = S.avgTx>0 ? S.budgetCard/S.avgTx : 0;
+  const totalTx = S.txIn*12 + txOutYear;
+  const hoursSaved = totalTx * S.minPerTx/60 * (S.autoRate/100);
+  const timeSaved = hoursSaved * S.hourlyCost;
+  const fteEq = hoursSaved / 2000;
+  const leakBlocked = S.budgetCard * (S.leakRate/100) * (S.blockRate/100);
+  const dsoReduced = S.dsoNow * (S.dsoImprove/100);
+  const capitalFreed = S.revenue/365 * dsoReduced;
+  const capitalBenefit = capitalFreed * (S.capitalCost/100);
+  const plTotal = timeSaved + leakBlocked;
+  return {txOutYear,totalTx,hoursSaved,timeSaved,fteEq,leakBlocked,dsoReduced,capitalFreed,capitalBenefit,plTotal};
+}
+function renderPresets(){
+  document.getElementById('presets').innerHTML =
+    '<span class="plabel">Chọn nhanh theo ngành</span>'+
+    Object.keys(PRESETS).map(p=>`<button class="preset${curPreset===p?' on':''}" onclick="applyPreset('${p}')">${p}</button>`).join('');
+}
+function applyPreset(p){
+  curPreset=p;
+  Object.entries(PRESETS[p]).forEach(([k,v])=>SIM[k]=v);
+  renderPresets(); renderSliders(); renderResults();
+}
+function renderSliders(){
+  const sgroup=(title,arr,cls)=>`<div class="sgroup"><h4>${title}</h4>${arr.map(s=>`
+    <div class="slider${cls}">
+      <div class="sl-top"><span class="sl-name">${s.name}</span><span class="sl-val" id="v_${s.k}">${fmtSlider(s)}</span></div>
+      <input type="range" min="${s.min}" max="${s.max}" step="${s.step}" value="${SIM[s.k]}" oninput="onSlide('${s.k}',this.value)">
+    </div>`).join('')}</div>`;
+  document.getElementById('sliders').innerHTML =
+    sgroup('Nhóm A · Quy mô doanh nghiệp', SCALE, '') +
+    `<div class="assume-note"><b>Nhóm B — Giả định mô hình.</b> Đây là giả định để lượng hóa, không phải cam kết. Kéo lại theo tình hình thực tế của doanh nghiệp — mô hình tự tính lại.</div>` +
+    sgroup('Nhóm B · Giả định (điều chỉnh được)', ASSUME, ' assume');
+}
+function onSlide(k,v){
+  SIM[k]=parseFloat(v);
+  curPreset=null;
+  const s=[...SCALE,...ASSUME].find(x=>x.k===k);
+  document.getElementById('v_'+k).textContent=fmtSlider(s);
+  document.querySelectorAll('#presets .preset').forEach(e=>e.classList.remove('on'));
+  renderResults();
+}
+function renderResults(){
+  const r=calc();
+  document.getElementById('results').innerHTML=`
+    <div class="res-hero">
+      <div class="rh pl">
+        <div class="rl">Tiết kiệm chi phí / năm · P&L</div>
+        <div class="rv">${fmtVND(r.plTotal)}</div>
+        <div class="rs">Cơ chế 1 + 2 · giảm trực tiếp chi phí vận hành</div>
+      </div>
+      <div class="rh bs">
+        <div class="rl">Vốn lưu động giải phóng</div>
+        <div class="rv">${fmtVND(r.capitalFreed)}</div>
+        <div class="rs">Cơ chế 3 · một lần · lợi ích tài chính ${fmtVND(r.capitalBenefit)}/năm</div>
+      </div>
+    </div>
+    <div class="res-break">
+      <h4>Chi tiết theo cơ chế</h4>
+      <div class="brow m1">
+        <div class="bi">1</div>
+        <div class="bt"><div class="btn2">Tiết kiệm giờ công</div><div class="bd">${Math.round(r.hoursSaved).toLocaleString('vi-VN')} giờ/năm ≈ ${r.fteEq.toFixed(1)} người · tự động hóa ${SIM.autoRate}%</div></div>
+        <div class="bv">${fmtVND(r.timeSaved)}</div>
+      </div>
+      <div class="brow m2">
+        <div class="bi">2</div>
+        <div class="bt"><div class="btn2">Rò rỉ chặn được</div><div class="bd">${SIM.leakRate}% ngân sách × chặn ${SIM.blockRate}%</div></div>
+        <div class="bv">${fmtVND(r.leakBlocked)}</div>
+      </div>
+      <div class="brow m3">
+        <div class="bi">3</div>
+        <div class="bt"><div class="btn2">Vốn giải phóng</div><div class="bd">giảm DSO ${Math.round(r.dsoReduced)} ngày (${SIM.dsoNow}→${Math.round(SIM.dsoNow-r.dsoReduced)}) · lợi ích ${fmtVND(r.capitalBenefit)}/năm</div></div>
+        <div class="bv">${fmtVND(r.capitalFreed)}</div>
+      </div>
+    </div>
+    <div class="disclaimer">Đây là mô hình ước lượng dựa trên các giả định hiển thị bên trái, không phải cam kết kết quả. Tiết kiệm chi phí (P&L) và vốn giải phóng (bảng cân đối) được trình bày tách biệt vì bản chất tài chính khác nhau — không cộng gộp.</div>`;
+}
+
+/* ============ TAB 5: MATRIX ============ */
+const MODELS4 = [
+  {name:'Bán lẻ chuỗi', m1:[['Đối soát thu tại quầy','va']], m2:[['Spend control chi nhánh','vc']], m3:[['Tách dòng tiền theo điểm bán','va']]},
+  {name:'F&B', m1:[['Đối soát thu quầy + app giao hàng','va']], m2:[['Ngân sách nguyên liệu theo điểm','vc'],['Chi đúng mục đích','vc']], m3:[['Cash sweep điểm bán','va']]},
+  {name:'FMCG / phân phối', m1:[['Đối soát công nợ NPP','va']], m2:[['Thẻ mua hàng đội sales (MCC)','vc']], m3:[['Công nợ + credit limit realtime','va']]},
+  {name:'SaaS / subscription', m1:[['Đối soát thu định kỳ','va']], m2:[['Chặn rò rỉ subscription','vc'],['Ngân sách cloud/ads theo BU','vc']], m3:[['Thu định kỳ tự khớp','va']]},
+  {name:'Platform / marketplace', m1:[['Thu hộ + tách phí sàn','va']], m2:[['Ngân sách vận hành theo BU','vc']], m3:[['Payout seller theo lô','va']]},
+  {name:'Dự án / dev shop', m1:[['Đối soát thu theo hợp đồng','va']], m2:[['Chi phí dự án theo thẻ','vc']], m3:[['Thu theo milestone','va']]},
+  {name:'Làm đẹp & chăm sóc', m1:[['Đối soát thu theo khách','va']], m2:[['Hoa hồng KTV / chi tại điểm','vc']], m3:[['Quản deferred (gói/thẻ)','va']]},
+  {name:'Giáo dục / đào tạo', m1:[['Đối soát học phí','va']], m2:[['Ngân sách cơ sở theo thẻ','vc']], m3:[['Học phí trả góp / nhắc nợ','va']]},
+  {name:'Y tế / phòng khám', m1:[['Đối soát thu bệnh nhân','va']], m2:[['Chi vật tư theo thẻ','vc']], m3:[['Công nợ bảo hiểm','va']]},
+  {name:'Logistics / vận tải', m1:[['Đối soát COD','va']], m2:[['Fuel card đội xe (MCC)','vc']], m3:[['Công nợ cước realtime','va']]},
+  {name:'E-commerce merchant', m1:[['Đối soát payout đa sàn','va']], m2:[['Ngân sách ads theo campaign','vc']], m3:[['Hợp nhất dòng tiền đa kênh','va']]}
+];
+function ucells(arr){
+  if(!arr||!arr.length) return '<td class="empty">—</td>';
+  return `<td>${arr.map(([n,t])=>`<span class="u"><span class="tb-mini ${t}">${t.toUpperCase()}</span>${n}</span>`).join('')}</td>`;
+}
+function renderMatrix4(){
+  const t=document.getElementById('matrix4');
+  let head=`<thead><tr><th>Ngành / mô hình</th><th class="c1">1 · Tự động hóa</th><th class="c2">2 · Kiểm soát tại nguồn</th><th class="c3">3 · Tăng tốc dòng tiền</th></tr></thead>`;
+  let body='<tbody>'+MODELS4.map(m=>`<tr><td class="rn">${m.name}</td>${ucells(m.m1)}${ucells(m.m2)}${ucells(m.m3)}</tr>`).join('')+'</tbody>';
+  t.innerHTML='<colgroup><col class="mh"><col><col><col></colgroup>'+head+body;
+}
+
+/* ============ TABS ============ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById(btn.dataset.tab).classList.add('on');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+/* ============ DEMO TAB: mock picker + spend toggle ============ */
+const MOCK_URL={spend:'finan.one / quan-ly-chi-tieu', cashflow:'finan.one / quan-tri-dong-tien'};
+document.querySelectorAll('.mp-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.mp-btn').forEach(b=>b.classList.remove('on'));
+    document.querySelectorAll('.mock').forEach(m=>m.classList.remove('on'));
+    btn.classList.add('on');
+    const id=btn.dataset.mock;
+    document.getElementById('mock-'+id).classList.add('on');
+    document.getElementById('mockUrl').textContent=MOCK_URL[id]||'finan.one';
+  });
+});
+document.querySelectorAll('.spend-toggle button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.spend-toggle button').forEach(b=>b.classList.remove('on'));
+    document.querySelectorAll('.spend-view').forEach(v=>v.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('spend-'+btn.dataset.spend).classList.add('on');
+  });
+});
+
+/* init */
+renderUCGroups();
+renderPresets();
+renderSliders();
+renderResults();
+renderMatrix4();
+</script>
+</body>
+</html>
