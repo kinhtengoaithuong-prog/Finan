@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FinanOne — Kế hoạch sản phẩm & kinh doanh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f8f7; --surface:#ffffff; --ink:#0e1a16; --ink2:#4a5854; --ink3:#8b968f;
+  --line:#e4eae7; --line2:#eef2f0;
+  --action:#0e8a5f; --action-hover:#0b6f4c; --action-soft:#e8f5ef; --action-press:#095c3f;
+  --deep:#0a2620; --deep2:#0f342b;
+  --gold:#c79a3b; --gold-soft:#fbf6e9;
+  --neg:#c2412d; --neg-soft:#fbeae7;
+  --warn:#9a6410; --warn-soft:#fdf6e6;
+  --ok:#0e8a5f; --ok-soft:#e8f5ef;
+  --radius:18px; --radius-sm:12px; --radius-pill:999px;
+  --sh-sm:0 1px 3px rgba(14,26,22,.05),0 1px 2px rgba(14,26,22,.03);
+  --sh:0 4px 20px rgba(14,26,22,.07);
+  --sh-lg:0 18px 50px rgba(14,26,22,.13);
+  --tier-free:#0e8a5f; --tier-basic:#2563a8; --tier-pro:#7c3aed;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  font-feature-settings:'cv05','ss01';font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* ===== top nav ===== */
+.topbar{position:sticky;top:0;z-index:60;background:rgba(246,248,247,.85);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar-inner{display:flex;align-items:center;gap:20px;height:62px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;letter-spacing:-.02em}
+.brand .logo{width:30px;height:30px;border-radius:9px;background:var(--action);
+  display:grid;place-items:center;color:#fff;flex-shrink:0}
+.brand .logo.finan{background:transparent;width:34px;height:34px;border-radius:0}
+.brand .logo.finan img{width:100%;height:100%;object-fit:contain}
+.brand .logo svg{width:17px;height:17px}
+.brand .sub{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--action);
+  text-transform:uppercase;background:var(--action-soft);padding:2px 7px;border-radius:6px}
+.spacer{flex:1}
+.topbar .doc-label{font-size:12.5px;color:var(--ink3);font-weight:500}
+@media(max-width:820px){.topbar .doc-label{display:none}}
+
+/* ===== tab nav ===== */
+.tabnav{position:sticky;top:62px;z-index:55;background:var(--surface);
+  border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabnav::-webkit-scrollbar{display:none}
+.tabnav-inner{display:flex;gap:2px;min-width:max-content}
+.tab-btn{appearance:none;border:none;background:none;cursor:pointer;font-family:inherit;
+  font-size:13.5px;font-weight:600;color:var(--ink2);padding:15px 16px;position:relative;
+  white-space:nowrap;display:flex;align-items:center;gap:8px;transition:color .15s}
+.tab-btn .tn{width:20px;height:20px;border-radius:6px;background:var(--line2);color:var(--ink3);
+  display:grid;place-items:center;font-size:11px;font-weight:800;transition:all .15s}
+.tab-btn:hover{color:var(--ink)}
+.tab-btn.on{color:var(--action)}
+.tab-btn.on .tn{background:var(--action);color:#fff}
+.tab-btn.on::after{content:'';position:absolute;left:12px;right:12px;bottom:-1px;height:2.5px;
+  background:var(--action);border-radius:2px}
+/* tab nổi bật (Giao diện demo) */
+.tab-btn.feature{color:var(--action)}
+.tab-btn.feature .tn{background:var(--action);color:#fff}
+.tab-btn.feature .star{color:var(--gold);margin-left:1px}
+.tab-btn.feature:not(.on){background:var(--action-soft)}
+.tab-btn.feature:not(.on):hover{background:#dbeee4}
+
+/* ===== panels ===== */
+.panel{display:none;animation:fade .35s ease}
+.panel.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+section{padding:56px 0}
+section+section{border-top:1px solid var(--line)}
+
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--action);margin-bottom:14px}
+h1{font-size:clamp(30px,4.4vw,50px);line-height:1.08;letter-spacing:-.035em;font-weight:900}
+h2{font-size:clamp(23px,3vw,32px);line-height:1.15;letter-spacing:-.03em;font-weight:800}
+h3{font-size:18px;letter-spacing:-.01em;font-weight:700}
+.lead{font-size:clamp(16px,1.7vw,19px);color:var(--ink2);line-height:1.6;max-width:60ch}
+.muted{color:var(--ink2)}
+.small{font-size:13px}
+
+/* ===== hero ===== */
+.hero{background:linear-gradient(160deg,var(--deep) 0%,var(--deep2) 62%,#12463a 100%);
+  color:#fff;border-radius:var(--radius);padding:56px 52px;position:relative;overflow:hidden;
+  box-shadow:var(--sh-lg)}
+.hero::before{content:'';position:absolute;top:-40%;right:-12%;width:520px;height:520px;
+  background:radial-gradient(circle,rgba(199,154,59,.16),transparent 68%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-30%;left:-8%;width:420px;height:420px;
+  background:radial-gradient(circle,rgba(14,138,95,.28),transparent 66%);pointer-events:none}
+.hero .eyebrow{color:var(--gold)}
+.hero h1{color:#fff;max-width:17ch}
+.hero .hlead{color:#c8dbd4;font-size:19px;max-width:56ch;margin-top:20px;position:relative;z-index:2}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.16);border-radius:var(--radius-pill);padding:7px 15px;
+  font-size:13px;font-weight:600;color:#d7e6e0;margin-bottom:26px;position:relative;z-index:2}
+.hero-tag .dot{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+.hero-stats{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px;position:relative;z-index:2}
+.hstat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);
+  border-radius:var(--radius-sm);padding:18px 22px;flex:1;min-width:170px}
+.hstat .n{font-size:30px;font-weight:900;letter-spacing:-.03em;color:#fff}
+.hstat .n .u{font-size:17px;color:var(--gold);font-weight:800}
+.hstat .l{font-size:12.5px;color:#a9c2ba;margin-top:3px;line-height:1.4}
+
+/* ===== generic cards ===== */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:26px;box-shadow:var(--sh-sm)}
+.card.pad-lg{padding:32px}
+.card-i{width:44px;height:44px;border-radius:12px;background:var(--action-soft);color:var(--action);
+  display:grid;place-items:center;margin-bottom:16px}
+.card-i svg{width:22px;height:22px}
+.card h3{margin-bottom:8px}
+.card p{color:var(--ink2);font-size:14px}
+
+/* problem cards */
+.prob{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--neg);
+  border-radius:var(--radius-sm);padding:22px 24px}
+.prob h3{color:var(--neg);font-size:15.5px;margin-bottom:6px;display:flex;align-items:center;gap:9px}
+.prob h3 .x{width:22px;height:22px;border-radius:7px;background:var(--neg-soft);color:var(--neg);
+  display:grid;place-items:center;flex-shrink:0}
+.prob p{font-size:14px;color:var(--ink2)}
+.prob-stat{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);
+  font-size:20px;font-weight:900;color:var(--neg);letter-spacing:-.02em;line-height:1.15}
+.prob-stat span{display:block;font-size:11.5px;font-weight:500;color:var(--ink3);
+  letter-spacing:0;margin-top:3px;line-height:1.4}
+
+/* solution highlight */
+.solban{background:linear-gradient(135deg,var(--action-soft),#f0f9f4);
+  border:1px solid #cfe9dd;border-radius:var(--radius);padding:34px 38px;position:relative;overflow:hidden}
+.solban .eyebrow{color:var(--action)}
+.solban h2{max-width:22ch}
+.pillrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.pill{background:#fff;border:1px solid #cfe9dd;border-radius:var(--radius-pill);
+  padding:8px 16px;font-size:13.5px;font-weight:600;color:var(--action);display:inline-flex;
+  align-items:center;gap:7px}
+.pill svg{width:14px;height:14px}
+
+/* feature list (product tab) */
+.feat{display:grid;grid-template-columns:56px 1fr auto;gap:20px;align-items:start;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:24px 26px;box-shadow:var(--sh-sm)}
+.feat+.feat{margin-top:14px}
+.feat-n{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;
+  font-size:20px;font-weight:900;color:#fff}
+.feat-body h3{margin-bottom:6px;font-size:17px}
+.feat-body p{color:var(--ink2);font-size:14.5px}
+.feat-body .role{font-size:12.5px;color:var(--ink3);margin-top:8px;font-style:italic}
+.feat-chain{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 4px}
+.feat-chain .fc{font-size:11.5px;font-weight:600;color:var(--tier-basic);background:#e7f0fb;
+  padding:5px 11px;border-radius:var(--radius-pill)}
+.feat-chain .fc.pro{color:var(--tier-pro);background:#f1eafe}
+.feat-chain .fc.free{color:var(--action);background:var(--action-soft)}
+.tag{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  padding:5px 11px;border-radius:var(--radius-pill);white-space:nowrap;align-self:center}
+.tag.free{background:var(--action-soft);color:var(--action)}
+.tag.basic{background:#e7f0fb;color:var(--tier-basic)}
+.tag.pro{background:#f1eafe;color:var(--tier-pro)}
+@media(max-width:680px){.feat{grid-template-columns:44px 1fr;gap:14px}
+  .feat-n{width:44px;height:44px;font-size:16px}.tag{grid-column:2;justify-self:start;margin-top:4px}}
+
+/* tier table */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:860px){.tiers{grid-template-columns:1fr}}
+.tier{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:28px;position:relative;box-shadow:var(--sh-sm);display:flex;flex-direction:column}
+.tier.feature{border:2px solid var(--action);box-shadow:var(--sh)}
+.tier-badge{position:absolute;top:-11px;left:28px;background:var(--action);color:#fff;
+  font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  padding:4px 12px;border-radius:var(--radius-pill)}
+.tier-k{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.tier.t-free .tier-k{color:var(--tier-free)}
+.tier.t-basic .tier-k{color:var(--tier-basic)}
+.tier.t-pro .tier-k{color:var(--tier-pro)}
+.tier-price{font-size:26px;font-weight:900;letter-spacing:-.03em;margin-bottom:3px}
+.tier-price .per{font-size:13px;font-weight:600;color:var(--ink3)}
+.tier-desc{font-size:13.5px;color:var(--ink2);margin-bottom:18px;min-height:38px}
+.tier ul{list-style:none;display:flex;flex-direction:column;gap:11px;flex:1}
+.tier li{display:flex;gap:10px;font-size:13.5px;color:var(--ink);align-items:flex-start;line-height:1.45}
+.tier li svg{width:17px;height:17px;flex-shrink:0;margin-top:1px}
+.tier.t-free li svg{color:var(--tier-free)}
+.tier.t-basic li svg{color:var(--tier-basic)}
+.tier.t-pro li svg{color:var(--tier-pro)}
+.tier li.off{color:var(--ink3)}
+.tier-freq{font-size:11px;font-weight:600;color:var(--tier-pro);background:#f1eafe;
+  padding:2px 8px;border-radius:var(--radius-pill);margin-left:2px;white-space:nowrap}
+.tier li.off svg{color:var(--ink3);opacity:.5}
+
+/* phase timeline */
+.phase{display:grid;grid-template-columns:auto 1fr;gap:26px}
+.phase-line{display:flex;flex-direction:column;align-items:center}
+.phase-dot{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  font-weight:900;color:#fff;font-size:16px;flex-shrink:0;z-index:2}
+.phase-bar{width:2.5px;flex:1;background:var(--line);margin:6px 0;min-height:30px}
+.phase-body{padding-bottom:34px}
+.phase:last-child .phase-body{padding-bottom:0}
+.phase-when{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:5px}
+.phase-body h3{margin-bottom:8px}
+.phase-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.ptag{font-size:12px;font-weight:600;padding:5px 12px;border-radius:var(--radius-pill);
+  background:var(--surface);border:1px solid var(--line);color:var(--ink2)}
+
+/* GTM routes */
+.route{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:30px 32px;box-shadow:var(--sh-sm)}
+.gtm-list{list-style:none;display:flex;flex-direction:column;gap:11px;margin-top:12px}
+.gtm-list li{position:relative;padding-left:20px;font-size:13.5px;color:var(--ink2);line-height:1.5}
+.gtm-list li::before{content:'';position:absolute;left:2px;top:8px;width:7px;height:7px;
+  border-radius:50%;background:var(--action)}
+.gtm-list li b{color:var(--ink)}
+.route-k{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:800;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--action);margin-bottom:14px}
+.route-k .num{width:24px;height:24px;border-radius:7px;background:var(--action);color:#fff;
+  display:grid;place-items:center;font-size:12px}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+.flow-step{background:var(--action-soft);border:1px solid #cfe9dd;border-radius:var(--radius-sm);
+  padding:12px 16px;font-size:13.5px;font-weight:600;color:var(--action);text-align:center;flex:1;min-width:120px}
+.flow-arrow{color:var(--ink3);flex-shrink:0}
+.flow-arrow svg{width:20px;height:20px;display:block}
+
+/* monetization funnel */
+.funnel{display:flex;flex-direction:column;gap:3px;max-width:760px;margin:0 auto}
+.frow{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:center}
+.fbar{color:#fff;border-radius:var(--radius-sm);padding:18px 24px;font-weight:700;
+  display:flex;justify-content:space-between;align-items:center;box-shadow:var(--sh-sm)}
+.fbar .fm{font-size:12.5px;font-weight:600;opacity:.85}
+.fstage{font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  text-align:right;color:var(--ink2)}
+.fstage .fs-sub{display:block;font-size:11px;font-weight:600;color:var(--ink3);
+  text-transform:none;letter-spacing:0;margin-top:2px}
+@media(max-width:640px){.frow{grid-template-columns:1fr;gap:6px}.fstage{text-align:left}}
+
+/* ==== MOCKUP FRAME ==== */
+.mock-intro{background:var(--gold-soft);border:1px solid #ecdcae;border-radius:var(--radius-sm);
+  padding:16px 20px;font-size:13.5px;color:var(--warn);display:flex;gap:12px;align-items:flex-start;margin-bottom:28px}
+.mock-intro svg{width:20px;height:20px;flex-shrink:0;margin-top:1px}
+.mock-picker{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.mp-btn{appearance:none;border:1px solid var(--line);background:var(--surface);cursor:pointer;
+  font-family:inherit;font-size:13px;font-weight:600;color:var(--ink2);padding:10px 16px;
+  border-radius:var(--radius-pill);display:flex;align-items:center;gap:8px;transition:all .15s}
+.mp-btn:hover{border-color:var(--action);color:var(--action)}
+.mp-btn.on{background:var(--action);border-color:var(--action);color:#fff}
+.mp-btn .mtag{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:5px;letter-spacing:.03em}
+.mp-btn .mtag.free{background:var(--action-soft);color:var(--action)}
+.mp-btn.on .mtag.free{background:rgba(255,255,255,.2);color:#fff}
+.mp-btn .mtag.basic{background:#e7f0fb;color:var(--tier-basic)}
+.mp-btn.on .mtag.basic{background:rgba(255,255,255,.2);color:#fff}
+
+.device{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;box-shadow:var(--sh-lg)}
+.device-bar{display:flex;align-items:center;gap:8px;padding:12px 18px;
+  background:var(--deep);border-bottom:1px solid rgba(255,255,255,.08)}
+.device-dots{display:flex;gap:6px}
+.device-dots i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.22)}
+.device-url{flex:1;background:rgba(255,255,255,.08);border-radius:7px;padding:5px 13px;
+  font-size:12px;color:#9fbcb2;text-align:center;font-weight:500}
+.device-body{background:#fbfdfc}
+.mock{display:none}
+.mock.on{display:block}
+
+/* mock: bac si tai chinh */
+.m-hd{padding:20px 26px;border-bottom:1px solid var(--line);display:flex;
+  align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.m-hd h4{font-size:16px;font-weight:800;display:flex;align-items:center;gap:10px}
+.m-hd h4 .mi{width:28px;height:28px;border-radius:8px;background:var(--action);color:#fff;display:grid;place-items:center}
+.m-hd h4 .mi svg{width:16px;height:16px}
+.m-actions{display:flex;gap:8px;flex-wrap:wrap}
+.mbtn{appearance:none;border:1px solid var(--line);background:#fff;cursor:pointer;font-family:inherit;
+  font-size:12.5px;font-weight:600;color:var(--ink);padding:8px 14px;border-radius:9px;
+  display:inline-flex;align-items:center;gap:7px;transition:all .12s}
+.mbtn svg{width:15px;height:15px}
+.mbtn:hover{border-color:var(--action);color:var(--action)}
+.mbtn.primary{background:var(--action);border-color:var(--action);color:#fff}
+.mbtn.primary:hover{background:var(--action-hover);color:#fff}
+.mbtn.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.mbtn.gold:hover{background:#b0872f;color:#fff}
+.m-body{padding:26px}
+
+/* score hero in mock */
+.score-wrap{display:grid;grid-template-columns:280px 1fr;gap:24px}
+@media(max-width:760px){.score-wrap{grid-template-columns:1fr}}
+.score-card{background:linear-gradient(160deg,var(--deep),var(--deep2));border-radius:var(--radius);
+  padding:28px;color:#fff;text-align:center;position:relative;overflow:hidden}
+.score-ring{width:150px;height:150px;margin:6px auto 14px;position:relative}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .sc-val{position:absolute;inset:0;display:grid;place-items:center;flex-direction:column}
+.score-ring .sc-num{font-size:44px;font-weight:900;line-height:1;letter-spacing:-.03em}
+.score-ring .sc-max{font-size:13px;color:#9fbcb2}
+.score-grade{display:inline-block;background:var(--gold);color:var(--deep);font-weight:800;
+  font-size:13px;padding:5px 16px;border-radius:var(--radius-pill);margin-top:4px}
+.score-cap{font-size:12.5px;color:#bcd3cb;margin-top:14px;line-height:1.5}
+.metrics-mini{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(max-width:520px){.metrics-mini{grid-template-columns:1fr}}
+.mm{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px}
+.mm.bad{background:var(--neg-soft);border-color:#eecabf}
+.mm.ok{background:var(--ok-soft);border-color:#c3e6d4}
+.mm .mm-l{font-size:11.5px;color:var(--ink2);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.mm .mm-v{font-size:22px;font-weight:800;margin-top:2px}
+.mm.bad .mm-v{color:var(--neg)} .mm.ok .mm-v{color:var(--ok)}
+.mm .mm-t{font-size:11px;color:var(--ink3);margin-top:1px}
+
+.diag-block{margin-top:22px;background:var(--deep);border-radius:var(--radius);padding:22px 24px;color:#fff}
+.diag-block h5{font-size:14px;font-weight:800;margin-bottom:14px;color:#fff;display:flex;align-items:center;gap:9px}
+.diag-row{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.09)}
+.diag-row:last-child{border:none;padding-bottom:0}
+.diag-row .di{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;flex-shrink:0;font-weight:800;font-size:12px}
+.diag-row.bad .di{background:var(--neg);color:#fff}
+.diag-row.warn .di{background:var(--gold);color:var(--deep)}
+.diag-row .dtxt{font-size:13px;color:#cfe0d9;line-height:1.5}
+.diag-row .dtxt b{color:#fff}
+.diag-fix{margin-top:8px;background:rgba(255,255,255,.06);border-radius:9px;padding:9px 13px}
+.diag-fix .dfh{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.diag-fix ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.diag-fix li{font-size:12px;color:#cfe0d9;padding-left:15px;position:relative;line-height:1.45}
+.diag-fix li::before{content:'→';position:absolute;left:0;color:var(--gold)}
+
+.cta-band{margin-top:22px;background:var(--gold-soft);border:1px solid #ecdcae;border-radius:var(--radius);
+  padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.cta-band .cb-txt h5{font-size:15px;font-weight:800;color:var(--warn)}
+.cta-band .cb-txt p{font-size:13px;color:#8a6a2a;margin-top:2px}
+.cta-band .cb-btns{display:flex;gap:10px;flex-wrap:wrap}
+
+/* mock: dashboard */
+.dash-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+@media(max-width:760px){.dash-kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:18px}
+.kpi .k-l{font-size:12px;color:var(--ink2);font-weight:600}
+.kpi .k-v{font-size:25px;font-weight:900;letter-spacing:-.02em;margin-top:4px}
+.kpi .k-d{font-size:12px;font-weight:700;margin-top:3px;display:inline-flex;align-items:center;gap:4px}
+.kpi .k-d.up{color:var(--ok)} .kpi .k-d.down{color:var(--neg)}
+.dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+@media(max-width:760px){.dash-grid{grid-template-columns:1fr}}
+.chart-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.chart-card h5{font-size:14px;font-weight:800;margin-bottom:4px}
+.chart-card .cc-sub{font-size:12px;color:var(--ink3);margin-bottom:18px}
+.bars{display:flex;align-items:flex-end;gap:12px;height:170px;padding-top:10px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
+.bar-col .b-stack{width:100%;max-width:38px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;height:100%}
+.bar-col .bseg{border-radius:4px 4px 0 0;transition:height .6s cubic-bezier(.4,0,.2,1)}
+.bar-col .b-lbl{font-size:11px;color:var(--ink3);font-weight:600}
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.donut{width:130px;height:130px;flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:9px;flex:1}
+.dl{display:flex;align-items:center;gap:9px;font-size:12.5px}
+.dl .dl-c{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.dl .dl-v{margin-left:auto;font-weight:700}
+.src-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.src-chip{display:inline-flex;align-items:center;gap:8px;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--radius-pill);padding:8px 15px;font-size:12.5px;font-weight:600}
+.src-chip .sc-dot{width:8px;height:8px;border-radius:50%}
+.src-chip .sc-dot.live{background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)}
+.src-chip .sc-dot.sync{background:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+
+/* mock: cashflow */
+.cf-head{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+@media(max-width:760px){.cf-head{grid-template-columns:1fr}}
+.cf-card{border-radius:var(--radius-sm);padding:20px;color:#fff}
+.cf-card.in{background:linear-gradient(140deg,#0e8a5f,#0b6f4c)}
+.cf-card.out{background:linear-gradient(140deg,#c2412d,#9c3120)}
+.cf-card.net{background:linear-gradient(140deg,var(--deep),var(--deep2))}
+.cf-card .cf-l{font-size:12px;opacity:.85;font-weight:600}
+.cf-card .cf-v{font-size:26px;font-weight:900;letter-spacing:-.02em;margin-top:4px}
+.cf-card .cf-s{font-size:11.5px;opacity:.8;margin-top:3px}
+.bank-list{display:flex;flex-direction:column;gap:10px}
+.bank{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:14px 18px}
+.bank .bk-logo{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
+  font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
+.bank .bk-name{font-weight:700;font-size:14px}
+.bank .bk-acc{font-size:12px;color:var(--ink3)}
+.bank .bk-bal{margin-left:auto;text-align:right}
+.bank .bk-bal .bb-v{font-weight:800;font-size:15px}
+.bank .bk-bal .bb-s{font-size:11px;color:var(--ok);font-weight:600}
+/* VPBank — đơn vị tổ chức, nổi bật hơn */
+.bank.vpbank{border:1.5px solid #f3c4bf;background:linear-gradient(90deg,#fdf4f3,#fff 60%);
+  padding:18px 20px}
+.bank.vpbank .bk-logo.vp{width:52px;height:52px;background:#fff;border:1px solid #f0d4d0;padding:8px}
+.bank.vpbank .bk-logo.vp img{width:100%;height:100%;object-fit:contain}
+.bank.vpbank .bk-name{font-size:15px}
+.host-tag{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;
+  color:#E00500;background:#fde8e6;padding:2px 8px;border-radius:var(--radius-pill);
+  margin-left:7px;vertical-align:middle}
+.bank.vpbank .bk-bal .bb-v{font-size:16px}
+.approve-list{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.appr{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:14px 18px}
+.appr .ap-i{width:38px;height:38px;border-radius:10px;background:var(--warn-soft);color:var(--warn);
+  display:grid;place-items:center;flex-shrink:0}
+.appr .ap-body{flex:1}
+.appr .ap-t{font-weight:700;font-size:14px}
+.appr .ap-m{font-size:12px;color:var(--ink3)}
+.appr .ap-amt{font-weight:800;font-size:15px;margin-right:6px}
+.appr .ap-btns{display:flex;gap:7px}
+.mini-btn{appearance:none;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;
+  padding:7px 13px;border-radius:8px}
+.mini-btn.yes{background:var(--action);color:#fff}
+.mini-btn.no{background:var(--neg-soft);color:var(--neg)}
+
+/* mock: loans */
+.loan-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.loan-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 24px;margin-bottom:14px}
+.loan-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.loan-name{font-weight:800;font-size:16px;display:flex;align-items:center;gap:10px}
+.loan-name .ln-bank{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px}
+.loan-status{font-size:11px;font-weight:800;padding:5px 12px;border-radius:var(--radius-pill);text-transform:uppercase;letter-spacing:.03em}
+.loan-status.active{background:var(--ok-soft);color:var(--ok)}
+.loan-status.soon{background:var(--warn-soft);color:var(--warn)}
+.loan-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}
+@media(max-width:620px){.loan-meta{grid-template-columns:repeat(2,1fr)}}
+.lm .lm-l{font-size:11px;color:var(--ink3);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.lm .lm-v{font-size:17px;font-weight:800;margin-top:3px}
+.progress{margin-top:18px}
+.progress-bar{height:9px;background:var(--line2);border-radius:6px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--action),#14a874);border-radius:6px}
+.progress-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--ink3);margin-top:7px}
+.next-pay{background:var(--gold-soft);border:1px solid #ecdcae;border-radius:var(--radius-sm);
+  padding:14px 18px;margin-top:16px;display:flex;align-items:center;gap:14px}
+.next-pay .np-i{width:38px;height:38px;border-radius:10px;background:var(--gold);color:#fff;display:grid;place-items:center;flex-shrink:0}
+.next-pay .np-body{flex:1}
+.next-pay .np-t{font-size:12px;color:var(--warn);font-weight:600}
+.next-pay .np-d{font-weight:800;font-size:14px;color:var(--ink)}
+.next-pay .np-amt{font-weight:900;font-size:17px;color:var(--warn)}
+
+/* CTA footer */
+.foot-cta{background:linear-gradient(160deg,var(--deep),var(--deep2));border-radius:var(--radius);
+  padding:44px 46px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.foot-cta::before{content:'';position:absolute;top:-30%;left:50%;transform:translateX(-50%);
+  width:600px;height:400px;background:radial-gradient(circle,rgba(199,154,59,.14),transparent 66%)}
+.foot-cta h2{color:#fff;position:relative}
+.foot-cta p{color:#bcd3cb;max-width:52ch;margin:14px auto 0;position:relative}
+
+footer.site{padding:34px 0;border-top:1px solid var(--line);margin-top:0}
+footer.site .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+footer.site .f-brand{font-weight:800;font-size:15px;color:var(--ink2)}
+footer.site .f-note{font-size:12.5px;color:var(--ink3)}
+
+.section-head{margin-bottom:34px}
+.section-head .lead{margin-top:12px}
+.divider-note{font-size:13px;color:var(--ink3);font-style:italic;margin-top:8px}
+
+.callout{background:var(--action-soft);border:1px solid #cfe9dd;border-radius:var(--radius-sm);
+  padding:18px 22px;display:flex;gap:14px;align-items:flex-start}
+.callout svg{width:22px;height:22px;color:var(--action);flex-shrink:0;margin-top:1px}
+.callout .co-t{font-weight:700;font-size:14.5px;margin-bottom:3px}
+.callout p{font-size:13.5px;color:var(--ink2)}
+
+.metric-note{font-size:12px;color:var(--ink3);margin-top:20px;text-align:center;font-style:italic}
+
+/* ==== mock: quan ly chi tieu (VA thu + the chi) ==== */
+.spend-toggle{display:inline-flex;background:var(--line2);border-radius:var(--radius-pill);
+  padding:4px;gap:3px;margin-bottom:22px}
+.spend-toggle button{appearance:none;border:none;background:none;cursor:pointer;font-family:inherit;
+  font-size:13px;font-weight:700;color:var(--ink2);padding:8px 18px;border-radius:var(--radius-pill);
+  display:inline-flex;align-items:center;gap:8px;transition:all .15s}
+.spend-toggle button svg{width:15px;height:15px}
+.spend-toggle button.on{background:var(--surface);color:var(--action);box-shadow:var(--sh-sm)}
+.spend-view{display:none}.spend-view.on{display:block}
+/* VA collection */
+.va-intro{display:flex;gap:12px;align-items:flex-start;background:var(--action-soft);
+  border:1px solid #cfe9dd;border-radius:var(--radius-sm);padding:15px 18px;margin-bottom:20px}
+.va-intro svg{width:20px;height:20px;color:var(--action);flex-shrink:0;margin-top:1px}
+.va-intro p{font-size:13px;color:var(--ink2)}
+.va-intro b{color:var(--ink)}
+.va-list{display:flex;flex-direction:column;gap:10px}
+.va-row{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:15px 18px}
+.va-cust{display:flex;align-items:center;gap:12px}
+.va-cust .va-av{width:38px;height:38px;border-radius:10px;background:var(--action-soft);color:var(--action);
+  display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
+.va-cust .vc-name{font-weight:700;font-size:14px}
+.va-cust .vc-acc{font-size:12px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.va-amt{font-weight:800;font-size:15px;text-align:right}
+.va-badge{font-size:11px;font-weight:800;padding:5px 12px;border-radius:var(--radius-pill);
+  text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+.va-badge.matched{background:var(--ok-soft);color:var(--ok)}
+.va-badge.wait{background:var(--warn-soft);color:var(--warn)}
+@media(max-width:620px){.va-row{grid-template-columns:1fr auto}.va-badge{grid-column:2}}
+/* virtual cards */
+.vc-head{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+@media(max-width:760px){.vc-head{grid-template-columns:1fr}}
+.card-face{border-radius:var(--radius);padding:20px 22px;color:#fff;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--deep),var(--deep2));min-height:150px;
+  display:flex;flex-direction:column;justify-content:space-between}
+.card-face.locked{background:linear-gradient(135deg,#3a4744,#2a3532);opacity:.9}
+.card-face::after{content:'';position:absolute;top:-30%;right:-15%;width:180px;height:180px;
+  background:radial-gradient(circle,rgba(199,154,59,.18),transparent 68%)}
+.card-face .cf-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:2}
+.card-face .cf-owner{font-size:13px;font-weight:700}
+.card-face .cf-dept{font-size:11px;color:#9fbcb2;margin-top:1px}
+.card-face .cf-chip{width:30px;height:22px;border-radius:5px;background:linear-gradient(135deg,#d4af5a,#b08a3a)}
+.card-face .cf-num{font-family:inherit;font-size:15px;letter-spacing:2px;font-weight:600;
+  position:relative;z-index:2;font-variant-numeric:tabular-nums}
+.card-face .cf-foot{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:2}
+.card-face .cf-lim{font-size:11px;color:#9fbcb2}
+.card-face .cf-lim b{color:#fff;font-size:14px;display:block;margin-top:1px}
+.card-face .cf-brand{font-size:12px;font-weight:800;letter-spacing:.02em}
+.card-face .cf-lock{position:absolute;top:14px;right:16px;z-index:3;background:rgba(255,255,255,.15);
+  border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px}
+.card-face .cf-lock svg{width:11px;height:11px}
+.vc-usage{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px}
+.vc-usage h5{font-size:14px;font-weight:800;margin-bottom:16px}
+.usage-row{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.usage-row:last-child{margin-bottom:0}
+.usage-top{display:flex;justify-content:space-between;font-size:13px}
+.usage-top .u-name{font-weight:600}
+.usage-top .u-val{font-weight:700;font-variant-numeric:tabular-nums}
+.usage-bar{height:8px;background:var(--line2);border-radius:5px;overflow:hidden}
+.usage-fill{height:100%;border-radius:5px}
+.spend-recent{margin-top:22px}
+.tx-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--line2)}
+.tx-row:last-child{border:none}
+.tx-i{width:36px;height:36px;border-radius:10px;background:var(--line2);color:var(--ink2);
+  display:grid;place-items:center;flex-shrink:0}
+.tx-i svg{width:17px;height:17px}
+.tx-body{flex:1}
+.tx-t{font-weight:600;font-size:13.5px}
+.tx-m{font-size:12px;color:var(--ink3)}
+.tx-amt{font-weight:800;font-size:14px;font-variant-numeric:tabular-nums}
+
+/* nhãn cơ chế giá trị (từ value tool) */
+.mech-tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;
+  letter-spacing:.02em;padding:3px 9px;border-radius:var(--radius-pill);margin-bottom:8px}
+.mech-tag .mt-no{width:15px;height:15px;border-radius:50%;display:grid;place-items:center;
+  font-size:9px;color:#fff;flex-shrink:0}
+.mech-tag.auto{background:#e7f0fb;color:#1d4e86}
+.mech-tag.auto .mt-no{background:#2563a8}
+.mech-tag.ctrl{background:var(--warn-soft);color:var(--warn)}
+.mech-tag.ctrl .mt-no{background:var(--warn)}
+.mech-tag.flow{background:var(--action-soft);color:var(--action)}
+.mech-tag.flow .mt-no{background:var(--action)}
+.val-line{font-size:12px;color:var(--ink2);line-height:1.5;margin-top:2px}
+.val-line b{color:var(--ink)}
+.va-intro .mech-tag{margin-bottom:6px}
+.usage-note{font-size:11.5px;color:var(--ink3);margin-top:14px;padding-top:12px;
+  border-top:1px dashed var(--line);line-height:1.5}
+.usage-note b{color:var(--warn)}
+
+/* panel Thiết kế báo cáo */
+.design-panel{display:none;background:linear-gradient(160deg,#f0f9f4,var(--action-soft));
+  border:1px solid #cfe9dd;border-radius:var(--radius);padding:24px;margin-bottom:24px}
+.design-panel.on{display:block}
+.dp-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
+.dp-head h5{font-size:16px;font-weight:800;display:flex;align-items:center;gap:9px}
+.dp-head h5 .dh-i{width:28px;height:28px;border-radius:8px;background:var(--action);color:#fff;display:grid;place-items:center}
+.dp-head h5 .dh-i svg{width:16px;height:16px}
+.dp-head p{font-size:12.5px;color:var(--ink2);margin-top:4px;max-width:60ch}
+.dp-close{appearance:none;border:none;background:rgba(255,255,255,.7);cursor:pointer;
+  width:30px;height:30px;border-radius:8px;color:var(--ink2);flex-shrink:0;font-size:16px}
+.dp-close:hover{background:#fff;color:var(--neg)}
+.dp-section-t{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--action);margin:4px 0 12px}
+.industry-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:760px){.industry-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.industry-grid{grid-template-columns:1fr}}
+.ind-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:15px 16px;cursor:pointer;transition:all .15s}
+.ind-card:hover{border-color:var(--action);box-shadow:var(--sh-sm);transform:translateY(-1px)}
+.ind-card .ic-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ind-card .ic-i{width:34px;height:34px;border-radius:9px;background:var(--action-soft);color:var(--action);display:grid;place-items:center;flex-shrink:0}
+.ind-card .ic-i svg{width:18px;height:18px}
+.ind-card .ic-n{font-weight:700;font-size:13.5px;line-height:1.2}
+.ind-card .ic-d{font-size:11.5px;color:var(--ink3);line-height:1.45}
+.ind-card .ic-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.ind-card .ic-tag{font-size:10px;font-weight:600;color:var(--ink2);background:var(--line2);
+  padding:2px 8px;border-radius:var(--radius-pill)}
+.tpl-intro{font-size:12.5px;color:var(--ink2);margin-bottom:14px}
+.tpl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:760px){.tpl-grid{grid-template-columns:repeat(2,1fr)}}
+.tpl-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:16px;text-align:center;cursor:pointer;transition:all .15s}
+.tpl-card:hover{border-color:var(--action);box-shadow:var(--sh-sm)}
+.tpl-logo{width:46px;height:46px;border-radius:11px;margin:0 auto 10px;display:grid;place-items:center;
+  font-weight:900;font-size:15px;color:#fff;letter-spacing:-.02em}
+.tpl-name{font-weight:700;font-size:13px}
+.tpl-sub{font-size:11px;color:var(--ink3);margin-top:2px}
+.tpl-dl{margin-top:10px;font-size:11px;font-weight:700;color:var(--action);display:inline-flex;align-items:center;gap:5px}
+.tpl-dl svg{width:12px;height:12px}
+.tpl-note{font-size:11.5px;color:var(--ink3);font-style:italic;margin-top:14px;
+  padding-top:12px;border-top:1px dashed #cfe9dd;line-height:1.5}
+
+/* chuỗi 6 bước thiết kế báo cáo */
+.flow-steps{display:flex;flex-direction:column;gap:10px}
+.fstep{background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;transition:box-shadow .15s}
+.fstep.open{box-shadow:var(--sh)}
+.fstep-h{display:flex;align-items:center;gap:14px;padding:15px 18px;cursor:pointer}
+.fstep-h:hover{background:#fafcfb}
+.fstep-no{width:32px;height:32px;border-radius:9px;background:var(--action);color:#fff;
+  display:grid;place-items:center;font-weight:900;font-size:14px;flex-shrink:0}
+.fstep.svc .fstep-no{background:var(--tier-pro)}
+.fstep-tt{flex:1;min-width:0}
+.fstep-tt .ft-n{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fstep-tt .ft-d{font-size:12px;color:var(--ink3);margin-top:2px}
+.fstep-tag{font-size:9.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:var(--radius-pill)}
+.fstep-tag.free{background:var(--action-soft);color:var(--action)}
+.fstep-tag.pro{background:#f1eafe;color:var(--tier-pro)}
+.fstep-caret{color:var(--ink3);transition:transform .2s;flex-shrink:0}
+.fstep.open .fstep-caret{transform:rotate(180deg)}
+.fstep-body{display:none;padding:4px 18px 20px;border-top:1px solid var(--line2)}
+.fstep.open .fstep-body{display:block}
+.fstep-body .fb-lead{font-size:12.5px;color:var(--ink2);margin:14px 0 14px;line-height:1.55}
+/* bước 2: nguồn dữ liệu kéo vào */
+.src-drop{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:6px}
+@media(max-width:760px){.src-drop{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.src-drop{grid-template-columns:repeat(2,1fr)}}
+.src-item{background:var(--action-soft);border:1px dashed #9dccb9;border-radius:var(--radius-sm);
+  padding:14px 10px;text-align:center;cursor:default}
+.src-item svg{width:22px;height:22px;color:var(--action);margin-bottom:7px}
+.src-item .si-n{font-size:11.5px;font-weight:600;color:var(--ink);line-height:1.3}
+.ai-arrow{text-align:center;margin:14px 0;color:var(--action);font-size:12.5px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:8px}
+.ai-arrow svg{width:18px;height:18px}
+.ai-out{background:linear-gradient(135deg,var(--action-soft),#f0f9f4);border:1px solid #cfe9dd;
+  border-radius:var(--radius-sm);padding:14px 16px;font-size:12.5px;color:var(--ink);line-height:1.55}
+.ai-out b{color:var(--action)}
+/* bước 4: gợi ý phần mềm theo quy mô */
+.sw-rec{display:flex;flex-direction:column;gap:8px}
+.sw-row{display:grid;grid-template-columns:130px 1fr auto;gap:14px;align-items:center;
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 16px}
+.sw-row .swr-scale{font-weight:700;font-size:12.5px}
+.sw-row .swr-scale .swr-sub{display:block;font-size:11px;color:var(--ink3);font-weight:400}
+.sw-row .swr-rec{font-size:12.5px;color:var(--ink2)}
+.sw-row .swr-rec b{color:var(--ink)}
+.sw-row .swr-price{font-size:12.5px;font-weight:800;color:var(--action);white-space:nowrap;text-align:right}
+@media(max-width:620px){.sw-row{grid-template-columns:1fr;gap:5px}.sw-row .swr-price{text-align:left}}
+/* bước 5: effortless reporting */
+.eff-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.eff-node{flex:1;min-width:100px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:13px;text-align:center}
+.eff-node svg{width:20px;height:20px;color:var(--action);margin-bottom:6px}
+.eff-node .en-n{font-size:12px;font-weight:700}
+.eff-node .en-d{font-size:10.5px;color:var(--ink3);margin-top:2px}
+.eff-node.hl{background:var(--deep);border-color:var(--deep)}
+.eff-node.hl svg{color:var(--gold)}
+.eff-node.hl .en-n{color:#fff}.eff-node.hl .en-d{color:#9fbcb2}
+.eff-arr{color:var(--ink3);flex-shrink:0}.eff-arr svg{width:18px;height:18px;display:block}
+.eff-badge{display:inline-flex;align-items:center;gap:7px;background:var(--gold-soft);
+  border:1px solid #ecdcae;border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;
+  font-weight:700;color:var(--warn);margin-top:14px}
+.eff-badge svg{width:14px;height:14px}
+/* bước 6: gói dịch vụ */
+.svc-box{background:linear-gradient(135deg,#f1eafe,#f7f2fe);border:1px solid #e0d0f7;
+  border-radius:var(--radius-sm);padding:16px 18px}
+.svc-box .sb-t{font-weight:800;font-size:13.5px;color:var(--tier-pro);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.svc-box ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.svc-box li{font-size:12.5px;color:var(--ink);display:flex;gap:9px;align-items:flex-start;line-height:1.45}
+.svc-box li svg{width:15px;height:15px;color:var(--tier-pro);flex-shrink:0;margin-top:2px}
+
+/* ==== hồ sơ vay: danh sách + lịch trả nợ ==== */
+.loan-panel{display:none;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:22px 24px;margin-bottom:20px}
+.loan-panel.on{display:block}
+.lp-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.lp-head h5{font-size:15px;font-weight:800;display:flex;align-items:center;gap:9px}
+.lp-close{appearance:none;border:none;background:var(--line2);cursor:pointer;width:28px;height:28px;
+  border-radius:8px;color:var(--ink2);font-size:15px}
+.lp-close:hover{background:var(--neg-soft);color:var(--neg)}
+/* danh sách khoản vay */
+.loan-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.loan-tbl th{background:var(--deep);color:#fff;text-align:left;padding:10px 12px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.loan-tbl th:not(:first-child),.loan-tbl td:not(:first-child){text-align:right}
+.loan-tbl td{padding:11px 12px;border-bottom:1px solid var(--line2);font-variant-numeric:tabular-nums}
+.loan-tbl tr:last-child td{border-bottom:none}
+.loan-tbl .lt-name{font-weight:700;display:flex;align-items:center;gap:9px;text-align:left}
+.loan-tbl .lt-bank{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:10px;flex-shrink:0}
+.loan-tbl .lt-st{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:var(--radius-pill);text-transform:uppercase}
+.loan-tbl .lt-st.active{background:var(--ok-soft);color:var(--ok)}
+.loan-tbl .lt-st.soon{background:var(--warn-soft);color:var(--warn)}
+.loan-tbl tfoot td{background:#f1f6f2;font-weight:800;color:var(--action);border-top:2px solid var(--line)}
+@media(max-width:760px){.loan-tbl{font-size:12px}.loan-tbl .hide-sm{display:none}}
+/* toggle view + granularity */
+.sched-ctl{display:flex;gap:14px;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--line2);border-radius:var(--radius-pill);padding:3px;gap:2px}
+.seg button{appearance:none;border:none;background:none;cursor:pointer;font-family:inherit;font-size:12.5px;
+  font-weight:700;color:var(--ink2);padding:7px 15px;border-radius:var(--radius-pill);display:inline-flex;align-items:center;gap:7px}
+.seg button svg{width:14px;height:14px}
+.seg button.on{background:var(--surface);color:var(--action);box-shadow:var(--sh-sm)}
+.gran-lbl{font-size:12px;color:var(--ink3);font-weight:600}
+/* legend gốc/lãi */
+.pl-legend{display:flex;gap:16px;align-items:center;font-size:12px;margin-bottom:14px}
+.pl-legend .pll{display:flex;align-items:center;gap:7px;font-weight:600}
+.pl-legend .pll .sw{width:13px;height:13px;border-radius:4px}
+.sw.principal{background:#0e8a5f}.sw.interest{background:#c79a3b}
+/* GANTT */
+.gantt{display:none}.gantt.on{display:block}
+.gantt-scroll{overflow-x:auto;padding-bottom:6px}
+.gantt-inner{min-width:640px}
+.gantt-cols{display:grid;grid-template-columns:170px 1fr;gap:0;border-bottom:1px solid var(--line);margin-bottom:6px}
+.gantt-cols .gc-head{font-size:11px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;padding:0 0 8px}
+.gantt-periods{display:grid;grid-auto-flow:column;grid-auto-columns:1fr}
+.gantt-periods .gp{font-size:11px;font-weight:700;color:var(--ink2);text-align:center;padding:0 4px 8px;border-left:1px solid var(--line2)}
+.gantt-row{display:grid;grid-template-columns:170px 1fr;align-items:center;padding:9px 0;border-bottom:1px solid var(--line2)}
+.gantt-row:last-child{border-bottom:none}
+.gantt-loan{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:8px;padding-right:10px}
+.gantt-loan .gl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.gantt-track{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0;position:relative;height:34px}
+.gantt-cell{border-left:1px solid var(--line2);display:flex;align-items:center;justify-content:center;position:relative}
+.gantt-bar{width:86%;height:26px;border-radius:6px;display:flex;overflow:hidden;cursor:default;
+  box-shadow:var(--sh-sm)}
+.gantt-bar .gb-p{background:#0e8a5f}
+.gantt-bar .gb-i{background:#c79a3b}
+.gantt-bar .gb-seg{display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:#fff;white-space:nowrap}
+.gantt-empty{color:var(--ink3);font-size:10px}
+.gantt-total-row{display:grid;grid-template-columns:170px 1fr;align-items:center;padding:11px 0 2px;border-top:2px solid var(--line);margin-top:4px}
+.gantt-total-row .gt-lbl{font-size:12px;font-weight:800;color:var(--action)}
+.gantt-total-track{display:grid;grid-auto-flow:column;grid-auto-columns:1fr}
+.gantt-total-cell{border-left:1px solid var(--line2);text-align:center;font-size:11px;font-weight:800;
+  font-variant-numeric:tabular-nums;line-height:1.35;padding:2px}
+.gantt-total-cell .gt-p{color:#0e8a5f}.gantt-total-cell .gt-i{color:#b0872f}
+/* LIST view */
+.sched-list{display:none}.sched-list.on{display:block}
+.sl-period{border:1px solid var(--line);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+.sl-phead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:#f1f6f2;flex-wrap:wrap}
+.sl-pname{font-weight:800;font-size:13.5px;color:var(--ink)}
+.sl-ptot{display:flex;gap:16px;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.sl-ptot .slp{color:#0e8a5f}.sl-ptot .sli{color:#b0872f}
+.sl-ptot .slt{color:var(--ink)}
+.sl-rows{padding:6px 16px 12px}
+.sl-row{display:grid;grid-template-columns:1fr auto auto auto;gap:14px;align-items:center;
+  padding:9px 0;border-bottom:1px solid var(--line2);font-size:12.5px}
+.sl-row:last-child{border-bottom:none}
+.sl-loan{font-weight:600;display:flex;align-items:center;gap:8px}
+.sl-loan .sl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sl-val{font-variant-numeric:tabular-nums;font-weight:700;text-align:right;min-width:74px}
+.sl-val.p{color:#0e8a5f}.sl-val.i{color:#b0872f}
+.sl-val.t{color:var(--ink);font-weight:800}
+.sl-vhead{display:grid;grid-template-columns:1fr auto auto auto;gap:14px;padding:2px 16px 6px;
+  font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--ink3)}
+.sl-vhead span:not(:first-child){text-align:right;min-width:74px}
+@media(max-width:620px){.sl-row,.sl-vhead{grid-template-columns:1fr auto auto}.sl-hide{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <span class="logo finan"><img src="data:image/png;base64,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" alt="Finan"></span>
+      FinanOne <span class="sub">Kế hoạch</span>
+    </div>
+    <span class="spacer"></span>
+    <span class="doc-label">Kế hoạch sản phẩm &amp; kinh doanh · bản trình bày nội bộ</span>
+  </div>
+</div>
+
+<!-- ===== TAB NAV ===== -->
+<div class="tabnav">
+  <div class="wrap tabnav-inner">
+    <button class="tab-btn on" data-tab="overview"><span class="tn">1</span>Tổng quan</button>
+    <button class="tab-btn" data-tab="product"><span class="tn">2</span>Sản phẩm</button>
+    <button class="tab-btn" data-tab="tiers"><span class="tn">3</span>Phân tầng</button>
+    <button class="tab-btn feature" data-tab="mockup"><span class="tn">4</span>Giao diện demo<span class="star">★</span></button>
+    <button class="tab-btn" data-tab="roadmap"><span class="tn">5</span>Lộ trình</button>
+    <button class="tab-btn" data-tab="gtm"><span class="tn">6</span>Go-to-market</button>
+    <button class="tab-btn" data-tab="money"><span class="tn">7</span>Dòng doanh thu</button>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- ============ TAB 1: OVERVIEW ============ -->
+<div class="panel on" id="overview">
+  <section>
+    <div class="hero">
+      <span class="hero-tag"><span class="dot"></span>Định vị sản phẩm</span>
+      <div class="eyebrow">FinanOne cho doanh nghiệp SME</div>
+      <h1>Giám đốc tài chính cho mọi doanh nghiệp, không phải đặc quyền của số ít</h1>
+      <p class="hlead">Kết hợp AI với chuyên gia tài chính thật, FinanOne đưa dịch vụ quản trị tài chính cấp CFO đến tay doanh nghiệp SME — với chi phí trong tầm với.</p>
+      <div class="hero-stats">
+        <div class="hstat"><div class="n">40<span class="u">%</span></div><div class="l">chi phí so với thuê đội ngũ chuyên môn truyền thống</div></div>
+        <div class="hstat"><div class="n">2,5<span class="u">×</span></div><div class="l">chất lượng tư vấn nhờ AI + chuyên gia đồng hành</div></div>
+        <div class="hstat"><div class="n">7</div><div class="l">nhóm tính năng, từ miễn phí tới dịch vụ cao cấp</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Khoảng trống thị trường</div>
+      <h2>Doanh nghiệp SME đang mắc kẹt giữa ba lựa chọn đều không đủ</h2>
+      <p class="lead">Chúng tôi không phát minh ra bánh xe mới. Chúng tôi trám vào ba khoảng trống mà thị trường bỏ ngỏ.</p>
+    </div>
+    <div class="grid g3">
+      <div class="prob">
+        <h3><span class="x">✕</span>Phần mềm &amp; dịch vụ kế toán</h3>
+        <p>Chỉ dừng ở báo cáo thuế, làm thủ công. Các phần mềm cạnh tranh nhau về giá (chỉ 3–10 triệu/năm) nên không còn chỗ cho chi phí triển khai hay tư vấn — và không có nhân sự hiểu sâu từng ngành để tư vấn cho khách.</p>
+        <div class="prob-stat">3–10 tr<span>/năm · chỉ đủ cho phần mềm, không có tư vấn</span></div>
+      </div>
+      <div class="prob">
+        <h3><span class="x">✕</span>Kế toán viên</h3>
+        <p>Giỏi nghiệp vụ sổ sách nhưng không sâu về chuyên môn tài chính, nên chỉ làm được tác vụ báo cáo — khó đóng vai cố vấn chiến lược cho chủ doanh nghiệp.</p>
+        <div class="prob-stat">Thiếu<span>chiều sâu tài chính để tư vấn chiến lược</span></div>
+      </div>
+      <div class="prob">
+        <h3><span class="x">✕</span>Thuê CFO thật</h3>
+        <p>Đúng chuyên môn nhưng quá đắt: lương một CFO khoảng 100–200 triệu/tháng, thuê part-time cũng mất 30–100 triệu/tháng — một phần chi phí quá lớn với doanh nghiệp SME.</p>
+        <div class="prob-stat">30–100 tr<span>/tháng cho CFO part-time · ngoài tầm SME</span></div>
+      </div>
+    </div>
+
+    <div class="solban" style="margin-top:24px;background:linear-gradient(135deg,var(--deep),var(--deep2));border:none;color:#fff">
+      <div class="eyebrow" style="color:var(--gold)">Điều FinanOne bán</div>
+      <h2 style="color:#fff;max-width:24ch">Chúng tôi không bán phần mềm. Chúng tôi bán <span style="color:var(--gold)">Insight</span> và <span style="color:var(--gold)">Hiệu quả quản trị</span>.</h2>
+      <p class="lead" style="color:#c8dbd4;margin-top:14px;max-width:64ch">Doanh nghiệp không thiếu công cụ ghi sổ. Cái họ thiếu là <b style="color:#fff">nhìn ra được điều gì đang xảy ra với tiền của mình</b> và <b style="color:#fff">ra quyết định đúng lúc</b>. Đó chính là khoảng trống giữa phần mềm rẻ tiền và CFO đắt đỏ — nơi FinanOne đứng.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="solban">
+      <div class="eyebrow">Lời giải của FinanOne</div>
+      <h2>Mô hình "AI + chuyên gia tài chính đồng hành"</h2>
+      <p class="lead" style="margin-top:14px">Doanh nghiệp dựa trên nền tảng dữ liệu sẵn có, kết hợp với hệ thống chuyên gia bán tự động. AI xử lý phần lặp lại và phân tích; chuyên gia tài chính vào cuộc ở những quyết định cần phán đoán. Nhờ đó dịch vụ quản trị tài chính chất lượng cao trở nên vừa túi tiền.</p>
+      <div class="pillrow">
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>AI phân tích &amp; chấm điểm tự động</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Chuyên gia thật vào cuộc khi cần</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Dữ liệu tập trung một chỗ</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Chi phí theo nhu cầu</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Bốn trụ giá trị</div>
+      <h2>Vì sao doanh nghiệp chọn FinanOne</h2>
+    </div>
+    <div class="grid g4">
+      <div class="card">
+        <div class="card-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
+        <h3>Tự khám trước</h3>
+        <p>Doanh nghiệp tự đánh giá sức khỏe tài chính miễn phí, biết mình đang đứng ở đâu trước khi cần ai tư vấn.</p>
+      </div>
+      <div class="card">
+        <div class="card-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></div>
+        <h3>Nhìn xuyên dữ liệu</h3>
+        <p>Gom dữ liệu rời rạc thành báo cáo quản trị trực quan, đa chiều — thứ mà kế toán thuế không cung cấp.</p>
+      </div>
+      <div class="card">
+        <div class="card-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/><path d="M12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7Z"/></svg></div>
+        <h3>Chuyên gia khi cần</h3>
+        <p>Đặt lịch chuyên gia tài chính, kế toán quản trị hoặc CFO từ xa — trả tiền theo nhu cầu, không phải lương cố định.</p>
+      </div>
+      <div class="card">
+        <div class="card-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+        <h3>Vay vốn thông minh</h3>
+        <p>So sánh sản phẩm tín dụng trên thị trường, quản lý khoản vay, tự động nhắc lịch trả nợ và tính lãi.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ TAB 2: PRODUCT ============ -->
+<div class="panel" id="product">
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Sáu vai trò sản phẩm</div>
+      <h2>Một nền tảng, sáu công việc của một giám đốc tài chính</h2>
+      <p class="lead">Mỗi tính năng đảm nhận một vai trò mà bình thường doanh nghiệp phải thuê nhiều người khác nhau mới làm được.</p>
+    </div>
+
+    <div class="feat">
+      <div class="feat-n" style="background:var(--tier-free)">1</div>
+      <div class="feat-body">
+        <h3>Bác sĩ Tài chính</h3>
+        <p>Nạp báo cáo thuế, chạy phân tích và chấm điểm khả năng vay vốn, kèm gợi ý cụ thể cách xử lý từng điểm nghẽn. Có nút đặt lịch thảo luận với chuyên gia và nút gửi báo cáo đánh giá về email.</p>
+        <div class="feat-chain">
+          <span class="fc free">Chấm điểm khả năng vay</span>
+          <span class="fc free">Gợi ý xử lý điểm nghẽn</span>
+          <span class="fc free">Gửi báo cáo qua email</span>
+          <span class="fc free">So sánh nhiều công ty</span>
+        </div>
+        <div class="role">Vai trò: bác sĩ khám tổng quát — dễ dùng, cho kết quả tức thì</div>
+      </div>
+      <span class="tag free">Miễn phí</span>
+    </div>
+
+    <div class="feat">
+      <div class="feat-n" style="background:var(--tier-basic)">2</div>
+      <div class="feat-body">
+        <h3>Báo cáo quản trị</h3>
+        <p>Kết nối dữ liệu từ nhiều nguồn qua upload hoặc API, dựng thành báo cáo quản trị trực quan — doanh thu, chi phí, lợi nhuận theo mảng, theo kỳ, theo bất kỳ chiều nào doanh nghiệp cần. Cả một chuỗi <b>Template → Kết nối → Tự động hóa</b> để việc làm báo cáo quản trị từ khó thành dễ:</p>
+        <div class="feat-chain">
+          <span class="fc">1 · Tra mẫu theo ngành</span>
+          <span class="fc">2 · Thiết kế mẫu riêng bằng AI</span>
+          <span class="fc">3 · Template nhập liệu theo phần mềm</span>
+          <span class="fc">4 · Gợi ý phần mềm theo quy mô</span>
+          <span class="fc">5 · Báo cáo tháng tự lên</span>
+          <span class="fc pro">6 · ★ Gói dịch vụ kế toán quản trị</span>
+        </div>
+        <div class="role">Vai trò: chuyên viên phân tích tài chính (FP&amp;A) · xem chuỗi đầy đủ ở tab Giao diện demo</div>
+      </div>
+      <span class="tag basic">Cơ bản</span>
+    </div>
+
+    <div class="feat">
+      <div class="feat-n" style="background:var(--tier-basic)">3</div>
+      <div class="feat-body">
+        <h3>Quản trị dòng tiền all-in-one</h3>
+        <p>Kết nối các tài khoản ngân hàng về một chỗ, phê duyệt khoản chi, nhận báo cáo dòng tiền định kỳ. Toàn cảnh tiền vào — tiền ra — số dư, không phải mở từng app ngân hàng.</p>
+        <div class="feat-chain">
+          <span class="fc">Gom nhiều ngân hàng một chỗ</span>
+          <span class="fc">Phê duyệt khoản chi</span>
+          <span class="fc">Báo cáo dòng tiền định kỳ</span>
+        </div>
+        <div class="role">Vai trò: kế toán trưởng phụ trách ngân quỹ</div>
+      </div>
+      <span class="tag basic">Cơ bản</span>
+    </div>
+
+    <div class="feat">
+      <div class="feat-n" style="background:var(--tier-basic)">4</div>
+      <div class="feat-body">
+        <h3>Trung tâm hồ sơ vay &amp; lịch trả nợ</h3>
+        <p>Tập hợp hồ sơ vay, thông tin từng khoản vay, tự động nhắc lịch trả nợ, tính lãi vay và kết xuất ra dòng tiền tài chính dự kiến. Không còn cảnh quên kỳ trả nợ hay tính nhầm lãi.</p>
+        <div class="feat-chain">
+          <span class="fc">Danh sách khoản vay</span>
+          <span class="fc">Nhắc lịch trả nợ tự động</span>
+          <span class="fc">Tính lãi vay tự động</span>
+          <span class="fc">Lịch trả nợ Gantt / danh sách</span>
+        </div>
+        <div class="role">Vai trò: cán bộ tín dụng nội bộ</div>
+      </div>
+      <span class="tag basic">Cơ bản</span>
+    </div>
+
+    <div class="feat">
+      <div class="feat-n" style="background:var(--tier-free)">5</div>
+      <div class="feat-body">
+        <h3>Quản lý chi tiêu — tài khoản ảo &amp; thẻ ảo</h3>
+        <p>Hai mặt của một chỗ. <b>Tài khoản ảo thu tiền:</b> mỗi khách hàng một số tài khoản riêng, tiền vào tự khớp đúng khách, hết cảnh dò tay từng giao dịch. <b>Thẻ ảo chi tiêu:</b> phát hành thẻ cho từng nhân viên hoặc phòng ban, đặt hạn mức, khóa/mở tức thì, mọi khoản chi hiện ngay trên nền tảng.</p>
+        <div class="feat-chain">
+          <span class="fc free">Tài khoản ảo thu tiền, tự đối soát</span>
+          <span class="fc free">Thẻ ảo chi tiêu theo hạn mức</span>
+          <span class="fc free">Khóa/mở thẻ tức thì</span>
+        </div>
+        <div class="role">Vai trò: bộ phận ngân quỹ — thu và chi đều nằm trong tầm kiểm soát · do ngân hàng đối tác hỗ trợ</div>
+      </div>
+      <span class="tag free">Miễn phí</span>
+    </div>
+
+    <div class="feat">
+      <div class="feat-n" style="background:var(--tier-free)">6</div>
+      <div class="feat-body">
+        <h3>So sánh &amp; gợi ý sản phẩm tín dụng</h3>
+        <p>Tìm hiểu các gói tín dụng đang có trên thị trường, đối chiếu với hồ sơ doanh nghiệp và gợi ý giải pháp vay phù hợp nhất — lãi suất, kỳ hạn, điều kiện. Người dùng không trả phí: doanh thu đến từ hợp tác với tổ chức tín dụng.</p>
+        <div class="feat-chain">
+          <span class="fc free">So sánh gói tín dụng thị trường</span>
+          <span class="fc free">Gợi ý theo hồ sơ doanh nghiệp</span>
+          <span class="fc free">Kết nối vay với tổ chức tín dụng</span>
+        </div>
+        <div class="role">Vai trò: nhà môi giới tài chính đứng về phía doanh nghiệp</div>
+      </div>
+      <span class="tag free">Miễn phí</span>
+    </div>
+
+    <div class="feat">
+      <div class="feat-n" style="background:var(--tier-pro)">7</div>
+      <div class="feat-body">
+        <h3>Dịch vụ chuyên gia từ xa</h3>
+        <p>Đặt dịch vụ kế toán quản trị, kế toán thuế hoặc CFO từ xa. Chuyên gia thật vào cuộc dựa trên chính dữ liệu đã có sẵn trên nền tảng — không phải bắt đầu lại từ đầu.</p>
+        <div class="feat-chain">
+          <span class="fc pro">Setup hệ thống quản trị tài chính</span>
+          <span class="fc pro">Kế toán dịch vụ định kỳ</span>
+          <span class="fc pro">CFO từ xa định kỳ</span>
+          <span class="fc pro">Tư vấn 1-1 theo phiên</span>
+        </div>
+        <div class="role">Vai trò: đội ngũ tài chính thuê ngoài, tính phí theo nhu cầu</div>
+      </div>
+      <span class="tag pro">Nâng cao</span>
+    </div>
+  </section>
+</div>
+
+<!-- ============ TAB 3: TIERS ============ -->
+<div class="panel" id="tiers">
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Phân tầng tính năng</div>
+      <h2>Ba tầng, một lộ trình rõ ràng cho team triển khai</h2>
+      <p class="lead">Miễn phí để thu hút và tạo niềm tin. Cơ bản để giữ chân bằng giá trị hằng ngày. Nâng cao để tạo doanh thu dịch vụ. Ưu tiên triển khai hai tầng đầu trước.</p>
+    </div>
+
+    <div class="tiers">
+      <div class="tier t-free feature">
+        <div class="tier-k">Miễn phí</div>
+        <div class="tier-price">0đ<span class="per"> / mãi mãi</span></div>
+        <div class="tier-desc">Cửa ngõ thu hút người dùng. Tạo giá trị tức thì mà không cần cam kết.</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Bác sĩ Tài chính: chấm điểm khả năng vay</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Gợi ý cải thiện từng điểm nghẽn</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Gửi báo cáo đánh giá qua email</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>So sánh sức khỏe nhiều công ty</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Gợi ý &amp; kết nối sản phẩm tín dụng</li>
+        </ul>
+      </div>
+
+      <div class="tier t-basic feature">
+        <div class="tier-k">Cơ bản</div>
+        <div class="tier-price">Thuê bao<span class="per"> / tháng</span></div>
+        <div class="tier-desc">Công cụ quản trị dùng hằng ngày. Đây là nơi doanh nghiệp trả tiền đều đặn.</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Toàn bộ tính năng Miễn phí</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Báo cáo quản trị đa chiều</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Kết nối dữ liệu qua upload &amp; API</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Quản trị dòng tiền, kết nối ngân hàng</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Phê duyệt chi, báo cáo dòng tiền định kỳ</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Hồ sơ vay, nhắc lịch &amp; tính lãi tự động</li>
+        </ul>
+      </div>
+
+      <div class="tier t-pro">
+        <div class="tier-k">Nâng cao</div>
+        <div class="tier-price">Theo dịch vụ<span class="per"> / gói</span></div>
+        <div class="tier-desc">Chuyên gia thật vào cuộc. Doanh thu dịch vụ biên cao, làm sau khi nền đã vững.</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Toàn bộ tính năng Cơ bản</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Setup hệ thống quản trị tài chính <span class="tier-freq">theo gói</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Kế toán dịch vụ <span class="tier-freq">định kỳ</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>CFO từ xa <span class="tier-freq">định kỳ</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Tư vấn 1-1 <span class="tier-freq">theo phiên</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:28px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div>
+        <div class="co-t">Nguyên tắc phân tầng</div>
+        <p>Tầng miễn phí phải đủ tốt để người dùng tin tưởng và giới thiệu. Tầng cơ bản giải quyết công việc lặp lại hằng ngày nên xứng đáng trả thuê bao. Tầng nâng cao là nơi chuyên gia và doanh thu dịch vụ xuất hiện — chỉ mở rộng khi hai tầng dưới đã chạy ổn.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ TAB 4: MOCKUP ============ -->
+<div class="panel" id="mockup">
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Giao diện demo</div>
+      <h2>Hình dung sản phẩm sẽ trông như thế nào</h2>
+      <p class="lead">Bản mô phỏng giao diện cho các tính năng ưu tiên triển khai. Dữ liệu minh họa, dùng để team thống nhất hướng thiết kế trước khi dựng thật trên nền tảng.</p>
+    </div>
+
+    <div class="mock-intro">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div>Đây là <b>bản mô phỏng tĩnh</b> để trình bày ý tưởng — số liệu là ví dụ minh họa. Chọn từng tính năng bên dưới để xem giao diện tương ứng.</div>
+    </div>
+
+    <div class="mock-picker">
+      <button class="mp-btn on" data-mock="doctor"><span class="mtag free">Miễn phí</span>Bác sĩ Tài chính</button>
+      <button class="mp-btn" data-mock="dashboard"><span class="mtag basic">Cơ bản</span>Báo cáo quản trị</button>
+      <button class="mp-btn" data-mock="cashflow"><span class="mtag basic">Cơ bản</span>Quản trị dòng tiền</button>
+      <button class="mp-btn" data-mock="loans"><span class="mtag basic">Cơ bản</span>Hồ sơ vay &amp; lịch trả nợ</button>
+      <button class="mp-btn" data-mock="spend"><span class="mtag free">Miễn phí</span>Quản lý chi tiêu</button>
+    </div>
+
+    <div class="device">
+      <div class="device-bar">
+        <div class="device-dots"><i></i><i></i><i></i></div>
+        <div class="device-url" id="mockUrl">finan.one / bac-si-tai-chinh</div>
+      </div>
+      <div class="device-body">
+
+        <!-- MOCK 1: BAC SI TAI CHINH -->
+        <div class="mock on" id="mock-doctor">
+          <div class="m-hd">
+            <h4><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg></span>Bác sĩ Tài chính</h4>
+            <div class="m-actions">
+              <button class="mbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Tải báo cáo thuế lên</button>
+              <button class="mbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>Gửi báo cáo về email</button>
+            </div>
+          </div>
+          <div class="m-body">
+            <div class="score-wrap">
+              <div class="score-card">
+                <div class="score-ring">
+                  <svg width="150" height="150" viewBox="0 0 150 150">
+                    <circle cx="75" cy="75" r="64" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="13"/>
+                    <circle cx="75" cy="75" r="64" fill="none" stroke="#c79a3b" stroke-width="13"
+                      stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="149"/>
+                  </svg>
+                  <div class="sc-val">
+                    <div class="sc-num">63</div>
+                    <div class="sc-max">trên 100</div>
+                  </div>
+                </div>
+                <div class="score-grade">Hạng C · Trung bình</div>
+                <div class="score-cap">Dư địa vay ước tính:<br><b style="color:#fff">1,6 – 2,1 tỷ đồng</b></div>
+              </div>
+              <div>
+                <div class="metrics-mini">
+                  <div class="mm ok"><div class="mm-l">Khả năng trả nợ</div><div class="mm-v">1,84</div><div class="mm-t">ngưỡng ≥ 1,3 · đạt</div></div>
+                  <div class="mm bad"><div class="mm-l">Thanh toán nhanh</div><div class="mm-v">0,72</div><div class="mm-t">ngưỡng ≥ 0,8 · dưới</div></div>
+                  <div class="mm ok"><div class="mm-l">Nợ / vốn chủ</div><div class="mm-v">1,45</div><div class="mm-t">ngưỡng ≤ 2,0 · đạt</div></div>
+                  <div class="mm bad"><div class="mm-l">Biên lợi nhuận gộp</div><div class="mm-v">11,3%</div><div class="mm-t">ngưỡng ≥ 20% · thấp</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="diag-block">
+              <h5><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" width="18" height="18"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg>Chẩn đoán &amp; hướng khắc phục</h5>
+              <div class="diag-row bad">
+                <div class="di">✕</div>
+                <div>
+                  <div class="dtxt"><b>Biên lợi nhuận gộp 11,3%</b> — giá vốn nuốt gần hết doanh thu, ít dư địa gánh chi phí và lãi vay.</div>
+                  <div class="diag-fix">
+                    <div class="dfh">Hướng khắc phục</div>
+                    <ul><li>Rà soát danh mục sản phẩm, lọc bỏ mặt hàng gần như không lãi</li><li>Đàm phán lại giá đầu vào hoặc tìm nguồn cung thay thế</li><li>Xem lại chính sách giá bán ở nhóm ít nhạy giá</li></ul>
+                  </div>
+                </div>
+              </div>
+              <div class="diag-row warn">
+                <div class="di">!</div>
+                <div>
+                  <div class="dtxt"><b>Thanh toán nhanh 0,72</b> — nếu trừ hàng tồn kho thì gần như không đủ trả nợ ngắn hạn.</div>
+                  <div class="diag-fix">
+                    <div class="dfh">Hướng khắc phục</div>
+                    <ul><li>Đẩy nhanh thu hồi công nợ quá hạn</li><li>Xả hàng tồn chậm luân chuyển để giải phóng tiền</li></ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cta-band">
+              <div class="cb-txt">
+                <h5>Cần người nhìn kỹ hơn hồ sơ của bạn?</h5>
+                <p>Đặt lịch 30 phút với chuyên gia tài chính FinanOne — miễn phí buổi đầu.</p>
+              </div>
+              <div class="cb-btns">
+                <button class="mbtn gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Đặt lịch chuyên gia</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MOCK 2: DASHBOARD -->
+        <div class="mock" id="mock-dashboard">
+          <div class="m-hd">
+            <h4><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></span>Báo cáo quản trị</h4>
+            <div class="m-actions">
+              <button class="mbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Kết nối nguồn dữ liệu</button>
+              <button class="mbtn" id="btnDesignReport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Thiết kế báo cáo</button>
+              <button class="mbtn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v14M5 10l7 7 7-7"/><path d="M5 21h14"/></svg>Xuất báo cáo</button>
+            </div>
+          </div>
+          <div class="m-body">
+
+            <div class="design-panel" id="designPanel">
+              <div class="dp-head">
+                <div>
+                  <h5><span class="dh-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>Thiết kế báo cáo — chuỗi 6 bước</h5>
+                  <p>Từ tra mẫu theo ngành đến báo cáo hàng tháng tự lên. AI tích lũy insight của chuyên gia rồi tự động hóa toàn chuỗi — doanh nghiệp tự làm được, hoặc giao trọn cho FinanOne.</p>
+                </div>
+                <button class="dp-close" id="dpClose">✕</button>
+              </div>
+
+              <p style="font-size:12.5px;color:var(--ink2);margin:2px 0 18px;line-height:1.55">Toàn bộ chuỗi biến báo cáo quản trị từ việc khó — cần chuyên gia hiểu ngành — thành việc <b>tự làm được</b>. AI tích lũy insight của chuyên gia rồi tự động hóa từng bước. Bấm mở từng bước để xem.</p>
+
+              <div class="flow-steps">
+
+                <!-- Bước 1 -->
+                <div class="fstep open" data-step="1">
+                  <div class="fstep-h">
+                    <span class="fstep-no">1</span>
+                    <div class="fstep-tt"><div class="ft-n">Tra cứu mẫu báo cáo quản trị theo ngành <span class="fstep-tag free">Miễn phí</span></div>
+                      <div class="ft-d">Chọn ngành, xem ngay bộ báo cáo quản trị chuẩn mà doanh nghiệp cùng ngành đang dùng.</div></div>
+                    <span class="fstep-caret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="m6 9 6 6 6-6"/></svg></span>
+                  </div>
+                  <div class="fstep-body">
+                    <p class="fb-lead">Mỗi ngành có bộ chỉ số và cách nhìn riêng. Không phải bắt đầu từ trang trắng — chọn ngành gần nhất rồi tinh chỉnh.</p>
+                    <div class="industry-grid">
+                <div class="ind-card">
+                  <div class="ic-top"><span class="ic-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="14" y="6" width="3" height="12"/></svg></span><span class="ic-n">Thương mại &amp;<br>Phân phối</span></div>
+                  <div class="ic-d">Xoay vòng hàng tồn, biên theo nhóm hàng, công nợ khách.</div>
+                  <div class="ic-tags"><span class="ic-tag">Tồn kho</span><span class="ic-tag">Vòng quay</span></div>
+                </div>
+                <div class="ind-card">
+                  <div class="ic-top"><span class="ic-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6"/></svg></span><span class="ic-n">Sản xuất</span></div>
+                  <div class="ic-d">Giá thành theo công đoạn, định mức nguyên vật liệu, hiệu suất.</div>
+                  <div class="ic-tags"><span class="ic-tag">Giá thành</span><span class="ic-tag">Định mức</span></div>
+                </div>
+                <div class="ind-card">
+                  <div class="ic-top"><span class="ic-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></span><span class="ic-n">Xây dựng &amp;<br>Dự án</span></div>
+                  <div class="ic-d">Lãi lỗ theo công trình, tiến độ giải ngân, dở dang.</div>
+                  <div class="ic-tags"><span class="ic-tag">Theo dự án</span><span class="ic-tag">Dở dang</span></div>
+                </div>
+                <div class="ind-card">
+                  <div class="ic-top"><span class="ic-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg></span><span class="ic-n">Bán lẻ &amp; F&amp;B</span></div>
+                  <div class="ic-d">Doanh thu theo điểm bán, ca, món; chi phí nguyên liệu.</div>
+                  <div class="ic-tags"><span class="ic-tag">Theo điểm bán</span><span class="ic-tag">Định lượng</span></div>
+                </div>
+                <div class="ind-card">
+                  <div class="ic-top"><span class="ic-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7Z"/></svg></span><span class="ic-n">Dịch vụ</span></div>
+                  <div class="ic-d">Doanh thu theo hợp đồng, hiệu suất nhân sự, thu hồi phí.</div>
+                  <div class="ic-tags"><span class="ic-tag">Theo hợp đồng</span><span class="ic-tag">Nhân sự</span></div>
+                </div>
+                <div class="ind-card">
+                  <div class="ic-top"><span class="ic-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7h-9M14 17H5M17 3l3 3-3 3M8 21l-3-3 3-3"/></svg></span><span class="ic-n">Vận tải &amp;<br>Logistics</span></div>
+                  <div class="ic-d">Chi phí theo đầu xe/tuyến, nhiên liệu, khấu hao phương tiện.</div>
+                  <div class="ic-tags"><span class="ic-tag">Theo đầu xe</span><span class="ic-tag">Nhiên liệu</span></div>
+                </div>
+              </div>
+                  </div>
+                </div>
+
+                <!-- Bước 2 -->
+                <div class="fstep" data-step="2">
+                  <div class="fstep-h">
+                    <span class="fstep-no">2</span>
+                    <div class="fstep-tt"><div class="ft-n">Thiết kế mẫu báo cáo riêng theo mô hình kinh doanh <span class="fstep-tag free">Miễn phí</span></div>
+                      <div class="ft-d">Đưa dữ liệu doanh nghiệp vào, AI dựng mẫu báo cáo quản trị riêng cho bạn.</div></div>
+                    <span class="fstep-caret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="m6 9 6 6 6-6"/></svg></span>
+                  </div>
+                  <div class="fstep-body">
+                    <p class="fb-lead">Mẫu theo ngành là điểm khởi đầu. Muốn sát doanh nghiệp mình, đưa thêm thông tin — AI đọc, hiểu mô hình kinh doanh, rồi dựng mẫu riêng.</p>
+                    <div class="src-drop">
+                      <div class="src-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg><div class="si-n">Báo cáo quản trị hiện có</div></div>
+                      <div class="src-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><div class="si-n">Báo cáo tài chính</div></div>
+                      <div class="src-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><div class="si-n">File chiến lược kinh doanh</div></div>
+                      <div class="src-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><div class="si-n">Bảng câu hỏi khảo sát</div></div>
+                      <div class="src-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/></svg><div class="si-n">Website công ty</div></div>
+                    </div>
+                    <div class="ai-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="3.5"/></svg>AI đọc &amp; hiểu mô hình kinh doanh</div>
+                    <div class="ai-out"><b>Kết quả:</b> bộ báo cáo quản trị được thiết kế riêng — đúng chỉ số doanh nghiệp cần theo dõi, đúng cách chủ doanh nghiệp muốn nhìn để ra quyết định. Chuyên gia rà soát lại trước khi bàn giao.</div>
+                  </div>
+                </div>
+
+                <!-- Bước 3 -->
+                <div class="fstep" data-step="3">
+                  <div class="fstep-h">
+                    <span class="fstep-no">3</span>
+                    <div class="fstep-tt"><div class="ft-n">Template nhập liệu theo phần mềm kế toán <span class="fstep-tag free">Miễn phí</span></div>
+                      <div class="ft-d">Biểu mẫu nhập liệu chuẩn cho kế toán, khớp đúng phần mềm đang dùng.</div></div>
+                    <span class="fstep-caret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="m6 9 6 6 6-6"/></svg></span>
+                  </div>
+                  <div class="fstep-body">
+                    <p class="fb-lead">Mỗi phần mềm xuất dữ liệu một kiểu. FinanOne thiết kế sẵn template khớp đúng định dạng xuất của từng phần mềm — kế toán tải về, đổ dữ liệu vào, nạp lên là báo cáo tự lên, không phải chỉnh tay.</p>
+                    <div class="tpl-grid">
+                <div class="tpl-card">
+                  <div class="tpl-logo" style="background:#e11d48">AMIS</div>
+                  <div class="tpl-name">MISA AMIS</div>
+                  <div class="tpl-sub">Sổ cái · Bảng CĐPS</div>
+                  <div class="tpl-dl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Tải template</div>
+                </div>
+                <div class="tpl-card">
+                  <div class="tpl-logo" style="background:#2563a8">FAST</div>
+                  <div class="tpl-name">Fast Accounting</div>
+                  <div class="tpl-sub">Sổ cái · Nhật ký</div>
+                  <div class="tpl-dl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Tải template</div>
+                </div>
+                <div class="tpl-card">
+                  <div class="tpl-logo" style="background:#0e8a5f">BRAVO</div>
+                  <div class="tpl-name">Bravo</div>
+                  <div class="tpl-sub">Bảng cân đối · Sổ chi tiết</div>
+                  <div class="tpl-dl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Tải template</div>
+                </div>
+                <div class="tpl-card">
+                  <div class="tpl-logo" style="background:#7c3aed">SAPO</div>
+                  <div class="tpl-name">Sapo</div>
+                  <div class="tpl-sub">Đơn hàng · Doanh thu POS</div>
+                  <div class="tpl-dl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Tải template</div>
+                </div>
+              </div>
+              <p class="tpl-note">Không thấy phần mềm của bạn? FinanOne hỗ trợ thêm template mới theo yêu cầu, hoặc kết nối trực tiếp qua API nếu phần mềm cho phép.</p>
+                  </div>
+                </div>
+
+                <!-- Bước 4 -->
+                <div class="fstep" data-step="4">
+                  <div class="fstep-h">
+                    <span class="fstep-no">4</span>
+                    <div class="fstep-tt"><div class="ft-n">Gợi ý phần mềm kế toán phù hợp quy mô <span class="fstep-tag free">Miễn phí</span></div>
+                      <div class="ft-d">Chưa có phần mềm, hoặc muốn đổi? Gợi ý theo đúng quy mô, không thừa không thiếu.</div></div>
+                    <span class="fstep-caret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="m6 9 6 6 6-6"/></svg></span>
+                  </div>
+                  <div class="fstep-body">
+                    <p class="fb-lead">Phần mềm kế toán trên thị trường phổ biến ở mức 3–10 triệu đồng/năm. Chọn đúng theo quy mô để không trả tiền cho tính năng thừa.</p>
+                    <div class="sw-rec">
+                      <div class="sw-row"><div class="swr-scale">Siêu nhỏ<span class="swr-sub">Dưới 10 nhân sự</span></div><div class="swr-rec">Bản đóng gói cơ bản, đủ nghiệp vụ thu chi — công nợ — thuế. <b>MISA SME, Fast cơ bản.</b></div><div class="swr-price">~3–5 tr/năm</div></div>
+                      <div class="sw-row"><div class="swr-scale">Nhỏ &amp; vừa<span class="swr-sub">10–50 nhân sự</span></div><div class="swr-rec">Bản online nhiều người dùng, có phân hệ kho — bán hàng. <b>MISA AMIS, Fast Online.</b></div><div class="swr-price">~5–10 tr/năm</div></div>
+                      <div class="sw-row"><div class="swr-scale">Vừa, đặc thù<span class="swr-sub">Sản xuất / đa chi nhánh</span></div><div class="swr-rec">Bản tùy chỉnh theo đặc thù ngành, giá thành, đa chi nhánh. <b>Bravo, AMIS nâng cao.</b></div><div class="swr-price">Theo báo giá riêng</div></div>
+                    </div>
+                    <p class="tpl-note">FinanOne trung lập — gợi ý theo nhu cầu thật của doanh nghiệp, không thiên vị phần mềm nào.</p>
+                  </div>
+                </div>
+
+                <!-- Bước 5 -->
+                <div class="fstep" data-step="5">
+                  <div class="fstep-h">
+                    <span class="fstep-no">5</span>
+                    <div class="fstep-tt"><div class="ft-n">Effortless reporting — báo cáo hàng tháng tự lên <span class="fstep-tag free">Cơ bản</span></div>
+                      <div class="ft-d">Dữ liệu vào qua import hoặc API, báo cáo quản trị tự cập nhật mỗi kỳ.</div></div>
+                    <span class="fstep-caret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="m6 9 6 6 6-6"/></svg></span>
+                  </div>
+                  <div class="fstep-body">
+                    <p class="fb-lead">Khi mẫu đã dựng và template đã khớp, việc còn lại gần như bằng không: đổ dữ liệu vào, báo cáo tự lên. Mỗi tháng không phải làm lại từ đầu.</p>
+                    <div class="eff-flow">
+                      <div class="eff-node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg><div class="en-n">Import / API</div><div class="en-d">Đổ dữ liệu kỳ này</div></div>
+                      <span class="eff-arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+                      <div class="eff-node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg><div class="en-n">Mẫu đã dựng</div><div class="en-d">Tự khớp số liệu</div></div>
+                      <span class="eff-arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+                      <div class="eff-node hl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg><div class="en-n">Báo cáo tháng</div><div class="en-d">Tự lên, sẵn để đọc</div></div>
+                    </div>
+                    <div class="eff-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>Từ vài ngày làm báo cáo mỗi tháng, còn vài phút</div>
+                  </div>
+                </div>
+
+                <!-- Bước 6 -->
+                <div class="fstep svc" data-step="6">
+                  <div class="fstep-h">
+                    <span class="fstep-no">6</span>
+                    <div class="fstep-tt"><div class="ft-n">Gói Dịch vụ kế toán quản trị <span class="fstep-tag pro">★ Nâng cao</span></div>
+                      <div class="ft-d">Không muốn tự làm? Để đội ngũ FinanOne thực hiện trọn cả 5 bước trên.</div></div>
+                    <span class="fstep-caret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="m6 9 6 6 6-6"/></svg></span>
+                  </div>
+                  <div class="fstep-body">
+                    <p class="fb-lead">Với doanh nghiệp muốn yên tâm giao trọn, gói dịch vụ kế toán quản trị của FinanOne làm thay toàn bộ chuỗi — bạn chỉ việc nhận báo cáo và ra quyết định.</p>
+                    <div class="svc-box">
+                      <div class="sb-t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="16" height="16"><path d="M12 2 15 8l6 .9-4.5 4.3 1 6-5.5-3-5.5 3 1-6L3 8.9 9 8z"/></svg>Chuyên gia FinanOne làm trọn chuỗi</div>
+                      <ul>
+                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Khảo sát mô hình kinh doanh, thiết kế bộ báo cáo quản trị riêng</li>
+                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Thiết lập template &amp; kết nối dữ liệu với phần mềm kế toán đang dùng</li>
+                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Lập báo cáo quản trị hàng tháng, có chuyên gia đọc số &amp; nhận định</li>
+                        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>Chi phí chỉ bằng một phần nhỏ so với thuê CFO hay đội tài chính riêng</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+                        </div>
+
+            <div class="dash-kpis">
+              <div class="kpi"><div class="k-l">Doanh thu tháng</div><div class="k-v">4,82 tỷ</div><div class="k-d up">▲ 12,4% so kỳ trước</div></div>
+              <div class="kpi"><div class="k-l">Lợi nhuận gộp</div><div class="k-v">1,31 tỷ</div><div class="k-d up">▲ 8,1%</div></div>
+              <div class="kpi"><div class="k-l">Chi phí vận hành</div><div class="k-v">742 tr</div><div class="k-d down">▲ 5,3%</div></div>
+              <div class="kpi"><div class="k-l">Biên ròng</div><div class="k-v">9,7%</div><div class="k-d up">▲ 1,2 điểm</div></div>
+            </div>
+            <div class="dash-grid">
+              <div class="chart-card">
+                <h5>Doanh thu &amp; lợi nhuận 6 tháng</h5>
+                <div class="cc-sub">Đơn vị: tỷ đồng · nguồn tổng hợp từ hóa đơn &amp; sổ quỹ</div>
+                <div class="bars" id="dashBars"></div>
+              </div>
+              <div class="chart-card">
+                <h5>Cơ cấu doanh thu theo mảng</h5>
+                <div class="cc-sub">Tháng này</div>
+                <div class="donut-wrap">
+                  <svg class="donut" viewBox="0 0 42 42">
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#eef2f0" stroke-width="7"/>
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#0e8a5f" stroke-width="7" stroke-dasharray="46 54" stroke-dashoffset="25"/>
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#2563a8" stroke-width="7" stroke-dasharray="30 70" stroke-dashoffset="79"/>
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#c79a3b" stroke-width="7" stroke-dasharray="24 76" stroke-dashoffset="49"/>
+                  </svg>
+                  <div class="donut-legend">
+                    <div class="dl"><span class="dl-c" style="background:#0e8a5f"></span>Bán lẻ<span class="dl-v">46%</span></div>
+                    <div class="dl"><span class="dl-c" style="background:#2563a8"></span>Bán sỉ<span class="dl-v">30%</span></div>
+                    <div class="dl"><span class="dl-c" style="background:#c79a3b"></span>Dịch vụ<span class="dl-v">24%</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="src-row">
+              <span class="src-chip"><span class="sc-dot live"></span>Hóa đơn điện tử · đồng bộ trực tiếp</span>
+              <span class="src-chip"><span class="sc-dot live"></span>Sao kê ngân hàng · API</span>
+              <span class="src-chip"><span class="sc-dot sync"></span>File Excel bán hàng · vừa tải lên</span>
+              <span class="src-chip"><span class="sc-dot sync"></span>Bảng lương · cập nhật hàng tháng</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MOCK 3: CASHFLOW -->
+        <div class="mock" id="mock-cashflow">
+          <div class="m-hd">
+            <h4><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>Quản trị dòng tiền</h4>
+            <div class="m-actions">
+              <button class="mbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>Kết nối ngân hàng</button>
+              <button class="mbtn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg>Báo cáo dòng tiền</button>
+            </div>
+          </div>
+          <div class="m-body">
+            <div class="cf-head">
+              <div class="cf-card in"><div class="cf-l">Tiền vào tháng này</div><div class="cf-v">5,14 tỷ</div><div class="cf-s">▲ so với 4,63 tỷ kỳ trước</div></div>
+              <div class="cf-card out"><div class="cf-l">Tiền ra tháng này</div><div class="cf-v">4,38 tỷ</div><div class="cf-s">gồm 1,2 tỷ trả nợ vay</div></div>
+              <div class="cf-card net"><div class="cf-l">Dòng tiền thuần</div><div class="cf-v">+760 tr</div><div class="cf-s">số dư hợp nhất: 4,51 tỷ</div></div>
+            </div>
+
+            <h5 style="font-size:14px;font-weight:800;margin-bottom:12px">Tài khoản ngân hàng · gom về một chỗ</h5>
+            <div class="bank-list">
+              <div class="bank vpbank">
+                <div class="bk-logo vp"><img src="data:image/png;base64,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" alt="VPBank"></div>
+                <div><div class="bk-name">VPBank</div><div class="bk-acc">•••• 1979 · tài khoản chính</div></div>
+                <div class="bk-bal"><div class="bb-v">2,26 tỷ</div><div class="bb-s">● đồng bộ 1 phút trước</div></div>
+              </div>
+              <div class="bank">
+                <div class="bk-logo" style="background:#005baa">VCB</div>
+                <div><div class="bk-name">Vietcombank</div><div class="bk-acc">•••• 4821 · tài khoản thu</div></div>
+                <div class="bk-bal"><div class="bb-v">1,18 tỷ</div><div class="bb-s">● đồng bộ 2 phút trước</div></div>
+              </div>
+              <div class="bank">
+                <div class="bk-logo" style="background:#1e4620">VTB</div>
+                <div><div class="bk-name">Vietinbank</div><div class="bk-acc">•••• 0937 · tài khoản phụ</div></div>
+                <div class="bk-bal"><div class="bb-v">612 tr</div><div class="bb-s">● đồng bộ 2 phút trước</div></div>
+              </div>
+              <div class="bank">
+                <div class="bk-logo" style="background:#b01c2e">TCB</div>
+                <div><div class="bk-name">Techcombank</div><div class="bk-acc">•••• 5560 · tài khoản lương</div></div>
+                <div class="bk-bal"><div class="bb-v">458 tr</div><div class="bb-s">● đồng bộ 2 phút trước</div></div>
+              </div>
+            </div>
+
+            <h5 style="font-size:14px;font-weight:800;margin:22px 0 12px">Chờ phê duyệt chi</h5>
+            <div class="approve-list">
+              <div class="appr">
+                <div class="ap-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                <div class="ap-body"><div class="ap-t">Thanh toán nhà cung cấp — Cty Minh Long</div><div class="ap-m">Hóa đơn VAT · đến hạn 3 ngày nữa</div></div>
+                <span class="ap-amt">248 tr</span>
+                <div class="ap-btns"><button class="mini-btn yes">Duyệt</button><button class="mini-btn no">Từ chối</button></div>
+              </div>
+              <div class="appr">
+                <div class="ap-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                <div class="ap-body"><div class="ap-t">Tạm ứng công tác — phòng kinh doanh</div><div class="ap-m">Yêu cầu bởi Trần Minh · hôm nay</div></div>
+                <span class="ap-amt">15 tr</span>
+                <div class="ap-btns"><button class="mini-btn yes">Duyệt</button><button class="mini-btn no">Từ chối</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MOCK 4: LOANS -->
+        <div class="mock" id="mock-loans">
+          <div class="m-hd">
+            <h4><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></span>Hồ sơ vay &amp; lịch trả nợ</h4>
+            <div class="m-actions">
+              <button class="mbtn" id="btnLoanList"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Danh sách khoản vay</button>
+              <button class="mbtn primary" id="btnSchedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>Lịch trả nợ tổng hợp</button>
+            </div>
+          </div>
+          <div class="m-body">
+
+            <!-- Panel: Danh sách khoản vay -->
+            <div class="loan-panel" id="loanListPanel">
+              <div class="lp-head">
+                <h5><svg viewBox="0 0 24 24" fill="none" stroke="var(--action)" stroke-width="1.9" width="18" height="18"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Danh sách khoản vay</h5>
+                <button class="lp-close" data-close="loanListPanel">✕</button>
+              </div>
+              <div style="overflow-x:auto">
+              <table class="loan-tbl">
+                <thead><tr>
+                  <th>Khoản vay</th><th>Dư nợ gốc</th><th class="hide-sm">Lãi suất</th>
+                  <th class="hide-sm">Kỳ hạn</th><th>Còn lại</th><th>Trả kỳ tới</th><th>Trạng thái</th>
+                </tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="lt-name"><span class="lt-bank" style="background:#005baa">VCB</span>Vay bổ sung vốn lưu động</td>
+                    <td>3,20 tỷ</td><td class="hide-sm">10,5%</td><td class="hide-sm">36 tháng</td>
+                    <td>22 tháng</td><td>116,9 tr</td><td><span class="lt-st active">Đang trả</span></td>
+                  </tr>
+                  <tr>
+                    <td class="lt-name"><span class="lt-bank" style="background:#b01c2e">TCB</span>Vay đầu tư thiết bị</td>
+                    <td>1,05 tỷ</td><td class="hide-sm">11,2%</td><td class="hide-sm">24 tháng</td>
+                    <td>9 tháng</td><td>53,6 tr</td><td><span class="lt-st soon">Sắp đến hạn</span></td>
+                  </tr>
+                  <tr>
+                    <td class="lt-name"><span class="lt-bank" style="background:#E00500">VPB</span>Vay hạn mức thấu chi</td>
+                    <td>800 tr</td><td class="hide-sm">9,8%</td><td class="hide-sm">12 tháng</td>
+                    <td>7 tháng</td><td>18,4 tr</td><td><span class="lt-st active">Đang trả</span></td>
+                  </tr>
+                  <tr>
+                    <td class="lt-name"><span class="lt-bank" style="background:#1e4620">VTB</span>Vay mua phương tiện</td>
+                    <td>420 tr</td><td class="hide-sm">10,9%</td><td class="hide-sm">48 tháng</td>
+                    <td>31 tháng</td><td>12,7 tr</td><td><span class="lt-st active">Đang trả</span></td>
+                  </tr>
+                </tbody>
+                <tfoot><tr>
+                  <td>Tổng 4 khoản vay</td><td>5,47 tỷ</td><td class="hide-sm">—</td>
+                  <td class="hide-sm">—</td><td>—</td><td>201,6 tr</td><td>—</td>
+                </tr></tfoot>
+              </table>
+              </div>
+            </div>
+
+            <!-- Panel: Lịch trả nợ tổng hợp -->
+            <div class="loan-panel" id="schedulePanel">
+              <div class="lp-head">
+                <h5><svg viewBox="0 0 24 24" fill="none" stroke="var(--action)" stroke-width="1.9" width="18" height="18"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>Lịch trả nợ tổng hợp</h5>
+                <button class="lp-close" data-close="schedulePanel">✕</button>
+              </div>
+              <div class="sched-ctl">
+                <div class="seg" id="schedView">
+                  <button class="on" data-view="gantt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="4" width="12" height="4" rx="1"/><rect x="7" y="10" width="14" height="4" rx="1"/><rect x="5" y="16" width="9" height="4" rx="1"/></svg>Gantt</button>
+                  <button data-view="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Danh sách</button>
+                </div>
+                <div class="seg" id="schedGran">
+                  <button data-gran="week">Theo tuần</button>
+                  <button class="on" data-gran="month">Theo tháng</button>
+                  <button data-gran="quarter">Theo quý</button>
+                </div>
+              </div>
+              <div class="pl-legend">
+                <span class="pll"><span class="sw principal"></span>Gốc phải trả</span>
+                <span class="pll"><span class="sw interest"></span>Lãi phải trả</span>
+                <span class="gran-lbl" id="granNote" style="margin-left:auto">Đơn vị: triệu đồng</span>
+              </div>
+              <div class="gantt on" id="ganttView"></div>
+              <div class="sched-list" id="listView"></div>
+            </div>
+
+            <div class="loan-card">
+              <div class="loan-top">
+                <div class="loan-name"><span class="ln-bank" style="background:#005baa">VCB</span>Vay bổ sung vốn lưu động</div>
+                <span class="loan-status active">Đang trả</span>
+              </div>
+              <div class="loan-meta">
+                <div class="lm"><div class="lm-l">Dư nợ gốc</div><div class="lm-v">3,20 tỷ</div></div>
+                <div class="lm"><div class="lm-l">Lãi suất</div><div class="lm-v">10,5%/năm</div></div>
+                <div class="lm"><div class="lm-l">Kỳ hạn</div><div class="lm-v">36 tháng</div></div>
+                <div class="lm"><div class="lm-l">Còn lại</div><div class="lm-v">22 tháng</div></div>
+              </div>
+              <div class="progress">
+                <div class="progress-bar"><div class="progress-fill" style="width:39%"></div></div>
+                <div class="progress-meta"><span>Đã trả 14 / 36 kỳ</span><span>39%</span></div>
+              </div>
+              <div class="next-pay">
+                <div class="np-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                <div class="np-body"><div class="np-t">Kỳ trả tiếp theo · còn 6 ngày</div><div class="np-d">05/08/2026 — gốc 88,9 tr + lãi 28,0 tr</div></div>
+                <div class="np-amt">116,9 tr</div>
+              </div>
+            </div>
+
+            <div class="loan-card">
+              <div class="loan-top">
+                <div class="loan-name"><span class="ln-bank" style="background:#b01c2e">TCB</span>Vay đầu tư thiết bị</div>
+                <span class="loan-status soon">Sắp đến hạn</span>
+              </div>
+              <div class="loan-meta">
+                <div class="lm"><div class="lm-l">Dư nợ gốc</div><div class="lm-v">1,05 tỷ</div></div>
+                <div class="lm"><div class="lm-l">Lãi suất</div><div class="lm-v">11,2%/năm</div></div>
+                <div class="lm"><div class="lm-l">Kỳ hạn</div><div class="lm-v">24 tháng</div></div>
+                <div class="lm"><div class="lm-l">Còn lại</div><div class="lm-v">9 tháng</div></div>
+              </div>
+              <div class="progress">
+                <div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div>
+                <div class="progress-meta"><span>Đã trả 15 / 24 kỳ</span><span>62%</span></div>
+              </div>
+              <div class="next-pay">
+                <div class="np-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                <div class="np-body"><div class="np-t">Kỳ trả tiếp theo · còn 2 ngày</div><div class="np-d">01/08/2026 — gốc 43,8 tr + lãi 9,8 tr</div></div>
+                <div class="np-amt">53,6 tr</div>
+              </div>
+            </div>
+
+            <div class="callout" style="margin-top:6px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 17 6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+              <div>
+                <div class="co-t">Dòng tiền trả nợ 3 tháng tới</div>
+                <p>Tổng nghĩa vụ: tháng 8 là <b>170,5 tr</b> · tháng 9 là <b>170,5 tr</b> · tháng 10 là <b>170,5 tr</b>. Hệ thống tự đẩy các con số này vào báo cáo dòng tiền để bạn không bị động.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MOCK 5: QUAN LY CHI TIEU -->
+        <div class="mock" id="mock-spend">
+          <div class="m-hd">
+            <h4><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></span>Quản lý chi tiêu</h4>
+            <div class="m-actions">
+              <div class="spend-toggle">
+                <button class="on" data-spend="collect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Thu tiền</button>
+                <button data-spend="cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Thẻ chi tiêu</button>
+              </div>
+            </div>
+          </div>
+          <div class="m-body">
+
+            <!-- Thu: virtual account collection -->
+            <div class="spend-view on" id="spend-collect">
+              <div class="va-intro">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                <div>
+                  <span class="mech-tag auto"><span class="mt-no">1</span>Tự động hóa</span>
+                  <p>Mỗi khách hàng được cấp <b>một số tài khoản ảo riêng</b>. Tiền vào số nào, hệ thống tự khớp đúng khách và đúng hóa đơn — không phải dò tay từng giao dịch trong sao kê.</p>
+                  <p class="val-line" style="margin-top:6px"><b>Giá trị:</b> kế toán không còn ngồi dò nội dung chuyển khoản — tiền vào biết ngay của ai, cho việc gì.</p>
+                </div>
+              </div>
+              <div class="dash-kpis" style="margin-bottom:20px">
+                <div class="kpi"><div class="k-l">Tài khoản ảo đang mở</div><div class="k-v">128</div><div class="k-d up">▲ 12 mới tháng này</div></div>
+                <div class="kpi"><div class="k-l">Thu về tháng này</div><div class="k-v">3,64 tỷ</div><div class="k-d up">qua 214 giao dịch</div></div>
+                <div class="kpi"><div class="k-l">Tự đối soát</div><div class="k-v">98,6%</div><div class="k-d up">khớp tự động, không cần tay</div></div>
+                <div class="kpi"><div class="k-l">Chờ đối soát</div><div class="k-v">3</div><div class="k-d down">cần xác nhận thủ công</div></div>
+              </div>
+              <h5 style="font-size:14px;font-weight:800;margin-bottom:12px">Giao dịch thu gần đây · tự khớp khách</h5>
+              <div class="va-list">
+                <div class="va-row">
+                  <div class="va-cust"><div class="va-av">ML</div><div><div class="vc-name">Cty TNHH Minh Long</div><div class="vc-acc">VA •••• 8821 · HĐ #2026-0471</div></div></div>
+                  <div class="va-amt">+248,0 tr</div>
+                  <span class="va-badge matched">Đã khớp</span>
+                </div>
+                <div class="va-row">
+                  <div class="va-cust"><div class="va-av">HP</div><div><div class="vc-name">Hộ KD Hồng Phát</div><div class="vc-acc">VA •••• 6014 · HĐ #2026-0468</div></div></div>
+                  <div class="va-amt">+52,5 tr</div>
+                  <span class="va-badge matched">Đã khớp</span>
+                </div>
+                <div class="va-row">
+                  <div class="va-cust"><div class="va-av">TA</div><div><div class="vc-name">Cty CP Thảo Anh</div><div class="vc-acc">VA •••• 3390 · HĐ #2026-0470</div></div></div>
+                  <div class="va-amt">+134,8 tr</div>
+                  <span class="va-badge matched">Đã khớp</span>
+                </div>
+                <div class="va-row">
+                  <div class="va-cust"><div class="va-av">?</div><div><div class="vc-name">Chưa xác định khách</div><div class="vc-acc">VA •••• 0000 · nội dung thiếu mã HĐ</div></div></div>
+                  <div class="va-amt">+9,2 tr</div>
+                  <span class="va-badge wait">Chờ khớp</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chi: virtual cards -->
+            <div class="spend-view" id="spend-cards">
+              <div class="va-intro">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                <div>
+                  <span class="mech-tag ctrl"><span class="mt-no">2</span>Kiểm soát tại nguồn</span>
+                  <p>Phát hành <b>thẻ ảo cho từng nhân viên hoặc phòng ban</b>, đặt hạn mức riêng, khóa hoặc mở tức thì. Mọi khoản chi hiện ngay trên nền tảng — kiểm soát chi tiêu trước khi tiền ra, không phải đợi cuối tháng.</p>
+                  <p class="val-line" style="margin-top:6px"><b>Giá trị:</b> chặn chi sai mục đích, vượt ngân sách, khoản định kỳ quên hủy — ngay tại điểm chi, thay vì phát hiện sau khi đã tiêu.</p>
+                </div>
+              </div>
+              <div class="vc-head">
+                <div class="card-face">
+                  <div class="cf-top"><div><div class="cf-owner">Phòng Marketing</div><div class="cf-dept">Quảng cáo &amp; sự kiện</div></div><div class="cf-chip"></div></div>
+                  <div class="cf-num">•••• •••• •••• 4408</div>
+                  <div class="cf-foot"><div class="cf-lim">Hạn mức tháng<b>50,0 tr</b></div><div class="cf-brand">VISA</div></div>
+                </div>
+                <div class="card-face">
+                  <div class="cf-top"><div><div class="cf-owner">Trần Minh</div><div class="cf-dept">Kinh doanh</div></div><div class="cf-chip"></div></div>
+                  <div class="cf-num">•••• •••• •••• 7712</div>
+                  <div class="cf-foot"><div class="cf-lim">Hạn mức tháng<b>20,0 tr</b></div><div class="cf-brand">VISA</div></div>
+                </div>
+                <div class="card-face locked">
+                  <div class="cf-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Đã khóa</div>
+                  <div class="cf-top"><div><div class="cf-owner">Phòng IT</div><div class="cf-dept">Phần mềm &amp; hạ tầng</div></div><div class="cf-chip"></div></div>
+                  <div class="cf-num">•••• •••• •••• 2093</div>
+                  <div class="cf-foot"><div class="cf-lim">Hạn mức tháng<b>30,0 tr</b></div><div class="cf-brand">VISA</div></div>
+                </div>
+              </div>
+
+              <div class="vc-usage">
+                <h5>Đã dùng trên hạn mức · tháng này</h5>
+                <div class="usage-row">
+                  <div class="usage-top"><span class="u-name">Phòng Marketing</span><span class="u-val">38,2 / 50,0 tr</span></div>
+                  <div class="usage-bar"><div class="usage-fill" style="width:76%;background:linear-gradient(90deg,var(--gold),#d9b968)"></div></div>
+                </div>
+                <div class="usage-row">
+                  <div class="usage-top"><span class="u-name">Trần Minh · Kinh doanh</span><span class="u-val">7,4 / 20,0 tr</span></div>
+                  <div class="usage-bar"><div class="usage-fill" style="width:37%;background:linear-gradient(90deg,var(--action),#14a874)"></div></div>
+                </div>
+                <div class="usage-row">
+                  <div class="usage-top"><span class="u-name">Phòng IT · đã khóa</span><span class="u-val">30,0 / 30,0 tr</span></div>
+                  <div class="usage-bar"><div class="usage-fill" style="width:100%;background:linear-gradient(90deg,var(--neg),#d85c48)"></div></div>
+                </div>
+                <div class="usage-note">Ngân sách trở thành thứ <b>có hiệu lực thật</b> — tiêu hết là dừng, không còn là con số trong file mà ai cũng biết sẽ vượt.</div>
+              </div>
+
+              <div class="spend-recent">
+                <h5 style="font-size:14px;font-weight:800;margin-bottom:6px">Giao dịch chi gần đây</h5>
+                <div class="tx-row">
+                  <div class="tx-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3v4M8 3v4"/></svg></div>
+                  <div class="tx-body"><div class="tx-t">Facebook Ads</div><div class="tx-m">Thẻ Marketing •••• 4408 · hôm nay</div></div>
+                  <div class="tx-amt">−12,5 tr</div>
+                </div>
+                <div class="tx-row">
+                  <div class="tx-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4M16 3l4 4-4 4M8 21l-4-4 4-4M4 17h16"/></svg></div>
+                  <div class="tx-body"><div class="tx-t">Grab — công tác</div><div class="tx-m">Thẻ Trần Minh •••• 7712 · hôm qua</div></div>
+                  <div class="tx-amt">−340 ng</div>
+                </div>
+                <div class="tx-row">
+                  <div class="tx-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/></svg></div>
+                  <div class="tx-body"><div class="tx-t">Google Workspace <span style="font-size:10.5px;font-weight:800;color:var(--neg);background:var(--neg-soft);padding:2px 7px;border-radius:5px;margin-left:4px">Đã chặn</span></div><div class="tx-m">Thẻ IT •••• 2093 · vượt hạn mức, khoản định kỳ tự động bị ngắt</div></div>
+                  <div class="tx-amt" style="color:var(--ink3);text-decoration:line-through">−4,8 tr</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ TAB 5: ROADMAP ============ -->
+<div class="panel" id="roadmap">
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Lộ trình triển khai</div>
+      <h2>Ba giai đoạn, ưu tiên miễn phí và cơ bản trước</h2>
+      <p class="lead">Xây nền người dùng bằng công cụ miễn phí, chuyển sang thuê bao bằng công cụ quản trị, rồi mở dịch vụ chuyên gia biên cao khi đã có tập khách hàng.</p>
+    </div>
+
+    <div class="phase">
+      <div class="phase-line"><div class="phase-dot" style="background:var(--tier-free)">1</div><div class="phase-bar"></div></div>
+      <div class="phase-body">
+        <div class="phase-when">Giai đoạn 1 · Nền miễn phí</div>
+        <h3>Ra mắt Bác sĩ Tài chính, thu hút người dùng</h3>
+        <p class="muted">Tận dụng công cụ đã có sẵn trên finan.one. Hoàn thiện luồng chấm điểm, gợi ý khắc phục, gửi email và đặt lịch chuyên gia. Mục tiêu: tối đa hóa số doanh nghiệp dùng thử và để lại thông tin.</p>
+        <div class="phase-tags"><span class="ptag">Bác sĩ Tài chính</span><span class="ptag">Đặt lịch chuyên gia</span><span class="ptag">Thu thập lead</span></div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-line"><div class="phase-dot" style="background:var(--tier-basic)">2</div><div class="phase-bar"></div></div>
+      <div class="phase-body">
+        <div class="phase-when">Giai đoạn 2 · Thuê bao cơ bản</div>
+        <h3>Mở các công cụ quản trị dùng hằng ngày</h3>
+        <p class="muted">Triển khai báo cáo quản trị đa chiều, quản trị dòng tiền kết nối ngân hàng, và trung tâm hồ sơ vay. Đây là bộ tính năng chuyển người dùng miễn phí thành khách trả thuê bao.</p>
+        <div class="phase-tags"><span class="ptag">Báo cáo quản trị</span><span class="ptag">Dòng tiền &amp; ngân hàng</span><span class="ptag">Hồ sơ vay &amp; lịch trả nợ</span><span class="ptag">Kết nối API</span></div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-line"><div class="phase-dot" style="background:var(--tier-pro)">3</div></div>
+      <div class="phase-body">
+        <div class="phase-when">Giai đoạn 3 · Dịch vụ &amp; hệ sinh thái</div>
+        <h3>Chuyên gia từ xa và kết nối tín dụng</h3>
+        <p class="muted">Mở dịch vụ kế toán quản trị, kế toán thuế, CFO từ xa dựa trên dữ liệu đã có. Bổ sung so sánh &amp; gợi ý sản phẩm tín dụng, mở đường cho doanh thu chia sẻ từ các tổ chức tín dụng.</p>
+        <div class="phase-tags"><span class="ptag">CFO từ xa</span><span class="ptag">Kế toán quản trị / thuế</span><span class="ptag">Gợi ý tín dụng</span><span class="ptag">Doanh thu chia sẻ</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ TAB 6: GTM ============ -->
+<div class="panel" id="gtm">
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Chiến lược tiếp cận thị trường</div>
+      <h2>Hai con đường bổ trợ nhau đưa sản phẩm ra thị trường</h2>
+      <p class="lead">Một đường kéo người dùng vào bằng công cụ miễn phí. Một đường tạo niềm tin bằng chuyên môn. Cả hai cùng dẫn tới giải pháp trả phí.</p>
+    </div>
+
+    <div class="grid g2">
+      <div class="route">
+        <div class="route-k"><span class="num">1</span>Con đường Freemium</div>
+        <h3>Cho dùng miễn phí trước, chuyển đổi sau</h3>
+        <p class="muted" style="margin-top:8px">Đưa Bác sĩ Tài chính đến tay càng nhiều doanh nghiệp càng tốt. Khi họ thấy giá trị và tin tưởng, dẫn dắt tự nhiên sang các tính năng quản trị trả phí.</p>
+        <div class="flow">
+          <div class="flow-step">Dùng công cụ miễn phí</div>
+          <span class="flow-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <div class="flow-step">Thấy giá trị, để lại thông tin</div>
+          <span class="flow-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <div class="flow-step">Chuyển sang gói trả phí</div>
+        </div>
+      </div>
+
+      <div class="route">
+        <div class="route-k"><span class="num">2</span>Con đường Chuyên gia</div>
+        <h3>Nâng năng lực bằng đào tạo, rồi gợi ý giải pháp</h3>
+        <p class="muted" style="margin-top:8px">Chuyên gia tài chính chia sẻ kiến thức, đào tạo nâng cao năng lực cho chủ doanh nghiệp. Từ vị thế người thầy đáng tin, tự nhiên gợi ý giải pháp và dịch vụ phù hợp.</p>
+        <div class="flow">
+          <div class="flow-step">Đào tạo từ chuyên gia</div>
+          <span class="flow-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <div class="flow-step">Nâng năng lực tài chính</div>
+          <span class="flow-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <div class="flow-step">Gợi ý giải pháp phù hợp</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:26px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      <div>
+        <div class="co-t">Hai đường cùng đổ về một đích</div>
+        <p>Freemium tối ưu cho số lượng và tốc độ lan tỏa. Con đường chuyên gia tối ưu cho niềm tin và giá trị đơn hàng cao. Kết hợp lại, doanh nghiệp vừa dễ bắt đầu, vừa có lý do nâng cấp lên dịch vụ cao cấp.</p>
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:52px">
+      <div class="eyebrow">Kênh triển khai</div>
+      <h2>Workshop &amp; Partnership — hai cỗ máy đưa sản phẩm ra thị trường</h2>
+      <p class="lead">Đào tạo để tạo nhu cầu, hợp tác để mở rộng phân phối. Cả hai đều lấy Báo cáo quản trị làm mũi nhọn.</p>
+    </div>
+
+    <div class="grid g2">
+      <div class="card pad-lg">
+        <div class="card-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a3 3 0 1 0-6 0M2 20h20M4 20V10a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><circle cx="15" cy="8" r="1"/></svg></div>
+        <h3>Workshop &amp; đào tạo</h3>
+        <p style="margin-top:8px">Chuyên gia trực tiếp tạo nhu cầu và nâng năng lực người dùng:</p>
+        <ul class="gtm-list">
+          <li><b>Workshop online</b> — chuyên gia hướng dẫn cách làm báo cáo quản trị, train chủ doanh nghiệp cách đọc và dùng báo cáo để ra quyết định, demo import dữ liệu đa nguồn.</li>
+          <li><b>Hội thảo hiệp hội</b> — chương trình nâng cao năng lực tài chính cho các hiệp hội, hội ngành nghề — tiếp cận nhiều doanh nghiệp cùng lúc qua kênh có sẵn uy tín.</li>
+        </ul>
+      </div>
+      <div class="card pad-lg">
+        <div class="card-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3>Hợp tác phần mềm kế toán</h3>
+        <p style="margin-top:8px">Biến đối thủ tiềm năng thành đối tác phân phối:</p>
+        <ul class="gtm-list">
+          <li><b>Thiết kế template riêng</b> cho từng phần mềm kế toán để dữ liệu import trơn tru — họ được thêm giá trị, khách của họ được lợi.</li>
+          <li><b>Cổng bán chéo hai chiều</b> — FinanOne gợi ý phần mềm phù hợp cho khách; ngược lại phần mềm coi FinanOne như đối tác mở rộng dịch vụ setup và tư vấn quản trị mà họ không tự làm được.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ TAB 7: MONEY ============ -->
+<div class="panel" id="money">
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Con đường tạo doanh thu</div>
+      <h2>Từ miễn phí đến nhiều dòng tiền chồng lớp</h2>
+      <p class="lead">Mỗi tầng vừa tạo doanh thu riêng, vừa mở đường cho tầng tiếp theo. Người dùng đi càng sâu, giá trị mang lại càng lớn cho cả hai phía.</p>
+    </div>
+
+    <div class="funnel">
+      <div class="frow">
+        <div class="fstage">Thu hút<span class="fs-sub">Miễn phí</span></div>
+        <div class="fbar" style="background:linear-gradient(135deg,#0e8a5f,#0b6f4c)">
+          <span>Bác sĩ Tài chính</span><span class="fm">Không doanh thu trực tiếp — xây tập người dùng</span>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fstage">Giữ chân<span class="fs-sub">Thuê bao</span></div>
+        <div class="fbar" style="background:linear-gradient(135deg,#2563a8,#1d4e86)">
+          <span>Báo cáo quản trị tự động</span><span class="fm">Doanh thu định kỳ hằng tháng</span>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fstage">Chiều sâu<span class="fs-sub">Dịch vụ</span></div>
+        <div class="fbar" style="background:linear-gradient(135deg,#7c3aed,#6528c9)">
+          <span>Kế toán dịch vụ &amp; CFO từ xa</span><span class="fm">Doanh thu dịch vụ biên cao</span>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fstage">Hệ sinh thái<span class="fs-sub">Đối tác</span></div>
+        <div class="fbar" style="background:linear-gradient(135deg,#c79a3b,#a87f2c)">
+          <span>Chia sẻ doanh thu từ tổ chức tín dụng</span><span class="fm">Hoa hồng khi kết nối vay thành công</span>
+        </div>
+      </div>
+    </div>
+    <p class="metric-note">Bốn tầng doanh thu xếp chồng — người dùng bắt đầu từ đỉnh phễu và đi xuống theo mức độ gắn bó.</p>
+
+    <div class="grid g4" style="margin-top:44px">
+      <div class="card">
+        <div class="card-i" style="background:var(--action-soft);color:var(--tier-free)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7Z"/></svg></div>
+        <h3>Freemium</h3>
+        <p>Bác sĩ Tài chính miễn phí tạo phễu người dùng rộng và niềm tin ban đầu.</p>
+      </div>
+      <div class="card">
+        <div class="card-i" style="background:#e7f0fb;color:var(--tier-basic)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="14" y="8" width="3" height="10"/></svg></div>
+        <h3>Thuê bao</h3>
+        <p>Báo cáo quản trị và công cụ dòng tiền tạo doanh thu định kỳ ổn định.</p>
+      </div>
+      <div class="card">
+        <div class="card-i" style="background:#f1eafe;color:var(--tier-pro)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7h-9M14 17H5M17 3l3 3-3 3M7 21l-3-3 3-3"/></svg></div>
+        <h3>Dịch vụ</h3>
+        <p>Kế toán dịch vụ và CFO từ xa — biên lợi nhuận cao, giá trị đơn hàng lớn.</p>
+      </div>
+      <div class="card">
+        <div class="card-i" style="background:var(--gold-soft);color:var(--gold)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <h3>Đối tác</h3>
+        <p>Chia sẻ doanh thu từ tổ chức tín dụng khi kết nối vay vốn thành công.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="foot-cta">
+      <h2>Không phát minh bánh xe mới — chỉ trám vào khoảng trống</h2>
+      <p>FinanOne biến dịch vụ quản trị tài chính cấp CFO thành thứ mọi doanh nghiệp SME có thể chạm tới: chi phí chỉ bằng 40%, chất lượng gấp 2,5 lần, nhờ AI và chuyên gia đồng hành.</p>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span class="f-brand">FinanOne · Kế hoạch sản phẩm &amp; kinh doanh</span>
+    <span class="f-note">Bản trình bày nội bộ — dữ liệu giao diện là minh họa</span>
+  </div>
+</footer>
+
+<script>
+// tab switching
+const tabs=document.querySelectorAll('.tab-btn');
+const panels=document.querySelectorAll('.panel');
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.classList.remove('on'));
+  panels.forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  document.getElementById(t.dataset.tab).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+
+// mockup switching
+const mockUrls={doctor:'finan.one / bac-si-tai-chinh',dashboard:'finan.one / bao-cao-quan-tri',
+  cashflow:'finan.one / dong-tien',loans:'finan.one / ho-so-vay',spend:'finan.one / quan-ly-chi-tieu'};
+const mpBtns=document.querySelectorAll('.mp-btn');
+const mocks=document.querySelectorAll('.mock');
+mpBtns.forEach(b=>b.addEventListener('click',()=>{
+  mpBtns.forEach(x=>x.classList.remove('on'));
+  mocks.forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('mock-'+b.dataset.mock).classList.add('on');
+  document.getElementById('mockUrl').textContent=mockUrls[b.dataset.mock];
+}));
+
+// design report panel toggle
+const btnDesign=document.getElementById('btnDesignReport');
+if(btnDesign){
+  btnDesign.addEventListener('click',()=>document.getElementById('designPanel').classList.toggle('on'));
+  document.getElementById('dpClose').addEventListener('click',()=>document.getElementById('designPanel').classList.remove('on'));
+}
+// accordion 6 bước
+document.querySelectorAll('.fstep .fstep-h').forEach(h=>h.addEventListener('click',()=>{
+  h.parentElement.classList.toggle('open');
+}));
+
+/* ===== HỒ SƠ VAY: danh sách + lịch trả nợ ===== */
+const btnLoanList=document.getElementById('btnLoanList');
+const btnSchedule=document.getElementById('btnSchedule');
+if(btnLoanList){
+  btnLoanList.addEventListener('click',()=>{
+    document.getElementById('schedulePanel').classList.remove('on');
+    document.getElementById('loanListPanel').classList.toggle('on');
+  });
+  btnSchedule.addEventListener('click',()=>{
+    document.getElementById('loanListPanel').classList.remove('on');
+    const sp=document.getElementById('schedulePanel');
+    sp.classList.toggle('on');
+    if(sp.classList.contains('on'))renderSchedule();
+  });
+  document.querySelectorAll('.lp-close').forEach(b=>b.addEventListener('click',()=>{
+    document.getElementById(b.dataset.close).classList.remove('on');
+  }));
+}
+
+// 4 khế ước — nghĩa vụ gốc+lãi theo tháng (tháng 1 = tháng tới). Số minh họa.
+const LOANS=[
+  {name:'Vay bổ sung vốn lưu động', bank:'VCB', color:'#005baa'},
+  {name:'Vay đầu tư thiết bị',       bank:'TCB', color:'#b01c2e'},
+  {name:'Vay hạn mức thấu chi',      bank:'VPB', color:'#E00500'},
+  {name:'Vay mua phương tiện',       bank:'VTB', color:'#1e4620'}
+];
+// [gốc, lãi] theo từng tháng, 12 tháng
+const PAY={
+  'Vay bổ sung vốn lưu động':[[88.9,28.0],[89.7,27.2],[90.5,26.4],[91.3,25.6],[92.1,24.8],[92.9,24.0],[93.8,23.1],[94.6,22.3],[95.5,21.4],[96.3,20.6],[97.2,19.7],[98.1,18.8]],
+  'Vay đầu tư thiết bị':[[43.8,9.8],[44.2,9.4],[44.6,9.0],[45.0,8.6],[45.4,8.2],[45.9,7.7],[46.3,7.3],[46.7,6.9],[47.2,6.4],[0,0],[0,0],[0,0]],
+  'Vay hạn mức thấu chi':[[11.9,6.5],[12.0,6.4],[12.1,6.3],[12.2,6.2],[12.3,6.1],[12.4,6.0],[12.5,5.9],[0,0],[0,0],[0,0],[0,0],[0,0]],
+  'Vay mua phương tiện':[[8.75,3.95],[8.83,3.87],[8.91,3.79],[8.99,3.71],[9.07,3.63],[9.15,3.55],[9.24,3.46],[9.32,3.38],[9.41,3.29],[9.49,3.21],[9.58,3.12],[9.67,3.03]]
+};
+const MONTH_LBL=['T8','T9','T10','T11','T12','T1','T2','T3','T4','T5','T6','T7'];
+const fmtM=v=>v>=1000?(v/1000).toFixed(2).replace('.',',')+' tỷ':(Math.round(v*10)/10).toString().replace('.',',');
+
+let curView='gantt', curGran='month';
+function bucketize(gran){
+  // trả về [{label, cols:[{loanName,p,i}], totP, totI}] — mỗi phần tử = 1 cột thời gian
+  let groups;
+  if(gran==='week'){
+    // 8 tuần đầu (2 tháng), chia mỗi tháng ~4 tuần đều
+    groups=[]; for(let w=0;w<8;w++){const m=Math.floor(w/4);groups.push({label:'Tuần '+(w+1),months:[m],frac:0.25});}
+  }else if(gran==='quarter'){
+    groups=[{label:'Quý này',months:[0,1,2]},{label:'Quý sau',months:[3,4,5]},{label:'Quý 3',months:[6,7,8]},{label:'Quý 4',months:[9,10,11]}];
+  }else{
+    groups=[]; for(let m=0;m<6;m++)groups.push({label:MONTH_LBL[m],months:[m]}); // 6 tháng đầu
+  }
+  return groups.map(g=>{
+    let totP=0,totI=0; const per=[];
+    LOANS.forEach(l=>{
+      let p=0,i=0;
+      g.months.forEach(m=>{const rec=PAY[l.name][m];if(rec){p+=rec[0]*(g.frac||1);i+=rec[1]*(g.frac||1);}});
+      if(p>0||i>0)per.push({loan:l,p,i});
+      totP+=p;totI+=i;
+    });
+    return {label:g.label,per,totP,totI};
+  });
+}
+function renderSchedule(){
+  const buckets=bucketize(curGran);
+  document.getElementById('granNote').textContent='Đơn vị: triệu đồng · '+
+    (curGran==='week'?'8 tuần tới':curGran==='quarter'?'4 quý tới':'6 tháng tới');
+  renderGantt(buckets);
+  renderList(buckets);
+  document.getElementById('ganttView').classList.toggle('on',curView==='gantt');
+  document.getElementById('listView').classList.toggle('on',curView==='list');
+}
+function renderGantt(buckets){
+  const maxTot=Math.max(...buckets.map(b=>b.totP+b.totI),1);
+  const cols=buckets.length;
+  let h=`<div class="gantt-scroll"><div class="gantt-inner">
+    <div class="gantt-cols"><div class="gc-head">Khoản vay</div>
+      <div class="gantt-periods" style="grid-template-columns:repeat(${cols},1fr)">
+        ${buckets.map(b=>`<span class="gp">${b.label}</span>`).join('')}
+      </div></div>`;
+  LOANS.forEach(l=>{
+    h+=`<div class="gantt-row"><div class="gantt-loan"><span class="gl-dot" style="background:${l.color}"></span>${l.name}</div>
+      <div class="gantt-track" style="grid-template-columns:repeat(${cols},1fr)">`;
+    buckets.forEach(b=>{
+      const rec=b.per.find(x=>x.loan.name===l.name);
+      if(!rec){h+=`<div class="gantt-cell"><span class="gantt-empty">—</span></div>`;return;}
+      const tot=rec.p+rec.i, wpct=Math.max(20,tot/maxTot*100);
+      const pPct=rec.p/tot*100, iPct=rec.i/tot*100;
+      h+=`<div class="gantt-cell"><div class="gantt-bar" style="width:${wpct}%" title="${l.name}: gốc ${fmtM(rec.p)} + lãi ${fmtM(rec.i)}">
+        <div class="gb-seg gb-p" style="width:${pPct}%">${pPct>28?fmtM(rec.p):''}</div>
+        <div class="gb-seg gb-i" style="width:${iPct}%">${iPct>28?fmtM(rec.i):''}</div>
+      </div></div>`;
+    });
+    h+=`</div></div>`;
+  });
+  // hàng tổng
+  h+=`<div class="gantt-total-row"><div class="gt-lbl">Tổng phải trả</div>
+    <div class="gantt-total-track" style="grid-template-columns:repeat(${cols},1fr)">
+    ${buckets.map(b=>`<div class="gantt-total-cell"><span class="gt-p">${fmtM(b.totP)}</span> + <span class="gt-i">${fmtM(b.totI)}</span><br>= ${fmtM(b.totP+b.totI)}</div>`).join('')}
+    </div></div>`;
+  h+=`</div></div>`;
+  document.getElementById('ganttView').innerHTML=h;
+}
+function renderList(buckets){
+  let h='';
+  buckets.forEach(b=>{
+    if(b.totP+b.totI<=0)return;
+    h+=`<div class="sl-period">
+      <div class="sl-phead"><span class="sl-pname">${b.label}</span>
+        <div class="sl-ptot"><span class="slp">Gốc ${fmtM(b.totP)}</span><span class="sli">Lãi ${fmtM(b.totI)}</span><span class="slt">Tổng ${fmtM(b.totP+b.totI)}</span></div>
+      </div>
+      <div class="sl-vhead"><span>Khế ước</span><span>Gốc</span><span class="sl-hide">Lãi</span><span>Tổng</span></div>
+      <div class="sl-rows">`;
+    b.per.forEach(r=>{
+      h+=`<div class="sl-row"><div class="sl-loan"><span class="sl-dot" style="background:${r.loan.color}"></span>${r.loan.name}</div>
+        <span class="sl-val p">${fmtM(r.p)}</span><span class="sl-val i sl-hide">${fmtM(r.i)}</span><span class="sl-val t">${fmtM(r.p+r.i)}</span></div>`;
+    });
+    h+=`</div></div>`;
+  });
+  document.getElementById('listView').innerHTML=h;
+}
+// toggle view + granularity
+document.querySelectorAll('#schedView button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#schedView button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');curView=b.dataset.view;renderSchedule();
+}));
+document.querySelectorAll('#schedGran button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#schedGran button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');curGran=b.dataset.gran;renderSchedule();
+}));
+
+// spend mock: toggle thu tien / the chi tieu
+document.querySelectorAll('.spend-toggle button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.spend-toggle button').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.spend-view').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('spend-'+b.dataset.spend).classList.add('on');
+}));
+
+// dashboard bars (built via JS so heights animate + stay data-driven)
+const barData=[
+  {m:'T2',rev:62,prof:16},{m:'T3',rev:70,prof:19},{m:'T4',rev:58,prof:14},
+  {m:'T5',rev:81,prof:22},{m:'T6',rev:76,prof:20},{m:'T7',rev:92,prof:26}
+];
+const maxRev=Math.max(...barData.map(d=>d.rev));
+document.getElementById('dashBars').innerHTML=barData.map(d=>{
+  const rh=d.rev/maxRev*100, ph=d.prof/maxRev*100;
+  return `<div class="bar-col"><div class="b-stack">
+    <div class="bseg" style="background:#c79a3b;height:${ph}%"></div>
+    <div class="bseg" style="background:#0e8a5f;height:${rh-ph}%"></div>
+  </div><div class="b-lbl">${d.m}</div></div>`;
+}).join('');
+</script>
+</body>
+</html>
