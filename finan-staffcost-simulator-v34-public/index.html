@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finan · Staff Cost Simulator v50 (no embedded data)</title>
+<title>Finan · Staff Cost Simulator v53 (no embedded data)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@600;700&family=Outfit:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap&subset=vietnamese');
@@ -291,6 +291,8 @@ tr.grand-total td:first-child{text-align:left;font-size:11px;font-weight:700}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.chip-var{font-family:var(--fm);font-size:8.5px;font-weight:400;padding:1px 5px;border-radius:4px;
+  border:1px solid var(--warn);color:var(--warn);margin-left:6px;letter-spacing:0}
 .diag-head>*{margin-right:14px}
 .diag-head>*:last-child{margin-right:0}
 #diag-panel td{vertical-align:middle;padding:5px 8px}
@@ -304,7 +306,7 @@ tr.grand-total td:first-child{text-align:left;font-size:11px;font-weight:700}
   <div class="sb-brand" style="position:relative">
     <button class="sb-collapse-btn" id="sb-collapse" onclick="toggleSidebar()" title="Thu/mở sidebar">‹</button>
     <div class="sb-brand-title">FINAN<br><span>Staff Cost</span></div>
-    <div class="sb-brand-ver">Simulator · v50 · Open type list · 30/08/2026</div>
+    <div class="sb-brand-ver">Simulator · v53 · Dept key + active-only · 30/08/2026</div>
   </div>
 
   <div class="sb-section">
@@ -341,6 +343,12 @@ tr.grand-total td:first-child{text-align:left;font-size:11px;font-weight:700}
   <span style="font-size:12px;font-weight:700;color:var(--gold2)">&#128194; <span id="rb-text"></span></span>
   <button class="btn btn-ghost" style="padding:3px 10px;font-size:10px" onclick="clearSavedState()" title="Xoá trắng bảng làm việc, giữ nguyên các phiên bản đã lưu">Bắt đầu mới</button>
   <button class="btn btn-ghost" style="padding:3px 10px;font-size:10px" onclick="hideRestoreBanner()">Ẩn</button>
+</div>
+<div id="storage-banner" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 24px;background:rgba(224,85,85,.12);border-bottom:2px solid var(--red)">
+  <span style="font-size:12.5px;font-weight:800;color:var(--red)">&#9888; AUTOSAVE ĐÃ DỪNG — bộ nhớ trình duyệt đầy</span>
+  <span id="sb-text" style="font-size:11px;color:var(--sub)"></span>
+  <button class="btn btn-ghost" style="padding:3px 10px;font-size:10px" onclick="exportVersionJSON()">⬇ Export JSON ngay</button>
+  <span style="font-size:10.5px;color:var(--sub)">Dọn chỗ bằng <b>Finan Storage Manager</b> rồi quay lại — bảng làm việc vẫn còn trong bộ nhớ phiên này.</span>
 </div>
 <div class="strip" id="strip"></div>
 
@@ -808,18 +816,9 @@ tr.grand-total td:first-child{text-align:left;font-size:11px;font-weight:700}
       </div>
       <div class="form-field">
         <label>Phòng ban *</label>
-        <select id="new-dept">
-          <option value="MANAGEMENT">Management</option>
-          <option value="ACCOUNTING &amp; FINANCE">Accounting &amp; Finance</option>
-          <option value="HR">HR</option>
-          <option value="CUSTOMER SERVICE &amp; SUCCESS">Customer Service &amp; Success</option>
-          <option value="MARKETING">Marketing</option>
-          <option value="PARTNERSHIP">Partnership</option>
-          <option value="PRODUCT MANAGEMENT">Product Management</option>
-          <option value="PRODUCT OPS">Product OPS</option>
-          <option value="SALES &amp; BUSINESS DEVELOPMENT">Sales &amp; Business Development</option>
-          <option value="SYSTEM &amp; ENGINEERING">System &amp; Engineering</option>
-        </select>
+        <select id="new-dept" onchange="onNewDeptChange()"></select>
+        <input id="new-dept-custom" class="filter-sel" placeholder="Tên phòng ban mới (viết đúng như HR ghi)"
+               style="display:none;width:100%;margin-top:6px">
       </div>
       <div class="form-field">
         <label>Gross Salary/tháng (M VND)</label>
@@ -894,6 +893,34 @@ let MD1={};   // { normDeptKey : {display:'<tên HR viết>', pl_line:'<PL line>
 const MD1_LS='finan_sim_md1_v37';
 function _normDept(d){return String(d||'').trim().toUpperCase().replace(/\s+/g,' ');}
 function deptPL(deptRaw){const e=MD1[_normDept(deptRaw)];return e&&e.pl_line?e.pl_line:'';}
+
+// ══ v53 Đ25-A — gom phòng ban bằng KHOÁ CHUẨN HOÁ, KHÔNG sửa chuỗi gốc ══
+// Trước v53: buildTable gom bằng chuỗi thô, nên 'Marketing' (payroll) và
+// 'MARKETING' (dropdown thêm người) thành hai nhóm rời — subtotal tách đôi và
+// Apply Template không khớp. _normDept đã có sẵn từ lâu nhưng không được dùng
+// ở chỗ gom nhóm. Đây là cùng một lỗi lớp với normType trước v50.
+function deptCanonMap(list){
+  const m={};
+  (list||persons).forEach(p=>{
+    const k=_normDept(p.dept);if(!k)return;
+    if(!m[k])m[k]={key:k,variants:{},n:0};
+    m[k].variants[p.dept]=(m[k].variants[p.dept]||0)+1;m[k].n++;
+  });
+  Object.keys(m).forEach(k=>{
+    const e=m[k],vs=Object.keys(e.variants);
+    vs.sort((a,b)=>{
+      const d=e.variants[b]-e.variants[a];if(d)return d;        // biến thể phổ biến nhất
+      const ua=a===a.toUpperCase(),ub=b===b.toUpperCase();      // hoà → ưu tiên bản KHÔNG viết hoa hết
+      if(ua!==ub)return ua?1:-1;
+      return a.localeCompare(b);
+    });
+    e.variantList=vs;
+    e.display=DEPT_LABELS[k]||vs[0];
+  });
+  return m;
+}
+function deptKey(p){return _normDept(p&&p.dept);}
+function deptDisplay(k,map){const e=(map||deptCanonMap())[k];return e?e.display:k;}
 function saveMD1(){try{localStorage.setItem(MD1_LS,JSON.stringify(MD1));}catch(e){}}
 function loadMD1(){try{const r=localStorage.getItem(MD1_LS);if(r)MD1=JSON.parse(r)||{};}catch(e){MD1={};}}
 // PL line list (mutable, seed = 9 dòng hiện có — B). Import/export để đồng bộ file cũ.
@@ -1083,7 +1110,7 @@ function getFiltered(){
   const ent=document.getElementById('filter-entity')?.value||'';
   return persons.filter(p=>{
     if(q&&!p.name.toLowerCase().includes(q)&&!(p.position||'').toLowerCase().includes(q))return false;
-    if(dept&&p.dept!==dept)return false;
+    if(dept&&_normDept(p.dept)!==dept)return false;   // v53 — so theo khoá chuẩn hoá
     if(status&&p.status!==status)return false;
     if(pl&&p.pl_line!==pl)return false;
     if(et&&p.emp_type!==et)return false;
@@ -1116,15 +1143,19 @@ function buildTable(){
   const filtered=getFiltered();
   const deptFiltered=document.getElementById('filter-dept')?.value||'';
   // depts sinh ĐỘNG từ dữ liệu thật (giữ tên HR viết), sắp theo DEPT_ORDER nếu khớp, còn lại theo alpha.
-  const presentDepts=[...new Set(persons.map(p=>p.dept).filter(Boolean))];
-  const orderIdx=d=>{const i=DEPT_ORDER.indexOf(_normDept(d));return i<0?999:i;};
-  presentDepts.sort((a,b)=>{const oa=orderIdx(a),ob=orderIdx(b);return oa!==ob?oa-ob:a.localeCompare(b);});
+  const DCM=deptCanonMap();                                  // v53 — khoá chuẩn hoá
+  const presentDepts=Object.keys(DCM);
+  const orderIdx=k=>{const i=DEPT_ORDER.indexOf(k);return i<0?999:i;};
+  presentDepts.sort((a,b)=>{const oa=orderIdx(a),ob=orderIdx(b);
+    return oa!==ob?oa-ob:DCM[a].display.localeCompare(DCM[b].display);});
   const depts=deptFiltered?[deptFiltered]:presentDepts;
-  // đồng bộ dropdown filter-dept theo dept thật (giữ lựa chọn hiện tại)
+  // đồng bộ dropdown filter-dept: value = KHOÁ, nhãn = biến thể phổ biến nhất
   const fdSel=document.getElementById('filter-dept');
   if(fdSel){
     const cur=fdSel.value;
-    const opts=['<option value="">Tất cả phòng ban</option>'].concat(presentDepts.slice().sort((a,b)=>a.localeCompare(b)).map(d=>`<option value="${d.replace(/"/g,'&quot;')}"${d===cur?' selected':''}>${d}</option>`));
+    const opts=['<option value="">Tất cả phòng ban</option>'].concat(
+      presentDepts.slice().sort((a,b)=>DCM[a].display.localeCompare(DCM[b].display))
+        .map(k=>`<option value="${k.replace(/"/g,'&quot;')}"${k===cur?' selected':''}>${DCM[k].display}${DCM[k].variantList.length>1?' ⚠':''}</option>`));
     fdSel.innerHTML=opts.join('');
   }
   // v50 — đồng bộ dropdown loại HĐ theo TYPE_LIST + loại lạ đang có trong dữ liệu
@@ -1156,10 +1187,13 @@ function buildTable(){
   }
 
   depts.forEach(dept=>{
-    const rows=filtered.filter(p=>p.dept===dept);
+    const rows=filtered.filter(p=>_normDept(p.dept)===dept);   // v53 — theo khoá
     if(!rows.length)return;
     const dhr=document.createElement('tr');dhr.className='dept-hdr';
-    const deptLabel=DEPT_LABELS[_normDept(dept)]||dept;
+    const _dc=DCM[dept];
+    const deptLabel=(_dc?_dc.display:dept)
+      +(_dc&&_dc.variantList.length>1
+        ?` <span class="chip-var" title="Cùng phòng ban nhưng payroll/nhập tay viết khác nhau: ${_dc.variantList.join(' · ')}">⚠ ${_dc.variantList.length} cách viết</span>`:'');
     const dActive=rows.filter(p=>p.status==='active');
     const tcount=_typeCounts(rows);   // v50 — sinh động, không đóng cứng 3 loại
     dhr.innerHTML=`<td colspan="${numCols}">${deptLabel} <span style="color:var(--sub);font-size:9px;font-weight:400;font-family:var(--fm)">${rows.length} người · ${tcount} · active: ${dActive.length} · ${fmtMl(dActive.reduce((s,p)=>s+effectiveCost(p),0))}</span></td>`;
@@ -1340,9 +1374,9 @@ function refreshRow(id){
     const el=document.getElementById(`out-${id}-${b.key}`);
     if(el){const cost=buCost(p,b.key);el.innerHTML=`<span class="out-val ${cost>0?b.cls+' has-val':''}">${cost>0?fmtMc(cost):'—'}</span>`;}
   });
-  const stEl=document.getElementById(`st-${p.dept.replace(/\W/g,'_')}`);
+  const stEl=document.getElementById(`st-${_normDept(p.dept).replace(/\W/g,'_')}`);
   if(stEl){
-    const deptP=persons.filter(x=>x.dept===p.dept&&x.status==='active');
+    const deptP=persons.filter(x=>_normDept(x.dept)===_normDept(p.dept)&&x.status==='active');
     const dEC=deptP.reduce((s,x)=>s+effectiveCost(x),0);
     const dAdj=deptP.reduce((s,x)=>s+(x.adj||0),0);
     const dBase=deptP.reduce((s,x)=>s+x.base,0);
@@ -2019,7 +2053,27 @@ function resetAlloc(){
 }
 
 // ── MODAL ──
-function openModal(){document.getElementById('modal').classList.add('open');}
+// v53 Đ24 — danh sách phòng ban sinh động từ dữ liệu thật, KHÔNG hardcode.
+// Bản cũ đóng cứng 10 phòng viết HOA: value 'MARKETING' trong khi payroll ghi
+// 'Marketing' → đẻ ra nhóm thứ hai; và các phòng thật như 'BD & Sales',
+// 'MKT & Growth', 'System Engineer' thì không chọn được.
+function fillNewDeptOptions(){
+  const sel=document.getElementById('new-dept');if(!sel)return;
+  const DCM=deptCanonMap();
+  const keys=Object.keys(DCM).sort((a,b)=>DCM[a].display.localeCompare(DCM[b].display));
+  const cur=sel.value;
+  sel.innerHTML=keys.map(k=>{
+    const raw=DCM[k].variantList[0];            // lưu ĐÚNG chuỗi HR đang dùng nhiều nhất
+    return `<option value="${raw.replace(/"/g,'&quot;')}"${raw===cur?' selected':''}>${DCM[k].display}</option>`;
+  }).join('')+'<option value="__NEW__">＋ Phòng ban mới…</option>';
+  onNewDeptChange();
+}
+function onNewDeptChange(){
+  const sel=document.getElementById('new-dept'),inp=document.getElementById('new-dept-custom');
+  if(!sel||!inp)return;
+  inp.style.display=sel.value==='__NEW__'?'':'none';
+}
+function openModal(){fillNewDeptOptions();document.getElementById('modal').classList.add('open');}
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 function autoCalcBase(){
   const g=parseFloat(document.getElementById('new-gross').value)||0;
@@ -2028,12 +2082,17 @@ function autoCalcBase(){
 function addPerson(){
   const name=document.getElementById('new-name').value.trim();
   if(!name){alert('Nhập tên nhân sự');return;}
-  const dept=document.getElementById('new-dept').value;
+  let dept=document.getElementById('new-dept').value;
+  if(dept==='__NEW__'){
+    dept=(document.getElementById('new-dept-custom').value||'').trim();
+    if(!dept){alert('Nhập tên phòng ban mới.');return;}
+  }
+  if(!dept){alert('Chọn phòng ban.');return;}
   const baseM=parseFloat(document.getElementById('new-base').value)||0;
   if(!baseM){alert('Nhập Gross Salary để tính Base');return;}
   const np={
     id:Date.now(),emp_no:'NEW',emp_id:'',name,position:document.getElementById('new-position').value,
-    dept,dept_label:DEPT_LABELS[dept]||dept,
+    dept,dept_label:DEPT_LABELS[_normDept(dept)]||dept,
     entity:'(Chưa xác định)',
     income:Math.round((parseFloat(document.getElementById('new-gross').value)||0)*1e6),
     base:Math.round(baseM*1e6),
@@ -2044,7 +2103,7 @@ function addPerson(){
   applyAutoAlloc(np);
   persons.push(np);
   closeModal();
-  ['new-name','new-position','new-gross','new-base','new-adj'].forEach(id=>document.getElementById(id).value='');
+  ['new-name','new-position','new-gross','new-base','new-adj','new-dept-custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   buildTable();updateStrip();saveState();
 }
 
@@ -2091,7 +2150,9 @@ function applyUI(){
   const set=(id,v)=>{const el=document.getElementById(id);if(el&&v)el.value=v;};
   const f=UIST.f||{};
   set('search',f.q);set('filter-status',f.status);set('filter-pl',f.pl);set('filter-emptype',f.et);
-  set('filter-dept',f.dept);set('filter-entity',f.entity);   // option sinh động trong buildTable()
+  // v53 — UI context lưu từ bản cũ giữ chuỗi thô ('Sales'); option giờ là khoá ('SALES').
+  // Chuẩn hoá khi khôi phục để filter đã chọn không im lặng rơi về rỗng sau khi nâng cấp.
+  set('filter-dept',f.dept&&_normDept(f.dept));set('filter-entity',f.entity);
   set('budget-period',UIST.budgetPeriod);
   if(UIST.jeEntity)window.JE_ENTITY=UIST.jeEntity;
 }
@@ -2108,7 +2169,37 @@ function showRestoreBanner(tsTxt){
 let META={versionName:'',sources:[]};             // provenance: sources=[{file,mode,ts,rows}]
 function versionIndex(){try{return JSON.parse(localStorage.getItem(LS_IDX))||[]}catch(e){return[]}}
 function _writeIndex(ix){try{localStorage.setItem(LS_IDX,JSON.stringify(ix));}catch(e){}}
-function _personSnap(p){return{id:p.id,emp_no:p.emp_no,emp_id:p.emp_id||'',_srcRow:p._srcRow||0,raw_status:p.raw_status||'',left:!!p.left,m_entity:p.m_entity||'',name:p.name,position:p.position,dept:p.dept,dept_label:p.dept_label,entity:p.entity||'(Chưa xác định)',bu:p.bu||'',emp_type:p.emp_type,status:p.status,income:p.income,base:p.base,adj:p.adj,pl_line:p.pl_line,alloc:{...p.alloc},comp:p.comp?{...p.comp}:null,_new:p._new||false};}
+// ══ v51 Đ19-A — bỏ field suy được hoặc bất biến. alloc/comp GIỮ nguyên dạng object
+// để còn soi được bằng mắt khi debug (đó là lý do chọn A thay vì nén).
+//   bỏ hẳn : emp_no (luôn 'NEW'), dept_label (suy từ dept), _new (luôn false),
+//            raw_status (từ v50 E3 dùng emp_type, không còn ai đọc)
+//   có thì ghi: adj, bu, status (chỉ khi ≠ active)
+//   slim=true : phiên bản đã lưu — bỏ thêm field chỉ phục vụ panel chẩn đoán
+function _personSnap(p,slim){
+  const o={id:p.id,emp_id:p.emp_id||'',name:p.name,position:p.position||'',dept:p.dept,
+    entity:p.entity||'(Chưa xác định)',emp_type:p.emp_type,
+    income:p.income,base:p.base,pl_line:p.pl_line,
+    alloc:{...p.alloc},comp:p.comp?{...p.comp}:null};
+  if(p.adj)o.adj=p.adj;
+  if(p.bu)o.bu=p.bu;
+  if(p.status&&p.status!=='active')o.status=p.status;
+  if(!slim){
+    if(p._srcRow)o._srcRow=p._srcRow;
+    if(p.left)o.left=true;
+    if(p.m_entity)o.m_entity=p.m_entity;
+  }
+  return o;
+}
+// Bù lại field đã lược khi đọc ra. Đọc được CẢ snapshot cũ (v50 trở về trước) lẫn mới.
+function _personHydrate(x){
+  return {...x,
+    emp_no:x.emp_no||'NEW',
+    dept_label:x.dept_label||DEPT_LABELS[_normDept(x.dept)]||x.dept||'',
+    status:x.status||'active',
+    adj:x.adj||0,bu:x.bu||'',
+    left:!!x.left,m_entity:x.m_entity||'',_srcRow:x._srcRow||0,
+    alloc:{...x.alloc},comp:x.comp?{...x.comp}:null,_new:false};
+}
 function saveVersion(){
   const inp=document.getElementById('ver-name');
   let name=(inp?inp.value:'').trim();
@@ -2119,8 +2210,20 @@ function saveVersion(){
   const unalloc=persons.filter(p=>p.status==='active'&&Object.values(p.alloc||{}).reduce((t,v)=>t+(v||0),0)===0).length;
   if(unalloc>0&&!confirm(`⚠ ${unalloc}/${persons.length} người active chưa có phân bổ (alloc=0).\n\nSnapshot lưu bây giờ sẽ cho allocated cost thiếu — bảng so sánh ΔBU sẽ lệch (như trường hợp cột B trống).\n\nVẫn lưu?`))return;
   META.versionName=name;
-  const payload={ts:Date.now(),meta:JSON.parse(JSON.stringify(META)),persons:persons.map(_personSnap)};
-  try{localStorage.setItem(LS_NS+'::'+name,JSON.stringify(payload));}catch(e){alert('Lưu thất bại (localStorage đầy?): '+e.message);return;}
+  const payload={ts:Date.now(),meta:JSON.parse(JSON.stringify(META)),persons:persons.map(p=>_personSnap(p,true))};
+  const body=JSON.stringify(payload);
+  try{localStorage.setItem(LS_NS+'::'+name,body);}
+  catch(e){
+    // v51 Đ20 — nói rõ cần bao nhiêu, còn bao nhiêu, và xoá cái gì thì đủ
+    const r=storageReport(true),need=body.length*2;
+    const cand=r.rows.filter(x=>x.ver).slice(0,3).map(x=>`${x.verName} (${_kb(x.bytes)})`);
+    alert(`❌ KHÔNG LƯU ĐƯỢC phiên bản "${name}"\n\n`+
+      `Cần: ${_kb(need)}\nĐang dùng: ${_kb(r.total)} / ${_kb(r.quota)}\nCòn trống (đo thật): ${_kb(r.free)}\n\n`+
+      (cand.length?`Phiên bản cũ chiếm nhiều nhất:\n  • ${cand.join('\n  • ')}\n\n`:'')+
+      `Bảng làm việc hiện tại KHÔNG mất — Export JSON để chắc chắn.\n\nDùng Finan Storage Manager để dọn chỗ, rồi lưu lại.`);
+    STORAGE_FULL=true;showStorageBanner('');
+    return;
+  }
   const rec={name,ts:payload.ts,rows:persons.length,totalBase:persons.reduce((t,x)=>t+(x.base||0)+(x.adj||0),0)};
   _writeIndex([...ix.filter(v=>v.name!==name),rec].sort((a,b)=>a.name.localeCompare(b.name)));
   saveState();renderLoadData();
@@ -2130,7 +2233,7 @@ function loadVersion(name){
   try{
     const raw=localStorage.getItem(LS_NS+'::'+name);if(!raw){alert('Không tìm thấy phiên bản.');return;}
     const v=JSON.parse(raw);
-    persons=(v.persons||[]).map(x=>({...x,alloc:{...x.alloc},comp:x.comp?{...x.comp}:null}));
+    persons=(v.persons||[]).map(_personHydrate);
     META=v.meta||{versionName:name,sources:[]};META.versionName=name;
     buildTable();updateStrip();saveState();renderLoadData();
   }catch(e){alert('Lỗi load phiên bản: '+e.message);}
@@ -2145,17 +2248,26 @@ function exportVersionJSON(name){
   // export a SAVED version snapshot (name given) or current working state (no name)
   let payload;
   if(name){const raw=localStorage.getItem(LS_NS+'::'+name);if(!raw){alert('Không tìm thấy phiên bản.');return;}payload=JSON.parse(raw);}
-  else payload={ts:Date.now(),meta:JSON.parse(JSON.stringify(META)),persons:persons.map(_personSnap)};
+  else payload={ts:Date.now(),meta:JSON.parse(JSON.stringify(META)),persons:persons.map(p=>_personSnap(p,true))};
   const fn=`finan_staffcost_${(name||META.versionName||'working').replace(/[^\w\-]+/g,'_')}.json`;
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.download=fn;a.click();
 }
+let STORAGE_FULL=false;
 function saveState(){
+  const ind=document.getElementById('save-indicator');
   try{
     // Snapshot FULL working state (facts + judgments + adj + meta) — Q4 decision
     localStorage.setItem(LS_CUR,JSON.stringify({ts:Date.now(),meta:META,budget:BUDGET,diag:LOAD_DIAG,persons:persons.map(_personSnap)}));
-    const ind=document.getElementById('save-indicator');
-    if(ind){ind.textContent='✓ Saved';ind.style.color='var(--green)';setTimeout(()=>{ind.textContent='Auto-saved';ind.style.color='var(--dim)';},1500);}
-  }catch(e){console.warn('Save failed',e);}
+    if(STORAGE_FULL){STORAGE_FULL=false;hideStorageBanner();}
+    if(ind){ind.textContent='✓ Saved';ind.style.color='var(--green)';setTimeout(()=>{if(!STORAGE_FULL){ind.textContent='Auto-saved';ind.style.color='var(--dim)';}},1500);}
+  }catch(e){
+    // v51 Đ20 — trước đây chỉ console.warn. Quota đầy thì mọi chỉnh tay im lặng không được lưu,
+    // trong khi indicator vẫn nháy "✓ Saved". Đó là mất việc mà không ai biết.
+    console.warn('Save failed',e);
+    STORAGE_FULL=true;
+    if(ind){ind.textContent='⚠ KHÔNG lưu được';ind.style.color='var(--red)';}
+    showStorageBanner(e&&e.message?e.message:String(e));
+  }
 }
 function loadState(){
   // v32: current snapshot is the FULL truth → replace, not merge-into-RAW.
@@ -2163,7 +2275,7 @@ function loadState(){
     const raw=localStorage.getItem(LS_CUR);
     if(raw){
       const saved=JSON.parse(raw);if(!saved?.persons)return false;
-      persons=saved.persons.map(x=>({...x,alloc:{...x.alloc},comp:x.comp?{...x.comp}:null}));
+      persons=saved.persons.map(_personHydrate);
       META=saved.meta||{versionName:'',sources:[]};
       BUDGET=saved.budget||null;          // v48 Đ3 — budget sống qua reload
       LOAD_DIAG=saved.diag||null;         // v49 — kết quả kiểm tra nạp liệu sống qua reload
@@ -2194,7 +2306,7 @@ function clearSavedState(){
   localStorage.removeItem(LS_CUR);
   localStorage.removeItem(LS_UI);        // v48 — reset luôn UI context
   UIST={tab:'simulator',jeEntity:'',budgetPeriod:'',f:{},cmp:{}};
-  window.JE_ENTITY='';hideRestoreBanner();LOAD_DIAG=null;
+  window.JE_ENTITY='';hideRestoreBanner();LOAD_DIAG=null;STORAGE_FULL=false;hideStorageBanner();
   META={versionName:'',sources:[]};
   persons=[];
   BUDGET=null;
@@ -2271,7 +2383,7 @@ function importJSON(event){
         // match: id (unused) → name+emp_type → name+dept → name
         let p=id!==undefined?persons.find(x=>x.id===id&&!usedOld.has(x)):null;
         if(!p&&name)p=persons.find(x=>x.name===name&&normType(x.emp_type)===etype&&!usedOld.has(x));
-        if(!p&&name)p=persons.find(x=>x.name===name&&x.dept===s.dept&&!usedOld.has(x));
+        if(!p&&name)p=persons.find(x=>x.name===name&&_normDept(x.dept)===_normDept(s.dept)&&!usedOld.has(x));
         if(!p&&name)p=persons.find(x=>x.name===name&&!usedOld.has(x));
         if(p){
           usedOld.add(p);
@@ -2331,8 +2443,9 @@ function applyTemplate(event){
       // For each current person, find matching rule by name+dept (+emp_type for dups)
       persons.forEach(p=>{
         const et=normType(p.emp_type);
-        let r=rules.find(x=>!usedRule.has(x)&&x.name===p.name&&x.dept===p.dept&&normType(x.emp_type)===et);
-        if(!r)r=rules.find(x=>!usedRule.has(x)&&x.name===p.name&&x.dept===p.dept);
+        // v53 — khớp theo khoá chuẩn hoá, nếu không rule của 'Marketing' sẽ trượt người 'MARKETING'
+        let r=rules.find(x=>!usedRule.has(x)&&x.name===p.name&&_normDept(x.dept)===_normDept(p.dept)&&normType(x.emp_type)===et);
+        if(!r)r=rules.find(x=>!usedRule.has(x)&&x.name===p.name&&_normDept(x.dept)===_normDept(p.dept));
         if(!r)r=rules.find(x=>!usedRule.has(x)&&x.name===p.name);
         if(r){
           usedRule.add(r);
@@ -2705,6 +2818,61 @@ function exportBU(){const blob=new Blob([JSON.stringify({meta:{type:'finan_bu_ce
 
 // ── LOAD DATA TAB RENDER ──
 // ══════════════════════════════════════════════════════════════════════════
+// v51 — DUNG LƯỢNG localStorage (Đ20)
+// Mở tool bằng file:// thì MỌI file HTML dùng chung một origin — tool này chia
+// quota ~5MB với tất cả tool single-file khác của cùng máy. Vì vậy panel liệt kê
+// cả key của tool khác, nhưng tách rõ để không xoá nhầm.
+// ══════════════════════════════════════════════════════════════════════════
+function _kb(b){return b>=1048576?(b/1048576).toFixed(2)+' MB':(b/1024).toFixed(1)+' KB';}
+// v51 — ĐO chỗ trống thật bằng cách thử ghi, không đoán 5MB.
+// Quota file:// khác quota https://, và còn phụ thuộc các tool khác đang chiếm bao nhiêu.
+// Đoán sai theo hướng lạc quan là tool báo "còn trống 4.5MB" rồi lưu vẫn hỏng.
+let _freeCache=null,_freeCacheAt=0;
+function probeFreeBytes(force){
+  if(!force&&_freeCache!=null&&Date.now()-_freeCacheAt<4000)return _freeCache;
+  const K='__finan_probe__';
+  const fits=n=>{try{localStorage.setItem(K,'x'.repeat(n));localStorage.removeItem(K);return true;}
+                 catch(e){try{localStorage.removeItem(K);}catch(_){}return false;}};
+  let free=0;
+  try{
+    if(fits(1)){
+      let lo=1,hi=2;
+      while(hi<=16*1024*1024&&fits(hi)){lo=hi;hi*=2;}      // tăng gấp đôi tới khi hỏng
+      let a=lo,b=Math.min(hi,16*1024*1024);
+      while(b-a>1024){const mid=Math.floor((a+b)/2);if(fits(mid))a=mid;else b=mid;}  // nhị phân
+      free=a;
+    }
+  }catch(e){free=0;}
+  _freeCache=free*2;_freeCacheAt=Date.now();   // ký tự → byte (UTF-16)
+  return _freeCache;
+}
+function storageReport(force){
+  const rows=[];let total=0;
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);if(k==null)continue;
+      const v=localStorage.getItem(k)||'';
+      const bytes=(k.length+v.length)*2;          // localStorage lưu UTF-16
+      total+=bytes;
+      const mine=k.startsWith(LS_NS)||k.startsWith('finan_sim_');
+      const ver=k.startsWith(LS_NS+'::')&&!k.startsWith(LS_NS+'::__');
+      rows.push({k,bytes,mine,ver,verName:ver?k.slice((LS_NS+'::').length):''});
+    }
+  }catch(e){}
+  rows.sort((a,b)=>b.bytes-a.bytes);
+  const free=probeFreeBytes(force);
+  return {rows,total,free,quota:total+free};
+}
+function estimateVersionBytes(){
+  try{return JSON.stringify({ts:0,meta:META,persons:persons.map(p=>_personSnap(p,true))}).length*2;}catch(e){return 0;}
+}
+function showStorageBanner(msg){
+  const b=document.getElementById('storage-banner'),t=document.getElementById('sb-text');
+  if(t){const r=storageReport(true);t.textContent=`Đang dùng ${_kb(r.total)} / ${_kb(r.quota)} · còn trống ${_kb(r.free)}. Chỉnh sửa từ lúc này KHÔNG được lưu. ${msg||''}`.trim();}
+  if(b)b.style.display='flex';
+}
+function hideStorageBanner(){const b=document.getElementById('storage-banner');if(b)b.style.display='none';}
+// ══════════════════════════════════════════════════════════════════════════
 // v49 — KIỂM TRA NẠP LIỆU (Đ11, Đ15: chỉ cảnh báo, KHÔNG chặn load)
 // Tool sửa trong bộ nhớ + localStorage. KHÔNG ghi ngược ra file Excel (Đ16):
 // nguồn payroll là read-only, sửa ở nguồn là việc của kế toán.
@@ -2762,6 +2930,15 @@ function computeDiagIssues(){
   add('E12','amber','Đã nghỉ việc nhưng vẫn có chi phí trong kỳ',
       'Thường là thanh toán cuối kỳ. Vẫn phải để active để vào cost — chỉ cần gán đúng P&L line.',
       persons.filter(p=>p.left&&p.base>0).map(p=>p.id));
+
+  // v53 E14 — cùng một phòng nhưng chuỗi khác nhau. Đã gom chung nhóm rồi,
+  // nhưng vẫn báo để bạn biết nguồn nào viết lệch mà sửa tận gốc.
+  const _dcm=deptCanonMap();
+  const multi=Object.keys(_dcm).filter(k=>_dcm[k].variantList.length>1);
+  if(multi.length)out.push({code:'E14',level:'amber',fileLevel:true,
+    title:`${multi.length} phòng ban có nhiều cách viết`,
+    note:multi.map(k=>`<b>${_dcm[k].display}</b>: ${_dcm[k].variantList.map(v=>`"${v}" ×${_dcm[k].variants[v]}`).join(' · ')}`).join(' &nbsp;|&nbsp; ')
+      +' — đã gom chung một nhóm theo khoá chuẩn hoá, chuỗi gốc giữ nguyên. Sửa ở nguồn payroll nếu muốn file export sạch.',rows:[]});
 
   // E10 — phòng ban chưa map P&L (MD1)
   add('E10','amber','Phòng ban chưa map P&L line (MD1)',
@@ -2949,7 +3126,7 @@ function renderLoadData(){
 
 // ── VERSION COMPARISON (6 chiều: headcount · Δbase/người · ΔBU · ΔPL · Δdept · Δalloc%) ──
 let CMP_LAST=null;
-function _verPersons(name){try{const raw=localStorage.getItem(LS_NS+'::'+name);return raw?(JSON.parse(raw).persons||[]):null;}catch(e){return null;}}
+function _verPersons(name){try{const raw=localStorage.getItem(LS_NS+'::'+name);return raw?((JSON.parse(raw).persons||[]).map(_personHydrate)):null;}catch(e){return null;}}
 function _pkey(p){return p.name+'|'+normType(p.emp_type);}   // v50 — dùng normType chung
 function _eff(p){return (p.base||0)+(p.adj||0);}
 function _buAmt(p,bu){return _eff(p)*((p.alloc&&p.alloc[bu])||0)/100;}
@@ -2972,9 +3149,15 @@ function compareVersions(nA,nB,f){
   f=f||{};
   let A=_verPersons(nA),B=_verPersons(nB);
   if(!A||!B)return null;
+  // v53 — phân tích phiên bản CHỈ tính người active. Inactive không vào total cost,
+  // để lẫn vào thì headcount và ΔBase nói về hai tập khác nhau.
+  // Lọc ngay tại nguồn nên MỌI bảng phía dưới nhất quán (trước đây chỉ dept6 và
+  // plHier lọc inactive, còn tA/tB, plA/plB, buA/buB thì không).
+  const inaA=A.filter(p=>p.status==='inactive').length,inaB=B.filter(p=>p.status==='inactive').length;
+  A=A.filter(p=>p.status!=='inactive');B=B.filter(p=>p.status!=='inactive');
   const flt=p=>{
     if(f.et&&_nt(p.emp_type)!==f.et)return false;
-    if(f.dept&&p.dept!==f.dept)return false;
+    if(f.dept&&_normDept(p.dept)!==_normDept(f.dept))return false;
     if(f.bu&&!(((p.alloc&&p.alloc[f.bu])||0)>0))return false;
     return true;
   };
@@ -3000,10 +3183,13 @@ function compareVersions(nA,nB,f){
   const typeChanged=rowStay.filter(x=>x.typeA!==x.typeB);
   // dept 6-col: cost + headcount(active) + avg
   const buKeys=['SBH_own','SBH_partner','HLB','BU3','CSS'];
-  const aggD=list=>{const m={};list.filter(p=>p.status!=='inactive').forEach(p=>{const k=p.dept;if(!m[k])m[k]={cost:0,n:0};m[k].cost+=_eff(p);m[k].n++;});return m;};
+  // đã lọc inactive ở trên; gom theo khoá chuẩn hoá, nhãn lấy biến thể phổ biến nhất
+  const _dcAll=deptCanonMap([...A,...B]);
+  const _dlab=k=>(_dcAll[k]?_dcAll[k].display:k);
+  const aggD=list=>{const m={};list.forEach(p=>{const k=_dlab(_normDept(p.dept));if(!m[k])m[k]={cost:0,n:0};m[k].cost+=_eff(p);m[k].n++;});return m;};
   const deptA6=aggD(A),deptB6=aggD(B);
   // PL→dept hierarchy: L1 = PL line, L2 = dept (một PL có thể chứa nhiều dept, vd 6.3)
-  const plDeptAgg=list=>{const m={};list.filter(p=>p.status!=='inactive').forEach(p=>{const pl=p.pl_line||'(chưa gán PL)';const dp=p.dept||'(chưa gán dept)';if(!m[pl])m[pl]={cost:0,n:0,depts:{}};m[pl].cost+=_eff(p);m[pl].n++;if(!m[pl].depts[dp])m[pl].depts[dp]={cost:0,n:0};m[pl].depts[dp].cost+=_eff(p);m[pl].depts[dp].n++;});return m;};
+  const plDeptAgg=list=>{const m={};list.forEach(p=>{const pl=p.pl_line||'(chưa gán PL)';const dp=_normDept(p.dept)?_dlab(_normDept(p.dept)):'(chưa gán dept)';if(!m[pl])m[pl]={cost:0,n:0,depts:{}};m[pl].cost+=_eff(p);m[pl].n++;if(!m[pl].depts[dp])m[pl].depts[dp]={cost:0,n:0};m[pl].depts[dp].cost+=_eff(p);m[pl].depts[dp].n++;});return m;};
   const plHierA=plDeptAgg(A),plHierB=plDeptAgg(B);
   // legacy dims for PL + BU tables (unchanged)
   const agg=(list,fn)=>{const m={};list.forEach(p=>{const k=fn(p);m[k]=(m[k]||0)+_eff(p);});return m;};
@@ -3016,7 +3202,7 @@ function compareVersions(nA,nB,f){
   const tA=A.reduce((t,p)=>t+_eff(p),0),tB=B.reduce((t,p)=>t+_eff(p),0);
   return {nA,nB,people,typeChanged,entered,left,stayedCount:stayed.length,
     deptA6,deptB6,plHierA,plHierB,plA,plB,buA,buB,buKeys,allocChanged,tA,tB,
-    hcA:A.length,hcB:B.length,byName,idCovA,idCovB};
+    hcA:A.length,hcB:B.length,inaA,inaB,byName,idCovA,idCovB};
 }
 function _dTable(title,kA,kB,labelHdr,nA,nB){
   const keys=[...new Set([...Object.keys(kA),...Object.keys(kB)])].sort();
@@ -3150,7 +3336,9 @@ function runCompare(){
   // headcount labels count PEOPLE IN SCOPE (after filter) per period
   const hA=r.hcA,hB=r.hcB;
   const warnId=r.byName?`<div style="font-size:10px;color:var(--warn);background:var(--warnbg);border-radius:5px;padding:4px 8px;margin-bottom:8px">⚠ Một phần so khớp bằng TÊN+loại HĐ (EMP_ID phủ ${Math.round(r.idCovA*100)}%/${Math.round(r.idCovB*100)}%). Đổi type hoặc trùng tên có thể nhận nhầm — bổ sung EMP_ID để chắc chắn.</div>`:'';
-  const hcHtml=`<div class="cmp-block"><div class="cmp-h">Headcount &amp; tổng chi phí${fdesc?` <span class="dim" style="font-weight:400">— lọc: ${fdesc}</span>`:''}</div>
+  const inaNote=(r.inaA||r.inaB)
+    ? ` <span class="dim" style="font-weight:400">· đã loại ${r.inaA}/${r.inaB} người inactive</span>`:'';
+  const hcHtml=`<div class="cmp-block"><div class="cmp-h">Headcount &amp; tổng chi phí <span class="dim" style="font-weight:400">— chỉ tính ACTIVE${inaNote}</span>${fdesc?` <span class="dim" style="font-weight:400">— lọc: ${fdesc}</span>`:''}</div>
     ${warnId}<table class="cmp-t"><tr><th class="left"></th><th>${r.nA} (${hA})</th><th>${r.nB} (${hB})</th><th>Δ</th></tr>
     <tr><td class="left">Headcount</td><td class="num">${hA}</td><td class="num">${hB}</td><td class="num" style="font-weight:600">${hB-hA>0?'+':''}${hB-hA}</td></tr>
     <tr><td class="left">Base + Adj</td><td class="num">${fmtMl(r.tA)}</td><td class="num">${fmtMl(r.tB)}</td><td class="num" style="font-weight:600;color:${r.tB-r.tA>0?'var(--red)':'var(--teal)'}">${r.tB-r.tA>0?'+':''}${((r.tB-r.tA)/1e6).toFixed(1)}</td></tr></table></div>`;
@@ -3213,6 +3401,7 @@ function exportAnalysisCSV(){
     const r=CMP_LAST;
     push('====== SO SANH PHIEN BAN: '+r.nA+' -> '+r.nB+' ======');
     if(r.filter&&(r.filter.bu||r.filter.dept||r.filter.et))push('Filter,'+[r.filter.bu,r.filter.dept,r.filter.et].filter(Boolean).join(' | '));
+    push('Pham vi,CHI TINH ACTIVE (loai '+r.inaA+'/'+r.inaB+' inactive)');
     push('Headcount,'+r.hcA+','+r.hcB+','+(r.hcB-r.hcA));
     push('Base+Adj,'+Math.round(r.tA)+','+Math.round(r.tB)+','+Math.round(r.tB-r.tA));
     if(r.byName)push('CANH BAO,So khop mot phan bang TEN (EMP_ID phu '+Math.round(r.idCovA*100)+'%/'+Math.round(r.idCovB*100)+'%)');
@@ -3233,6 +3422,7 @@ function exportCompareCSV(){
   if(!CMP_LAST){alert('Chưa có kết quả so sánh. Chạy So sánh ở tab Analytics trước.');return;}
   const r=CMP_LAST;const L=[];
   L.push(['SO SANH PHIEN BAN',r.nA,'->',r.nB].join(','));
+  L.push(['Pham vi','CHI TINH ACTIVE (loai '+r.inaA+'/'+r.inaB+' inactive)'].join(','));
   L.push(['Headcount',r.hcA,r.hcB,r.hcB-r.hcA].join(','));
   L.push(['Base+Adj (VND)',r.tA,r.tB,r.tB-r.tA].join(','));
   L.push('');L.push('DELTA TUNG NGUOI (Ra->O lai->Vao),emp_id,dept,type_'+r.nA+',type_'+r.nB+','+r.nA+','+r.nB+',delta');
