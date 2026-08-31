@@ -53,6 +53,12 @@ body.resizing *{cursor:col-resize!important}
 #mid{background:var(--bg)}
 #right{background:var(--bg)}
 
+.dbanner{border-radius:9px;padding:9px 11px;margin-bottom:12px;font-size:11.5px;line-height:1.45}
+.dbanner.ok{background:var(--soft);border-left:3px solid var(--own);color:#2b4a3f}
+.dbanner.empty{background:var(--warnbg);border-left:3px solid var(--warn);color:#5c4410}
+.dbanner .dv{display:block;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;margin-top:3px}
+.dbanner .btn{margin-top:7px}
+.dbanner code{font-family:'DM Mono',monospace;background:#fff;padding:0 4px;border-radius:4px}
 .pt{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:14px 0 6px}
 .pt:first-child{margin-top:0}
 .mchk{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:12px;font-variant-numeric:tabular-nums}
@@ -207,13 +213,20 @@ table.acc td.rev.neg{color:var(--neg)!important}
   <div class="pane" id="right"></div>
 </div>
 <script>
-const APP_VERSION='v0.10';
-const BUILD_STAMP='30/08/2026 · P&L cấp trên theo LINE ITEM + reconcile ngược về segment/BU';
+const APP_VERSION='v1.0';
+const BUILD_STAMP='30/08/2026 · KHUNG RỖNG — dữ liệu nạp từ finan_data_2026.json';
 document.getElementById('verBadge').textContent=APP_VERSION;
 document.getElementById('relStamp').textContent=BUILD_STAMP;
 document.getElementById('docTitle').textContent='SBH — mạch vận hành BU12 '+APP_VERSION;
-const ACTS={"OWN": {"1.1 Revenue_Software": [701.9, 407.0, 992.8, 1029.5, 616, 710.9, 632.0], "1.2 Revenue_Hardware": [83.5, 56.4, 50.3, 31.6, 25.6, 28.5, 50.0], "1.3 Revenue_Service": [8.2, 4.5, 16.1, 15.1, 10.4, 15.9, 30.8], "1.4 Revenue_Accounting Svc": [29.4, 56.9, 47.2, 27.8, 38.7, 19.4, 19.0], "2.2 Sale promotion": [-39.2, -19.7, -61.7, -48.5, -33.7, -56.4, -40.9], "3.1 COGS_Software": [-126.9, -111.3, -104.2, -115.2, -150.2, -124.4, -141.5], "3.2 COGS_Hardware": [-100.2, -45.6, -26.9, -15.3, -26.9, -17.4, -29.4], "3.4 COGS_Accounting Svc": [0, 0, 0, 0, 0, -33.1, 0], "4.1 Staff cost — Salary": [-294.6, -347.5, -327.4, -339.1, -381.5, -389.2, -410.5], "4.2 In-house commission": [-185.5, -93.7, -85.9, -229.6, -134.1, -62.0, -89.3], "5.1 Brand / Comms": [-54.6, -39.2, -34.9, -28.9, -53.0, -33.9, -20.9], "5.3 Performance Marketing": [-341.0, -178.0, -261.0, -284.9, -212.8, -343.2, -337.1], "5.5 Partnership Marketing": [0, 0, 0, 0, 0, 0, -1], "6.1 Staff - Customer Operation": [-193.0, -219.6, -200.8, -201.2, -199.2, -192.4, -207.9], "6.3 Staff - Product Development": [-172, -216.7, -224.5, -522.3, -644.4, -373.6, -415.1], "6.4 Staff - Technology": [-572.8, -607.2, -605.2, -478.1, -373.4, -373.0, -357.0], "6.5 Staff - Marketing": [-216.7, -248, -277.2, -193.9, -206.2, -239.7, -172.7], "7.1 Staff - Management": [0, 0, 0, 0, 0, -320.0, -351.1], "7.2 Staff - Accounting & Finance": [-86.7, -100.0, -115.7, -173.0, -72.3, -64.9, -43.5], "7.3 Staff - Human Resource": [-25.4, -12.8, -58.5, -41.5, -30.2, -7.8, -7.8], "7.4 System": [-112.5, -125, -122.1, -235.4, -217.7, -181.9, -180.3], "7.5 Rental": [-152.2, -143.8, -147.2, -161.7, -167.1, -147.4, -145.6], "7.6 Công tác phí": [-23.3, -35.7, -6.2, -14.0, -59.3, -18.4, -49.4], "7.7 Tiếp khách": [-38.5, -26.2, -27.6, -74.2, -58.8, -21.4, -13.2], "7.9 Team engagement": [-34.6, -82.0, -28.0, -23.0, -31.5, -4.4, -20.5], "7.99 Khác": [-22.1, -16.4, -53.0, -34.6, -36.8, -51.5, -17.8]}, "PTN": {"1.1 Revenue_Software": [0, 0, 8.4, 1408.5, 68.5, 110.6, 65.9], "1.2 Revenue_Hardware": [0, 0, 0, 0, 2.4, 0, 0], "1.3 Revenue_Service": [853.1, 209.7, 1310.2, 209.5, 43.6, 1304.8, 307.2], "4.3 Partner commission": [0, 0, 0, 0, 0, 0, -46.4], "5.1 Brand / Comms": [0, 0, 0, 0, 0, -277.8, -3.8], "6.2 Staff - BD & Partnership": [-252.7, -219.4, -226.7, -238.9, -158.2, -175.6, -124.1]}, "HLB": {"1.2 Revenue_Hardware": [73.3, 0, 0, 0, 8.4, 0, 0], "1.3 Revenue_Service": [0, 0, 0, 0.5, 0.9, 4.3, 4.1], "4.2 In-house commission": [0, 0, 0, 0, -21, -38.4, -106.5], "5.1 Brand / Comms": [-5.6, -16.2, -50.4, 1.1, -15.2, 0, 0], "5.5 Partnership Marketing": [0, 0, 0, 0, -16.1, -28.0, -5.3]}};
-const PTN_ACC0=[{"name": "VNPT", "type": "SAAS", "unit": "user", "ev": 50, "com": 25, "qty": [500, 500, 500, 500, 500], "price": [0.72, 0.72, 0.72, 0.72, 0.72]}, {"name": "HD Bank", "type": "SAAS", "unit": "user", "ev": 50, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.45, 0.45, 0.45, 0.45, 0.45]}, {"name": "TP Bank", "type": "SAAS", "unit": "user", "ev": 0, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.1, 0.1, 0.1, 0.1, 0.1]}, {"name": "FE", "type": "SAAS", "unit": "user", "ev": 0, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.54, 0.54, 0.54, 0.54, 0.54]}, {"name": "Shinhan", "type": "SAAS", "unit": "user", "ev": 100, "com": 0, "qty": [700, 700, 500, 500, 500], "price": [0.5, 0.5, 0.5, 0.5, 0.5]}, {"name": "Shinhan brand", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 1, 0, 0], "price": [1000, 1000, 600, 0, 0]}, {"name": "HLB brand", "type": "Tech service", "unit": "account", "ev": 0, "com": 0, "qty": [1, 0, 0, 0, 0], "price": [550, 0, 0, 0, 0]}, {"name": "Unilever Pilot", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 1, 0, 0], "price": [54, 54, 54, 500, 500]}, {"name": "Shinhan", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [1, 1, 1, 1, 1], "price": [132, 132, 132, 132, 132]}, {"name": "HLB", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 0, 0, 0], "price": [2, 2, 0, 0, 0]}, {"name": "Galaxy", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0, 0, 0, 0, 0]}, {"name": "HDbank", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0, 0, 0, 0, 0]}, {"name": "Placeholder", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 1, 1, 1], "price": [0, 0, 2000, 2000, 2000]}];
+/* ===== KHUNG RỖNG — dữ liệu nạp từ ngoài =====
+   Khung này KHÔNG chứa số. Số nằm ở file finan_data_2026.json.
+   Nạp theo thứ tự: (1) fetch DATA_URL nếu đang chạy trên domain
+                    (2) bản lưu localStorage của người dùng, nếu có
+                    (3) người dùng bấm "Nạp dữ liệu" chọn file
+   Chưa nạp gì thì mọi ô = 0, bảng vẫn dựng được để xem cấu trúc. */
+const DATA_URL='./finan_data_2026.json';
+let ACTS={}, ACTS3={}, PTN_ACC0=[], PPN_ACC0=[], DATA_META=null;
+const __unused_PTN_ACC0=[{"name": "VNPT", "type": "SAAS", "unit": "user", "ev": 50, "com": 25, "qty": [500, 500, 500, 500, 500], "price": [0.72, 0.72, 0.72, 0.72, 0.72]}, {"name": "HD Bank", "type": "SAAS", "unit": "user", "ev": 50, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.45, 0.45, 0.45, 0.45, 0.45]}, {"name": "TP Bank", "type": "SAAS", "unit": "user", "ev": 0, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.1, 0.1, 0.1, 0.1, 0.1]}, {"name": "FE", "type": "SAAS", "unit": "user", "ev": 0, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.54, 0.54, 0.54, 0.54, 0.54]}, {"name": "Shinhan", "type": "SAAS", "unit": "user", "ev": 100, "com": 0, "qty": [700, 700, 500, 500, 500], "price": [0.5, 0.5, 0.5, 0.5, 0.5]}, {"name": "Shinhan brand", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 1, 0, 0], "price": [1000, 1000, 600, 0, 0]}, {"name": "HLB brand", "type": "Tech service", "unit": "account", "ev": 0, "com": 0, "qty": [1, 0, 0, 0, 0], "price": [550, 0, 0, 0, 0]}, {"name": "Unilever Pilot", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 1, 0, 0], "price": [54, 54, 54, 500, 500]}, {"name": "Shinhan", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [1, 1, 1, 1, 1], "price": [132, 132, 132, 132, 132]}, {"name": "HLB", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 0, 0, 0], "price": [2, 2, 0, 0, 0]}, {"name": "Galaxy", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0, 0, 0, 0, 0]}, {"name": "HDbank", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0, 0, 0, 0, 0]}, {"name": "Placeholder", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 1, 1, 1], "price": [0, 0, 2000, 2000, 2000]}];
 
 const AM=['T1','T2','T3','T4','T5','T6','T7'], FM=['T8','T9','T10','T11','T12'];
 const ALLM=AM.concat(FM), nA=AM.length, nF=FM.length;
@@ -233,54 +246,52 @@ const SHARED_LINES=['3.1 COGS_Software','6.1 Staff - Customer Operation',
 /* ================= INPUT ================= */
 const DEF={
  /* --- OWN --- */
- o_ads:{v:[220,200,200,200,200],u:'tr',src:'seed',ch:'OWN'},
- o_cpl:{v:[22,20,20,20,20],u:'K VND',src:'seed',ch:'OWN'},
- o_crSelf:{v:a5(1.0),u:'%',src:'seed',ch:'OWN'}, o_crTele:{v:a5(3.0),u:'%',src:'seed',ch:'OWN'},
- o_hcDirect:{v:a5(4),u:'người',src:'split',ch:'OWN'}, o_prodDirect:{v:a5(5),u:'HĐ/th',src:'split',ch:'OWN'},
- o_hcBD:{v:[0,5,10,10,10],u:'người',src:'split',ch:'OWN'}, o_prodBD:{v:a5(10),u:'HĐ/th',src:'split',ch:'OWN'},
- o_aovSelf:{v:a5(0.5),u:'tr',src:'seed',ch:'OWN'}, o_aovTele:{v:a5(3.2),u:'tr',src:'seed',ch:'OWN'},
- o_aovDirect:{v:[3.2,3.4,3.4,3.6,3.6],u:'tr',src:'seed',ch:'OWN'}, o_aovBD:{v:a5(1.1),u:'tr',src:'seed',ch:'OWN'},
- o_aovRenew:{v:a5(3.2),u:'tr',src:'none',ch:'OWN'}, o_aovReact:{v:a5(3.2),u:'tr',src:'none',ch:'OWN'},
- o_shareRenew:{v:a5(100),u:'%',src:'none',ch:'OWN'},
- o_attachHw:{v:a5(5.0),u:'%',src:'split',ch:'OWN'}, o_priceHw:{v:a5(1.6),u:'tr',src:'split',ch:'OWN'},
- o_attachSvc:{v:a5(10.0),u:'%',src:'split',ch:'OWN'}, o_feeSvc:{v:a5(0.0255),u:'tr/th',src:'split',ch:'OWN'},
- o_acctCust:{v:a5(40),u:'khách',src:'seed',ch:'OWN'}, o_acctFee:{v:a5(1.0),u:'tr',src:'seed',ch:'OWN'},
- o_promo:{v:a5(40),u:'tr',src:'seed',ch:'OWN'},
- o_cogsHwPct:{v:a5(90),u:'%',src:'seed',ch:'OWN'}, o_cogsAcctPct:{v:a5(75),u:'%',src:'seed',ch:'OWN'},
- o_commSelf:{v:a5(15),u:'%',src:'none',ch:'OWN'}, o_commTele:{v:a5(15),u:'%',src:'none',ch:'OWN'},
- o_commDirect:{v:a5(15),u:'%',src:'none',ch:'OWN'}, o_commRenew:{v:a5(15),u:'%',src:'none',ch:'OWN'},
- o_commReact:{v:a5(15),u:'%',src:'none',ch:'OWN'},
- o_salesSalary:{v:[410,350,350,350,350],u:'tr',src:'seed',ch:'OWN'},
- o_brand:{v:a5(40),u:'tr',src:'seed',ch:'OWN'}, o_payMkt:{v:a5(200),u:'tr',src:'seed',ch:'OWN'},
+ o_ads:{v:a5(0),u:'tr',src:'seed',ch:'OWN'},
+ o_cpl:{v:a5(0),u:'K VND',src:'seed',ch:'OWN'},
+ o_crSelf:{v:a5(0),u:'%',src:'seed',ch:'OWN'}, o_crTele:{v:a5(0),u:'%',src:'seed',ch:'OWN'},
+ o_hcDirect:{v:a5(0),u:'người',src:'split',ch:'OWN'}, o_prodDirect:{v:a5(0),u:'HĐ/th',src:'split',ch:'OWN'},
+ o_hcBD:{v:a5(0),u:'người',src:'split',ch:'OWN'}, o_prodBD:{v:a5(0),u:'HĐ/th',src:'split',ch:'OWN'},
+ o_aovSelf:{v:a5(0),u:'tr',src:'seed',ch:'OWN'}, o_aovTele:{v:a5(0),u:'tr',src:'seed',ch:'OWN'},
+ o_aovDirect:{v:a5(0),u:'tr',src:'seed',ch:'OWN'}, o_aovBD:{v:a5(0),u:'tr',src:'seed',ch:'OWN'},
+ o_aovRenew:{v:a5(0),u:'tr',src:'none',ch:'OWN'}, o_aovReact:{v:a5(0),u:'tr',src:'none',ch:'OWN'},
+ o_shareRenew:{v:a5(0),u:'%',src:'none',ch:'OWN'},
+ o_attachHw:{v:a5(0),u:'%',src:'split',ch:'OWN'}, o_priceHw:{v:a5(0),u:'tr',src:'split',ch:'OWN'},
+ o_attachSvc:{v:a5(0),u:'%',src:'split',ch:'OWN'}, o_feeSvc:{v:a5(0),u:'tr/th',src:'split',ch:'OWN'},
+ o_acctCust:{v:a5(0),u:'khách',src:'seed',ch:'OWN'}, o_acctFee:{v:a5(0),u:'tr',src:'seed',ch:'OWN'},
+ o_promo:{v:a5(0),u:'tr',src:'seed',ch:'OWN'},
+ o_cogsHwPct:{v:a5(0),u:'%',src:'seed',ch:'OWN'}, o_cogsAcctPct:{v:a5(0),u:'%',src:'seed',ch:'OWN'},
+ o_commSelf:{v:a5(0),u:'%',src:'none',ch:'OWN'}, o_commTele:{v:a5(0),u:'%',src:'none',ch:'OWN'},
+ o_commDirect:{v:a5(0),u:'%',src:'none',ch:'OWN'}, o_commRenew:{v:a5(0),u:'%',src:'none',ch:'OWN'},
+ o_commReact:{v:a5(0),u:'%',src:'none',ch:'OWN'},
+ o_salesSalary:{v:a5(0),u:'tr',src:'seed',ch:'OWN'},
+ o_brand:{v:a5(0),u:'tr',src:'seed',ch:'OWN'}, o_payMkt:{v:a5(0),u:'tr',src:'seed',ch:'OWN'},
  /* --- PARTNERSHIP --- */
- p_inhouseRate:{v:a5(5),u:'%',src:'seed',ch:'PTN'},
- p_cogsSoftware:{v:[50,50,860,650,650],u:'tr',src:'seed',ch:'PTN'},
- p_perfMkt:{v:[0,0,100,100,100],u:'tr',src:'seed',ch:'PTN'},
- p_payBD:{v:a5(175),u:'tr',src:'seed',ch:'PTN'},
+ p_inhouseRate:{v:a5(0),u:'%',src:'seed',ch:'PTN'},
+ p_cogsSoftware:{v:a5(0),u:'tr',src:'seed',ch:'PTN'},
+ p_perfMkt:{v:a5(0),u:'tr',src:'seed',ch:'PTN'},
+ p_payBD:{v:a5(0),u:'tr',src:'seed',ch:'PTN'},
  /* --- HLB --- */
- h_l8:{v:a5(600),u:'lượt',src:'seed',ch:'HLB'}, h_conv:{v:a5(20),u:'%',src:'seed',ch:'HLB'},
- h_commH5:{v:a5(0.05),u:'tr/H5',src:'seed',ch:'HLB'}, h_promoH5:{v:a5(0.2),u:'tr/H5',src:'seed',ch:'HLB'},
- h_referral:{v:a5(150),u:'lượt',src:'seed',ch:'HLB'}, h_refBonus:{v:a5(0.2),u:'tr/lượt',src:'seed',ch:'HLB'},
- h_affiliate:{v:a5(200),u:'lượt',src:'seed',ch:'HLB'}, h_affComm:{v:a5(0.1),u:'tr/lượt',src:'seed',ch:'HLB'},
- h_revHw:{v:a5(4),u:'tr',src:'seed',ch:'HLB'}, h_brand:{v:a5(22),u:'tr',src:'seed',ch:'HLB'},
+ h_l8:{v:a5(0),u:'lượt',src:'seed',ch:'HLB'}, h_conv:{v:a5(0),u:'%',src:'seed',ch:'HLB'},
+ h_commH5:{v:a5(0),u:'tr/H5',src:'seed',ch:'HLB'}, h_promoH5:{v:a5(0),u:'tr/H5',src:'seed',ch:'HLB'},
+ h_referral:{v:a5(0),u:'lượt',src:'seed',ch:'HLB'}, h_refBonus:{v:a5(0),u:'tr/lượt',src:'seed',ch:'HLB'},
+ h_affiliate:{v:a5(0),u:'lượt',src:'seed',ch:'HLB'}, h_affComm:{v:a5(0),u:'tr/lượt',src:'seed',ch:'HLB'},
+ h_revHw:{v:a5(0),u:'tr',src:'seed',ch:'HLB'}, h_brand:{v:a5(0),u:'tr',src:'seed',ch:'HLB'},
  /* --- CHUNG SBH --- */
- s_baseStart:{v:[8000,0,0,0,0],u:'user',src:'none',ch:'SHARED',chain:1},
- s_due:{v:a5(667),u:'user',src:'none',ch:'SHARED'},
- s_renewal:{v:a5(27.5),u:'%',src:'none',ch:'SHARED'},
+ s_baseStart:{v:a5(0),u:'user',src:'none',ch:'SHARED',chain:1},
+ s_due:{v:a5(0),u:'user',src:'none',ch:'SHARED'},
+ s_renewal:{v:a5(0),u:'%',src:'none',ch:'SHARED'},
  s_react:{v:a5(0),u:'user',src:'none',ch:'SHARED'},
- s_avgTerm:{v:a5(12),u:'tháng',src:'none',ch:'SHARED'},
- s_cloudPerUser:{v:a5(22.5),u:'K VND',src:'none',ch:'SHARED'},
- s_payCS:{v:[190,210,210,210,210],u:'tr',src:'seed',ch:'SHARED'},
- s_payProduct:{v:a5(270),u:'tr',src:'seed',ch:'SHARED'},
- s_payTech:{v:[220,230,240,250,250],u:'tr',src:'seed',ch:'SHARED'},
- s_alloc7x:{v:a5(1329.4),u:'tr',src:'seed',ch:'SHARED'}
-};
+ s_avgTerm:{v:a5(0),u:'tháng',src:'none',ch:'SHARED'},
+ s_cloudPerUser:{v:a5(0),u:'K VND',src:'none',ch:'SHARED'},
+ s_payCS:{v:a5(0),u:'tr',src:'seed',ch:'SHARED'},
+ s_payProduct:{v:a5(0),u:'tr',src:'seed',ch:'SHARED'},
+ s_payTech:{v:a5(0),u:'tr',src:'seed',ch:'SHARED'},
+ s_alloc7x:{v:a5(0),u:'tr',src:'seed',ch:'SHARED'}};
 let IN={}; Object.keys(DEF).forEach(k=>IN[k]=DEF[k].v.slice());
 const SRC=k=>DEF[k].src, UNIT=k=>DEF[k].u, CHAIN=k=>!!DEF[k].chain;
 
 /* Danh mục đối tác — mỗi dòng khai contrib: 'stock' user đang có, 'flow' user mới mỗi tháng */
-let ACCS=PTN_ACC0.map(a=>({name:a.name,type:a.type,unit:a.unit,ev:a.ev,com:a.com,
-  qty:a.qty.slice(),price:a.price.slice(),contrib:(a.unit==='user'?'stock':'none')}));
+let ACCS=[];
 
 /* Số lượng actual — chỉ nơi suy ngược được */
 const AQDEF={
@@ -542,8 +553,7 @@ const fmt=(v,d=1)=>{if(v===null||v===undefined||isNaN(v))return '—';
 const SRCNOTE={seed:'',split:'cách tách là giả định',none:'CHƯA có nguồn'};
 const editList=()=>ALLM.filter(m=>EDITM[m]);
 const showList=()=>ALLM.filter(m=>SHOW[m]);
-const ACTS3={"DIR": {"1.1 Revenue_Software": [4.9, 4.9, 6.4, 50.8, 15.4, 11.0, 15.3], "1.3 Revenue_Service": [0, 0, 0, 0, 0, 152.0, 0], "2.1 Sale discount": [0, 0, 0, 0, 0, -6.0, 0], "5.1 Brand / Comms": [0, 0, 0, -3.3, -6.9, 0, -19.6], "5.3 Performance Marketing": [0, 0, -7.7, -2.2, -4.0, -9.3, -4.1], "6.2 Staff - BD & Partnership": [0, -36.4, -76.4, -39.1, -66.8, -41.8, -28.6], "6.3 Staff - Product Development": [-241.0, -341.4, -228, -281.4, -93.0, -233.2, -288.2], "6.4 Staff - Technology": [-250.0, -285.5, -303.2, -216.9, -296.0, -320.8, -370.4], "6.5 Staff - Marketing": [0, -0.6, 0, -54.5, -59.1, -58.7, 0], "7.1 Staff - Management": [0, 0, 0, 0, 0, -169.5, -145.0], "7.2 Staff - Accounting & Finance": [-13.4, -14.2, -13.4, -15.4, -10.6, -40.6, -49.7], "7.3 Staff - Human Resource": [-6.3, -3.2, -14.6, -10.4, -7.5, -28.3, -28.3], "7.4 System": [-24.1, -28.4, -27.0, -30.2, -40.0, -34.6, -44.3], "7.5 Rental": [-38.0, -36.0, -36.8, -40.4, -41.8, -36.9, -36.4], "7.6 Công tác phí": [-1.6, -5.4, -1.6, -3.5, -6.2, -4.6, -12.3], "7.7 Tiếp khách": [-18.7, -4.2, -5.3, -27.3, -9.9, -5.4, -3.1], "7.9 Team engagement": [-3.7, -20.2, -6.9, -7.7, -7.4, -0.5, -32.3], "7.99 Khác": [-4.8, -3.8, -11.7, -8.7, -9.2, -12.9, -4.5]}, "PPN": {}, "LEN": {}, "VPB": {}, "AFF": {}};
-const PPN_ACC0=[{"name": "Mastercard", "type": "Strategic project", "unit": "package", "ev": 100, "com": 0, "qty": [1, 0, 1, 0, 1], "price": [6625, 0, 2650, 0, 3975]}, {"name": "HLB MY", "type": "Strategic project", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 1, 1, 1], "price": [0, 0, 1325, 1325, 2650]}, {"name": "TAF", "type": "Strategic project", "unit": "package", "ev": 100, "com": 0, "qty": [0, 1, 0, 0, 0], "price": [0, 79.5, 0, 0, 0]}, {"name": "Partner mới", "type": "Strategic project", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 0, 0, 1], "price": [0, 0, 0, 0, 1325]}];
+/* dữ liệu BU3 đã tách ra file JSON ngoài */
 
 /* ================= BU3 ================= */
 const CH3=['DIR','PPN','LEN','VPB','AFF'];
@@ -555,48 +565,45 @@ const BUDEF={
 };
 /* pipeline outsource — nguồn của 1.3 Revenue_Service (câu D).
    Cùng hình dạng bảng đối tác: tên · tháng · giá trị · % chia sẻ cho đối tác. */
-let PIPE=[
- {name:'Pipeline outsource #1',share:50,val:[0,0,2367,4471,4997],contrib:'none'}
-];
-let PACC=PPN_ACC0.map(a=>({name:a.name,type:a.type,unit:a.unit,ev:a.ev,com:a.com,
- qty:a.qty.slice(),price:a.price.slice(),share:15,contrib:'none'}));
+let PIPE=[];
+let PACC=[];
 
 Object.assign(DEF,{
  /* --- DIRECT --- */
- d_custBaseline:{v:[10,0,0,0,0],u:'khách',src:'seed',ch:'DIR',chain:1},
- d_grossNewAdds:{v:[35,50,264,308,308],u:'khách',src:'seed',ch:'DIR'},
- d_churnPct:{v:a5(3),u:'%',src:'seed',ch:'DIR'},
- d_blendedARPA:{v:a5(0.95),u:'tr',src:'seed',ch:'DIR'},
- d_arpuToken:{v:[0.15,0.3,0.6,1,1.4],u:'tr',src:'seed',ch:'DIR'},
- d_cogsTokenPct:{v:a5(70),u:'%',src:'seed',ch:'DIR'},
- d_commissionPct:{v:a5(10),u:'%',src:'seed',ch:'DIR'},
- d_perfMkt:{v:a5(4.64),u:'tr',src:'seed',ch:'DIR'},
- d_ptnMkt:{v:[2000,500,700,700,700],u:'tr',src:'seed',ch:'DIR'},
- d_payBD:{v:[28,28,63,210,210],u:'tr',src:'seed',ch:'DIR'},
- d_payMkt:{v:a5(37.85),u:'tr',src:'seed',ch:'DIR'},
+ d_custBaseline:{v:a5(0),u:'khách',src:'seed',ch:'DIR',chain:1},
+ d_grossNewAdds:{v:a5(0),u:'khách',src:'seed',ch:'DIR'},
+ d_churnPct:{v:a5(0),u:'%',src:'seed',ch:'DIR'},
+ d_blendedARPA:{v:a5(0),u:'tr',src:'seed',ch:'DIR'},
+ d_arpuToken:{v:a5(0),u:'tr',src:'seed',ch:'DIR'},
+ d_cogsTokenPct:{v:a5(0),u:'%',src:'seed',ch:'DIR'},
+ d_commissionPct:{v:a5(0),u:'%',src:'seed',ch:'DIR'},
+ d_perfMkt:{v:a5(0),u:'tr',src:'seed',ch:'DIR'},
+ d_ptnMkt:{v:a5(0),u:'tr',src:'seed',ch:'DIR'},
+ d_payBD:{v:a5(0),u:'tr',src:'seed',ch:'DIR'},
+ d_payMkt:{v:a5(0),u:'tr',src:'seed',ch:'DIR'},
  /* --- EF LENDING --- */
- l_newBorrowers:{v:[0,0,11,21,21],u:'người',src:'seed',ch:'LEN'},
- l_disbPer:{v:a5(250),u:'tr',src:'seed',ch:'LEN'},
- l_avgOutstanding:{v:[0,0,1325,5300,10600],u:'tr',src:'seed',ch:'LEN'},
- l_interestPct:{v:a5(2),u:'%/th',src:'seed',ch:'LEN'},
- l_fundingPct:{v:a5(1),u:'%/th',src:'seed',ch:'LEN'},
- l_creditPct:{v:a5(30),u:'%',src:'seed',ch:'LEN'},
- l_feePct:{v:a5(2),u:'%',src:'seed',ch:'LEN'},
+ l_newBorrowers:{v:a5(0),u:'người',src:'seed',ch:'LEN'},
+ l_disbPer:{v:a5(0),u:'tr',src:'seed',ch:'LEN'},
+ l_avgOutstanding:{v:a5(0),u:'tr',src:'seed',ch:'LEN'},
+ l_interestPct:{v:a5(0),u:'%/th',src:'seed',ch:'LEN'},
+ l_fundingPct:{v:a5(0),u:'%/th',src:'seed',ch:'LEN'},
+ l_creditPct:{v:a5(0),u:'%',src:'seed',ch:'LEN'},
+ l_feePct:{v:a5(0),u:'%',src:'seed',ch:'LEN'},
  /* --- EF VPB --- */
  v_cards:{v:a5(0),u:'thẻ',src:'none',ch:'VPB'},
- v_activePct:{v:a5(40),u:'%',src:'seed',ch:'VPB'},
- v_gtvPerSME:{v:a5(1.3),u:'tr',src:'seed',ch:'VPB'},
- v_interchangePct:{v:a5(0.2775),u:'%',src:'seed',ch:'VPB'},
+ v_activePct:{v:a5(0),u:'%',src:'seed',ch:'VPB'},
+ v_gtvPerSME:{v:a5(0),u:'tr',src:'seed',ch:'VPB'},
+ v_interchangePct:{v:a5(0),u:'%',src:'seed',ch:'VPB'},
  /* --- EF AFFILIATE --- */
- f_referralLoans:{v:[0,0,0,0,100],u:'khoản',src:'seed',ch:'AFF'},
- f_avgTicket:{v:[0,0,0,0,20],u:'tr',src:'seed',ch:'AFF'},
- f_commPct:{v:a5(1),u:'%',src:'seed',ch:'AFF'},
+ f_referralLoans:{v:a5(0),u:'khoản',src:'seed',ch:'AFF'},
+ f_avgTicket:{v:a5(0),u:'tr',src:'seed',ch:'AFF'},
+ f_commPct:{v:a5(0),u:'%',src:'seed',ch:'AFF'},
  /* --- CHUNG FinanOne --- */
- s3_platform:{v:[1060,1060,1590,1855,1855],u:'tr',src:'seed',ch:'SHARED3'},
- s3_payCS:{v:[39,81,158,235,235],u:'tr',src:'seed',ch:'SHARED3'},
- s3_payProduct:{v:[226,338,338,338,338],u:'tr',src:'seed',ch:'SHARED3'},
- s3_payTech:{v:[552,552,664,664,664],u:'tr',src:'seed',ch:'SHARED3'},
- s3_alloc7x:{v:[369,389,389,389,369],u:'tr',src:'seed',ch:'SHARED3'}
+ s3_platform:{v:a5(0),u:'tr',src:'seed',ch:'SHARED3'},
+ s3_payCS:{v:a5(0),u:'tr',src:'seed',ch:'SHARED3'},
+ s3_payProduct:{v:a5(0),u:'tr',src:'seed',ch:'SHARED3'},
+ s3_payTech:{v:a5(0),u:'tr',src:'seed',ch:'SHARED3'},
+ s3_alloc7x:{v:a5(0),u:'tr',src:'seed',ch:'SHARED3'}
 });
 CH3.concat(['SHARED3']).forEach(()=>{});
 Object.keys(DEF).forEach(k=>{if(!IN[k])IN[k]=DEF[k].v.slice();});
@@ -662,18 +669,18 @@ const ENG3={DIR:engDir,PPN:engPpn,LEN:engLen,VPB:engVpb,AFF:engAff};
    luật khai từng dòng. Phần không phân bổ ở lại CSS.
    Bất biến: gross = phân bổ BU12 + phân bổ BU3 + CSS giữ lại. */
 const CSS_LINES=[
- {k:'7.1',  l:'7.1 Staff - Management',            g:[900,900,900,900,900], own:75, bu3:25},
- {k:'7.2',  l:'7.2 Staff - Accounting & Finance',  g:[90,90,90,90,90],      own:80, bu3:20},
- {k:'7.3',  l:'7.3 Staff - Human Resource',        g:[36,36,36,36,36],      own:80, bu3:20},
- {k:'7.4',  l:'7.4 System',                        g:[224,324,324,324,224], own:80, bu3:20},
- {k:'7.5',  l:'7.5 Rental',                        g:[190,190,190,190,190], own:80, bu3:20},
- {k:'7.6',  l:'7.6 Công tác phí',                  g:[30,30,30,30,30],      own:80, bu3:20},
- {k:'7.7',  l:'7.7 Tiếp khách',                    g:[68,68,68,68,68],      own:80, bu3:20},
- {k:'7.9',  l:'7.9 Team engagement',               g:[30,30,30,30,30],      own:80, bu3:20},
- {k:'7.99', l:'7.99 Khác',                         g:[50,50,50,50,50],      own:80, bu3:20},
- {k:'7.8',  l:'7.8 Tư vấn pháp lý',                g:[70,100,100,100,100],  own:0,  bu3:0,
+ {k:'7.1',  l:'7.1 Staff - Management',            g:[0,0,0,0,0], own:0, bu3:0},
+ {k:'7.2',  l:'7.2 Staff - Accounting & Finance',  g:[0,0,0,0,0],      own:0, bu3:0},
+ {k:'7.3',  l:'7.3 Staff - Human Resource',        g:[0,0,0,0,0],      own:0, bu3:0},
+ {k:'7.4',  l:'7.4 System',                        g:[0,0,0,0,0], own:0, bu3:0},
+ {k:'7.5',  l:'7.5 Rental',                        g:[0,0,0,0,0], own:0, bu3:0},
+ {k:'7.6',  l:'7.6 Công tác phí',                  g:[0,0,0,0,0],      own:0, bu3:0},
+ {k:'7.7',  l:'7.7 Tiếp khách',                    g:[0,0,0,0,0],      own:0, bu3:0},
+ {k:'7.9',  l:'7.9 Team engagement',               g:[0,0,0,0,0],      own:0, bu3:0},
+ {k:'7.99', l:'7.99 Khác',                         g:[0,0,0,0,0],      own:0, bu3:0},
+ {k:'7.8',  l:'7.8 Tư vấn pháp lý',                g:[0,0,0,0,0],  own:0,  bu3:0,
     note:'Chi phí admin cấp công ty — không phân bổ (Đ12)'},
- {k:'7.10', l:'7.10 Vận chuyển',                   g:[20,20,20,20,20],      own:0,  bu3:0,
+ {k:'7.10', l:'7.10 Vận chuyển',                   g:[0,0,0,0,0],      own:0,  bu3:0,
     note:'Chi phí admin cấp công ty — không phân bổ (Đ12)'}
 ];
 let CSSL=CSS_LINES.map(x=>({k:x.k,l:x.l,g:x.g.slice(),own:x.own,bu3:x.bu3,note:x.note||''}));
@@ -864,7 +871,7 @@ Object.assign(ZN,{
 function renderPanel(){
  const chk=(m,t,grp)=>`<label class="mchk"><input type="checkbox" data-${grp}="${m}" ${(grp==='show'?SHOW[m]:!!EDITM[m])?'checked':''}>
    <span>${m}</span><span class="tag ${t}">${t==='a'?'actual':'plan'}</span></label>`;
- return `<div class="pt">Business Unit</div>
+ return dataBanner()+`<div class="pt">Business Unit</div>
  <div class="pbtns">${Object.keys(BUDEF).map(b=>
    `<button class="btn${BU===b?' on':''}" data-bu="${b}">${BUDEF[b].label}</button>`).join('')}</div>
  <div class="pt">Kênh đang nhập</div>
@@ -1185,6 +1192,56 @@ function renderRight(){
   <tbody>${body}</tbody></table></div>${foot}</div>`;
 }
 
+/* ================= NẠP DỮ LIỆU TỪ NGOÀI ================= */
+function applyData(D,label){
+ if(!D||D.app!=='finan_mach_van_hanh')return {ok:false,msg:'File không phải bộ dữ liệu của công cụ này'};
+ const rep=[];let taken=0,dropped=[];
+ if(D.actuals){ACTS=D.actuals.BU12||{};ACTS3=D.actuals.BU3||{};taken++;}
+ if(D.drivers)Object.keys(D.drivers).forEach(k=>{
+   if(!DEF[k]){dropped.push('driver '+k);return;}
+   const v=D.drivers[k];
+   if(!Array.isArray(v)||v.length!==nF){dropped.push('driver '+k+' sai độ dài');return;}
+   IN[k]=v.map(x=>Number(x)||0);taken++;});
+ const T=D.tables||{};
+ if(Array.isArray(T.ACCS)){ACCS=T.ACCS.map(a=>Object.assign({},a,{qty:(a.qty||a5(0)).slice(),price:(a.price||a5(0)).slice()}));taken++;}
+ if(Array.isArray(T.PACC)){PACC=T.PACC.map(a=>Object.assign({},a,{qty:(a.qty||a5(0)).slice(),price:(a.price||a5(0)).slice()}));taken++;}
+ if(Array.isArray(T.PIPE)){PIPE=T.PIPE.map(p=>Object.assign({},p,{val:(p.val||a5(0)).slice()}));taken++;}
+ if(Array.isArray(T.CSSL)&&T.CSSL.length){CSSL=T.CSSL.map(x=>Object.assign({},x,{g:(x.g||a5(0)).slice()}));taken++;}
+ const missing=Object.keys(DEF).filter(k=>!D.drivers||!D.drivers[k]);
+ DATA_META={label:D.label||label,dataVersion:D.dataVersion||'—',shapeVersion:D.shapeVersion,
+   months:D.months,loadedFrom:label};
+ const verMsg=(D.shapeVersion&&D.shapeVersion!==SHAPE_VERSION)
+   ?(' · dữ liệu shape v'+D.shapeVersion+', khung v'+SHAPE_VERSION):'';
+ return {ok:true,taken:taken,dropped:dropped,
+   msg:label+': nhận '+taken+' khối'+(dropped.length?', bỏ '+dropped.length:'')
+      +(missing.length?', thiếu '+missing.length+' driver (giữ 0)':'')+verMsg};
+}
+function hasData(){return !!DATA_META;}
+function dataBanner(){
+ if(hasData())return `<div class="dbanner ok"><b>Dữ liệu:</b> ${DATA_META.label}
+   <span class="dv">${DATA_META.dataVersion}</span>
+   <button class="btn" id="btnData">Đổi bộ dữ liệu</button></div>`;
+ return `<div class="dbanner empty"><b>Khung rỗng — chưa nạp dữ liệu.</b>
+   Mọi ô đang bằng 0. Cấu trúc mạch, công thức và phép kiểm vẫn chạy được.
+   <button class="btn primary" id="btnData">Nạp file dữ liệu</button>
+   <span class="dv">hoặc đặt <code>finan_data_2026.json</code> cạnh file này trên domain</span></div>`;
+}
+function loadDataFile(file){
+ const r=new FileReader();
+ r.onload=()=>{let D;try{D=JSON.parse(r.result);}catch(e){status('File không phải JSON hợp lệ','warn');return;}
+  const res=applyData(D,file.name);
+  if(!res.ok){status(res.msg,'warn');return;}
+  paint();scheduleSave();status(res.msg);
+  if(res.dropped.length)console.warn('Bỏ:',res.dropped);};
+ r.readAsText(file);
+}
+function tryFetchData(cb){
+ if(typeof fetch!=='function'){cb(false);return;}
+ fetch(DATA_URL,{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(r.status))
+  .then(D=>{const res=applyData(D,DATA_URL);cb(res.ok,res.msg);})
+  .catch(()=>cb(false));
+}
+
 /* ================= LƯU TRỮ =================
    3 lớp:  autosave localStorage  ·  JSON máy đọc (có version + hash)  ·  CSV người đọc
    SHAPE_VERSION bump mỗi khi đổi hình dạng dữ liệu → bản lưu cũ không nạp đè bừa. */
@@ -1193,7 +1250,7 @@ const SHAPE_VERSION=8;
 const STORAGE_KEY=APP_ID+'_v'+SHAPE_VERSION;
 function hashOf(s){let h=5381;for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))>>>0;return h.toString(16).padStart(8,'0');}
 function payload(){
- const data={IN:IN,AQ:AQ,ACCS:ACCS,PACC:PACC,PIPE:PIPE,CSSL:CSSL};
+ const data={IN:IN,AQ:AQ,ACCS:ACCS,PACC:PACC,PIPE:PIPE,CSSL:CSSL,ACTS:ACTS,ACTS3:ACTS3,META:DATA_META};
  return {app:APP_ID, appVersion:APP_VERSION, shapeVersion:SHAPE_VERSION,
    savedAt:new Date().toISOString(), hash:hashOf(JSON.stringify(data)),
    data:data, ui:{EDITM:EDITM, SHOW:SHOW, RTAB:RTAB, SEG:SEG, BU:BU,
@@ -1213,14 +1270,15 @@ function applyPayload(p,label){
    const v=d.AQ[k]; if(!Array.isArray(v)||v.length!==nA){dropped.push('AQ.'+k+' (sai độ dài)');return;}
    AQ[k]=v.map(x=>(x===null||x===''||isNaN(x))?null:Number(x));taken++;});
  const missing=Object.keys(DEF).filter(k=>!d.IN||!d.IN[k]).concat(Object.keys(AQDEF).filter(k=>!d.AQ||!d.AQ[k]));
- if(d.ACCS&&Array.isArray(d.ACCS)&&d.ACCS.length===ACCS.length){
+ if(d.ACCS&&Array.isArray(d.ACCS)&&ACCS.length&&d.ACCS.length===ACCS.length){
    d.ACCS.forEach((a,ai)=>{['name','type','ev','com','contrib'].forEach(f=>{if(a[f]!==undefined)ACCS[ai][f]=a[f];});
      ['qty','price'].forEach(f=>{if(Array.isArray(a[f])&&a[f].length===nF)ACCS[ai][f]=a[f].map(x=>Number(x)||0);});});
    taken++;}
- else if(d.ACCS)dropped.push('ACCS (số dòng khác)');
- if(Array.isArray(d.PACC)&&d.PACC.length===PACC.length)PACC=d.PACC;
+ else if(Array.isArray(d.ACCS)){ACCS=d.ACCS;taken++;}
+ if(Array.isArray(d.PACC))PACC=d.PACC;
  if(Array.isArray(d.PIPE))PIPE=d.PIPE;
- if(Array.isArray(d.CSSL)&&d.CSSL.length===CSSL.length)CSSL=d.CSSL;
+ if(Array.isArray(d.CSSL)&&d.CSSL.length)CSSL=d.CSSL;
+ if(d.ACTS)ACTS=d.ACTS; if(d.ACTS3)ACTS3=d.ACTS3; if(d.META)DATA_META=d.META;
  if(p.ui){ if(p.ui.BU&&BUDEF[p.ui.BU])BU=p.ui.BU; if(p.ui.SEG&&ZN[p.ui.SEG])SEG=p.ui.SEG; if(p.ui.EDITM)EDITM=p.ui.EDITM; if(p.ui.SHOW){ALLM.forEach(m=>SHOW[m]=!!p.ui.SHOW[m]);}
   if(p.ui.RTAB)RTAB=p.ui.RTAB;
   if(p.ui.panelw)setW('--panelw',p.ui.panelw); if(p.ui.midw)setW('--midw',p.ui.midw);}
@@ -1340,9 +1398,12 @@ function paint(){
  const B=(id,fn)=>{const e=document.getElementById(id);if(e)e.onclick=fn;};
  B('btnSave',()=>{saveLocal();status('Đã lưu vào trình duyệt');});
  B('btnExport',exportJSON); B('btnCSV',exportCSV); B('btnClear',clearLocal);
- B('btnImport',()=>document.getElementById('fileIn').click());
+ B('btnImport',()=>{document.getElementById('fileIn').dataset.mode='plan';document.getElementById('fileIn').click();});
+ B('btnData',()=>{document.getElementById('fileIn').dataset.mode='data';document.getElementById('fileIn').click();});
  const f=document.getElementById('fileIn');
- if(f)f.onchange=e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value='';};
+ if(f)f.onchange=e=>{const file=e.target.files[0];
+  if(file){ if(f.dataset.mode==='data')loadDataFile(file); else importJSON(file); }
+  e.target.value='';};
 }
 const UNDO=[];
 const snapshot=()=>JSON.stringify({IN:IN,AQ:AQ,ACCS:ACCS,PACC:PACC,PIPE:PIPE,CSSL:CSSL});
@@ -1402,11 +1463,18 @@ drag(document.getElementById('gripR'),x=>{
 document.getElementById('gripL').ondblclick=()=>{setW('--panelw',DEFW.panel);scheduleSave();status('Về bề rộng mặc định');};
 document.getElementById('gripR').ondblclick=()=>{setW('--midw',DEFW.mid);scheduleSave();status('Về bề rộng mặc định');};
 
-/* ===== khởi động ===== */
-const boot=loadLocal();
-paint();syncUndo();
-if(boot.found){setSaveInfo(boot.at?('Đã lưu · '+new Date(boot.at).toLocaleString('vi-VN')):'Đã nạp bản lưu');
- status(boot.msg,boot.old?'warn':'ok');}
-else{setSaveInfo('Chưa có bản lưu');
- status('Chọn nhiều tháng nhập để đặt actual cạnh plan làm baseline','warn');}
+/* ===== khởi động =====
+   Thứ tự: dữ liệu nền (fetch) → bản lưu của người dùng đè lên → render. */
+function boot(){
+ const local=loadLocal();
+ paint();syncUndo();
+ if(local.found){setSaveInfo(local.at?('Đã lưu · '+new Date(local.at).toLocaleString('vi-VN')):'Đã nạp bản lưu');
+  status(local.msg,local.old?'warn':'ok');}
+ else setSaveInfo('Chưa có bản lưu');
+}
+tryFetchData(function(ok,msg){
+ boot();
+ if(ok)status(msg);
+ else if(!hasData())status('Khung rỗng — bấm "Nạp file dữ liệu" ở panel trái','warn');
+});
 </script></body></html>
