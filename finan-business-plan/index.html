@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title id="docTitle">SBH Own channel — mạch vận hành FY2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@600;700&family=Outfit:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --ink:#16201C;--muted:#6a746e;--line:#e3e8e4;--card:#fff;--bg:#f4f6f4;
+  --own:#0B5D4B;--neg:#B3402E;--soft:#eaf3ef;--warn:#8a5a12;--warnbg:#fff9e8;
+  --derived:#5146A6;--derbg:#eeecf8;--imp:#1e5a8a;--impbg:#e6eff7;--alloc:#77817a;
+  --panelw:20%;--midw:1fr;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Outfit',system-ui,sans-serif;font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+button,input,select{font-family:inherit}
+.top{flex:0 0 auto;background:var(--card);border-bottom:1px solid var(--line);padding:9px 16px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+h1{font-family:'Noto Serif Display',Georgia,serif;font-size:16px;font-weight:700;margin:0}
+.badge{font-size:10.5px;font-weight:800;color:#fff;background:var(--own);border-radius:999px;padding:2px 8px}
+.stamp{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
+.top .sp{flex:1}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:7px;padding:4px 10px;font-size:12px;font-weight:800;cursor:pointer}
+.btn:hover{border-color:var(--own);color:var(--own)}
+.btn:focus-visible{outline:none;border-color:var(--own);box-shadow:0 0 0 3px rgba(11,93,75,.2)}
+.btn.on{background:var(--own);border-color:var(--own);color:#fff}
+.btn[disabled]{opacity:.4;cursor:default}
+.pill-st{font-size:11px;font-weight:800;border-radius:999px;padding:3px 10px;opacity:0;transition:opacity .2s}
+.pill-st.on{opacity:1}
+.pill-st.ok{background:var(--soft);color:var(--own)}
+.pill-st.warn{background:var(--warnbg);color:var(--warn)}
+
+/* ===== 20 | 40 | 40 ===== */
+#shell{flex:1 1 auto;display:grid;grid-template-columns:var(--panelw) 12px var(--midw) 12px 1fr;min-height:0}
+#shell.collapsed{grid-template-columns:0 0 var(--midw) 12px 1fr}
+#shell.collapsed #gripL{display:none}
+.pane{min-height:0;overflow:auto;padding:12px}
+#panel{background:var(--card);border-right:1px solid var(--line)}
+#shell.collapsed #panel{display:none}
+.grip{background:var(--bg);cursor:col-resize;position:relative;touch-action:none;
+  display:flex;align-items:center;justify-content:center}
+.grip::after{content:'';width:4px;height:44px;border-radius:3px;background:#cfd8d2;
+  transition:background .12s,height .12s}
+.grip:hover::after{background:var(--own);height:72px}
+.grip.dragging::after{background:var(--own);height:100%;border-radius:0}
+.grip:focus-visible{outline:none}
+.grip:focus-visible::after{background:var(--own);box-shadow:0 0 0 3px rgba(11,93,75,.25)}
+body.resizing{cursor:col-resize;user-select:none;-webkit-user-select:none}
+body.resizing *{cursor:col-resize!important}
+#mid{background:var(--bg)}
+#right{background:var(--bg)}
+
+.pt{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:14px 0 6px}
+.pt:first-child{margin-top:0}
+.mchk{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:12px;font-variant-numeric:tabular-nums}
+.mchk input{accent-color:var(--own)}
+.mchk .tag{font-size:9px;font-weight:800;border-radius:5px;padding:0 5px;margin-left:auto}
+.tag.a{background:#f1f3f1;color:#8b948d}.tag.p{background:var(--soft);color:var(--own)}
+.pbtns{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.pbtns .btn{font-size:11px;padding:3px 8px}
+
+/* zones */
+.zone{background:var(--card);border:1px solid var(--line);border-radius:11px;margin-bottom:11px;overflow:hidden}
+.zh{display:flex;align-items:baseline;gap:8px;padding:9px 13px;background:#f7faf8;border-bottom:1px solid var(--line)}
+.zn{font-family:'DM Mono',monospace;font-size:10.5px;font-weight:500;color:#fff;background:var(--own);border-radius:5px;padding:1px 7px}
+.zt{font-family:'Noto Serif Display',Georgia,serif;font-size:14px;font-weight:600}
+.zs{font-size:11px;color:var(--muted);margin-left:auto;text-align:right;max-width:52%}
+.zb{padding:9px 13px}
+.row{display:grid;grid-template-columns:1fr 104px 74px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px dashed #eef1ee}
+.row:last-child{border-bottom:none}
+.row.out{background:var(--derbg);margin:3px -13px;padding:6px 13px;border-bottom:none}
+.row.out .lb{color:var(--derived);font-weight:800}
+.row.imp{background:var(--impbg);margin:3px -13px;padding:6px 13px;border-bottom:none}
+.row.imp .lb{color:var(--imp);font-weight:800}
+.row.flagged .lb::after{content:' ⚑';color:var(--warn)}
+.lb{font-size:12px}
+.lb small{display:block;color:var(--muted);font-size:10.5px}
+input.num{width:100%;text-align:right;font-variant-numeric:tabular-nums;font-size:12.5px;padding:4px 7px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
+input.num:focus{outline:none;border-color:var(--own);box-shadow:0 0 0 3px rgba(11,93,75,.18)}
+input.num.empty{background:#fbfbfa;border-style:dashed}
+.unit{font-size:11px;color:var(--muted)}
+.val{text-align:right;font-family:'DM Mono',monospace;font-weight:500;font-size:12.5px;font-variant-numeric:tabular-nums}
+.val.neg{color:var(--neg)}
+.val.chained{color:var(--imp);background:var(--impbg);border-radius:6px;padding:4px 7px}
+.val.na{color:#b6bdb8}
+.prop{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:4px;font-size:10px;padding:0 4px;cursor:pointer}
+.prop:hover{border-color:var(--own);color:var(--own)}
+.warnbox{background:var(--warnbg);border-left:3px solid var(--warn);border-radius:0 7px 7px 0;padding:8px 11px;margin:7px 0;font-size:11.5px;color:#5c4410}
+.warnbox b{color:var(--warn)}
+.infobox{background:var(--impbg);border-left:3px solid var(--imp);border-radius:0 7px 7px 0;padding:8px 11px;margin:7px 0;font-size:11.5px;color:#1b3d5c}
+.infobox b{color:var(--imp)}
+
+/* P&L wide */
+
+/* v0.4 — lưới nhiều tháng + tab phải */
+.cnt{background:var(--own);color:#fff;border-radius:999px;padding:0 6px;font-size:9.5px;margin-left:5px}
+.zrow{display:grid;gap:7px;align-items:center;padding:4px 0;border-bottom:1px dashed #eef1ee}
+.zrow:last-child{border-bottom:none}
+.zrow.zhead{border-bottom:1.5px solid var(--ink);padding-bottom:5px;position:sticky;top:0;background:var(--card);z-index:2}
+.zrow.out{background:var(--derbg);margin:3px -13px;padding:5px 13px;border-bottom:none}
+.zrow.out .lb{color:var(--derived);font-weight:800}
+.zrow.big .lb{font-weight:800}
+.zrow.flagged .lb::after{content:' ⚑';color:var(--warn)}
+.cell{min-width:0}
+.cell.na{text-align:right;color:#c3ccc6;font-family:'DM Mono',monospace;font-size:12px}
+.cell .val{text-align:right}
+.cell .val.imp{color:var(--imp)}
+.mh{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--own);text-align:right}
+.mh.a{color:#8b948d}
+.rtabs{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--soft);border-bottom:1px solid var(--line)}
+.rtab{border:1px solid transparent;background:transparent;color:var(--muted);font-weight:800;font-size:12.5px;padding:4px 11px;border-radius:7px;cursor:pointer}
+.rtab:hover{color:var(--own)}
+.rtab.on{background:var(--own);color:#fff}
+.rtab:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(11,93,75,.25)}
+.rmeta{margin-left:auto;font-size:11px;color:var(--muted)}
+.saveinfo{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);padding:6px 0 0}
+.dbtns{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
+.dbtns .btn{font-size:11px;padding:4px 6px;text-align:center}
+.dbtns .btn.wide{grid-column:1/-1}
+.seghead .zh{background:var(--soft)}
+.zrow.cmrow{background:#e6efe9;border-top:2px solid var(--own);border-bottom:2px solid var(--own);margin:3px -13px;padding:6px 13px}
+.zrow.cmrow .lb{font-weight:800;color:var(--own)}
+.acctbl{overflow-x:auto}
+table.acc{border-collapse:collapse;font-size:11px;min-width:100%}
+table.acc th{background:var(--ink);color:#fff;padding:4px 5px;font-size:9.5px;text-transform:uppercase;white-space:nowrap}
+table.acc tr.sub td{background:#4a544e;color:#fff;font-size:9px;padding:2px 5px;text-align:center}
+table.acc td{padding:3px 4px;border-bottom:1px solid #f2f5f2;white-space:nowrap}
+table.acc td.rl{min-width:120px}
+table.acc td.rev{text-align:right;font-family:'DM Mono',monospace;font-weight:800;color:var(--own)}
+table.acc input.txt{width:118px;font-size:11px;padding:3px 5px;border:1px solid var(--line);border-radius:5px}
+table.acc input.num.sm{width:62px;font-size:11px;padding:3px 4px}
+table.acc select{font-size:10.5px;padding:2px 4px;border:1px solid var(--line);border-radius:5px;background:#fff}
+table.acc tr.badrow td{background:#fbeeeb}
+table.acc td.okchk{color:var(--own);font-weight:800;text-align:center}
+table.acc td.badchk{color:var(--neg);font-weight:800;text-align:center}
+table.acc td.rl small{display:block;font-size:9.5px;color:var(--muted);font-style:italic}
+.zrow.chkrow{background:#f7faf8;border-top:1px dashed var(--line);margin:3px -13px;padding:6px 13px;font-size:11.5px}
+.zrow.chkrow .val.okchk{color:var(--own);font-weight:800}
+.zrow.chkrow .val.badchk{color:var(--neg);font-weight:800}
+table.pl td.okchk{color:var(--own);font-weight:800}
+table.pl td.badchk{color:var(--neg);font-weight:800;background:#fbeeeb}
+table.pl tr.chk td{background:#f7faf8;font-size:10.5px;color:var(--muted);border-top:1px dashed var(--line)}
+table.pl tr.chk td.rl{background:#f7faf8;font-style:italic}
+.rfoot{padding:8px 12px;font-size:11px;color:var(--muted);border-top:1px solid var(--line);background:#fbfcfb}
+.plwrap{background:var(--card);border:1.5px solid var(--own);border-radius:11px;overflow:hidden}
+.plh{padding:9px 13px;background:var(--soft);border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:9px}
+.plh .t{font-family:'Noto Serif Display',Georgia,serif;font-size:14px;font-weight:600}
+.plh .s{font-size:11px;color:var(--muted);margin-left:auto}
+.plscroll{overflow:auto;max-height:calc(100vh - 150px)}
+table.pl{border-collapse:separate;border-spacing:0;width:100%;font-size:11.5px}
+table.pl th,table.pl td{padding:4px 7px;text-align:right;white-space:nowrap;font-family:'DM Mono',monospace;font-variant-numeric:tabular-nums;border-bottom:1px solid #f2f5f2}
+table.pl th{background:var(--ink);color:#fff;font-size:9.5px;font-weight:800;text-transform:uppercase;position:sticky;top:0;z-index:3}
+table.pl th.a{background:#4a544e}
+table.pl th.t{background:var(--own)}
+table.pl .rl{text-align:left;font-family:'Outfit',sans-serif;position:sticky;left:0;background:var(--card);z-index:2;min-width:190px;border-right:1px solid var(--line)}
+table.pl th.rl{background:var(--ink);z-index:4}
+table.pl td.a{background:#f7f8f7;color:#5f6a63}
+table.pl td.t{background:var(--soft);font-weight:800}
+table.pl tr.g td{background:#f1f5f2;font-weight:800;color:var(--own);font-size:10px;text-transform:uppercase}
+table.pl tr.g td.rl{background:#f1f5f2}
+table.pl tr.cm td{background:var(--soft);font-weight:800}
+table.pl tr.cm td.rl{background:var(--soft)}
+table.pl tr.op td{background:#e6efe9;font-weight:800;border-top:2px solid var(--own);border-bottom:2px solid var(--own)}
+table.pl tr.op td.rl{background:#e6efe9}
+table.pl tr.aft td{color:var(--alloc)}
+table.pl tr.sub2 td{color:var(--muted);font-size:10.5px}
+table.pl tr.base td{background:var(--derbg);font-weight:800;color:var(--derived);border-top:1.5px solid var(--derived)}
+table.pl tr.base td.rl{background:var(--derbg)}
+.neg{color:var(--neg)}
+td.na{color:#c3ccc6}
+
+
+@media(max-width:1020px){#shell,#shell.collapsed{display:block}#panel{border-right:none;border-bottom:1px solid var(--line)}.grip{display:none}.pane{overflow:visible}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ===== Quy tắc trình bày thống nhất: số âm luôn đỏ =====
+   Đặt cuối bảng style và dùng !important vì các luật trước đó
+   (td.a cột actual xám, tr.aft tầng phân bổ, .val.imp, .val.chained)
+   có độ ưu tiên cao hơn class .neg nên trước đây nuốt mất màu đỏ. */
+table.pl td.neg, table.pl tr.cm td.neg, table.pl tr.op td.neg,
+table.pl tr.aft td.neg, table.pl tr.sub2 td.neg, table.pl td.a.neg, table.pl td.t.neg{color:var(--neg)!important}
+.val.neg, .cell .val.neg, .cell .val.imp.neg, .lad-row.after .lcell .val.neg{color:var(--neg)!important}
+table.acc td.rev.neg{color:var(--neg)!important}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="btn" id="tgPanel" title="Ẩn/hiện panel trái">☰</button>
+  <h1>Finan — mạch vận hành toàn công ty</h1>
+  <span class="badge" id="verBadge"></span>
+  <span class="stamp" id="relStamp"></span>
+  <span class="sp"></span>
+  <button class="btn" id="undoBtn" disabled>↩ Undo (0)</button>
+  <button class="btn" id="btnSave">💾 Lưu</button>
+  <button class="btn" id="resetBtn">Về mốc ban đầu</button>
+  <input type="file" id="fileIn" accept=".json,application/json" style="display:none">
+  <span class="pill-st" id="statusPill"></span>
+</header>
+<div id="shell">
+  <div class="pane" id="panel"></div>
+  <div class="grip" id="gripL" tabindex="0" role="separator" aria-orientation="vertical" title="Kéo để đổi bề rộng · nhấp đúp để về mặc định"></div>
+  <div class="pane" id="mid"></div>
+  <div class="grip" id="gripR" tabindex="0" role="separator" aria-orientation="vertical" title="Kéo để đổi bề rộng · nhấp đúp để về mặc định"></div>
+  <div class="pane" id="right"></div>
+</div>
+<script>
+const APP_VERSION='v0.10';
+const BUILD_STAMP='30/08/2026 · P&L cấp trên theo LINE ITEM + reconcile ngược về segment/BU';
+document.getElementById('verBadge').textContent=APP_VERSION;
+document.getElementById('relStamp').textContent=BUILD_STAMP;
+document.getElementById('docTitle').textContent='SBH — mạch vận hành BU12 '+APP_VERSION;
+const ACTS={"OWN": {"1.1 Revenue_Software": [701.9, 407.0, 992.8, 1029.5, 616, 710.9, 632.0], "1.2 Revenue_Hardware": [83.5, 56.4, 50.3, 31.6, 25.6, 28.5, 50.0], "1.3 Revenue_Service": [8.2, 4.5, 16.1, 15.1, 10.4, 15.9, 30.8], "1.4 Revenue_Accounting Svc": [29.4, 56.9, 47.2, 27.8, 38.7, 19.4, 19.0], "2.2 Sale promotion": [-39.2, -19.7, -61.7, -48.5, -33.7, -56.4, -40.9], "3.1 COGS_Software": [-126.9, -111.3, -104.2, -115.2, -150.2, -124.4, -141.5], "3.2 COGS_Hardware": [-100.2, -45.6, -26.9, -15.3, -26.9, -17.4, -29.4], "3.4 COGS_Accounting Svc": [0, 0, 0, 0, 0, -33.1, 0], "4.1 Staff cost — Salary": [-294.6, -347.5, -327.4, -339.1, -381.5, -389.2, -410.5], "4.2 In-house commission": [-185.5, -93.7, -85.9, -229.6, -134.1, -62.0, -89.3], "5.1 Brand / Comms": [-54.6, -39.2, -34.9, -28.9, -53.0, -33.9, -20.9], "5.3 Performance Marketing": [-341.0, -178.0, -261.0, -284.9, -212.8, -343.2, -337.1], "5.5 Partnership Marketing": [0, 0, 0, 0, 0, 0, -1], "6.1 Staff - Customer Operation": [-193.0, -219.6, -200.8, -201.2, -199.2, -192.4, -207.9], "6.3 Staff - Product Development": [-172, -216.7, -224.5, -522.3, -644.4, -373.6, -415.1], "6.4 Staff - Technology": [-572.8, -607.2, -605.2, -478.1, -373.4, -373.0, -357.0], "6.5 Staff - Marketing": [-216.7, -248, -277.2, -193.9, -206.2, -239.7, -172.7], "7.1 Staff - Management": [0, 0, 0, 0, 0, -320.0, -351.1], "7.2 Staff - Accounting & Finance": [-86.7, -100.0, -115.7, -173.0, -72.3, -64.9, -43.5], "7.3 Staff - Human Resource": [-25.4, -12.8, -58.5, -41.5, -30.2, -7.8, -7.8], "7.4 System": [-112.5, -125, -122.1, -235.4, -217.7, -181.9, -180.3], "7.5 Rental": [-152.2, -143.8, -147.2, -161.7, -167.1, -147.4, -145.6], "7.6 Công tác phí": [-23.3, -35.7, -6.2, -14.0, -59.3, -18.4, -49.4], "7.7 Tiếp khách": [-38.5, -26.2, -27.6, -74.2, -58.8, -21.4, -13.2], "7.9 Team engagement": [-34.6, -82.0, -28.0, -23.0, -31.5, -4.4, -20.5], "7.99 Khác": [-22.1, -16.4, -53.0, -34.6, -36.8, -51.5, -17.8]}, "PTN": {"1.1 Revenue_Software": [0, 0, 8.4, 1408.5, 68.5, 110.6, 65.9], "1.2 Revenue_Hardware": [0, 0, 0, 0, 2.4, 0, 0], "1.3 Revenue_Service": [853.1, 209.7, 1310.2, 209.5, 43.6, 1304.8, 307.2], "4.3 Partner commission": [0, 0, 0, 0, 0, 0, -46.4], "5.1 Brand / Comms": [0, 0, 0, 0, 0, -277.8, -3.8], "6.2 Staff - BD & Partnership": [-252.7, -219.4, -226.7, -238.9, -158.2, -175.6, -124.1]}, "HLB": {"1.2 Revenue_Hardware": [73.3, 0, 0, 0, 8.4, 0, 0], "1.3 Revenue_Service": [0, 0, 0, 0.5, 0.9, 4.3, 4.1], "4.2 In-house commission": [0, 0, 0, 0, -21, -38.4, -106.5], "5.1 Brand / Comms": [-5.6, -16.2, -50.4, 1.1, -15.2, 0, 0], "5.5 Partnership Marketing": [0, 0, 0, 0, -16.1, -28.0, -5.3]}};
+const PTN_ACC0=[{"name": "VNPT", "type": "SAAS", "unit": "user", "ev": 50, "com": 25, "qty": [500, 500, 500, 500, 500], "price": [0.72, 0.72, 0.72, 0.72, 0.72]}, {"name": "HD Bank", "type": "SAAS", "unit": "user", "ev": 50, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.45, 0.45, 0.45, 0.45, 0.45]}, {"name": "TP Bank", "type": "SAAS", "unit": "user", "ev": 0, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.1, 0.1, 0.1, 0.1, 0.1]}, {"name": "FE", "type": "SAAS", "unit": "user", "ev": 0, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.54, 0.54, 0.54, 0.54, 0.54]}, {"name": "Shinhan", "type": "SAAS", "unit": "user", "ev": 100, "com": 0, "qty": [700, 700, 500, 500, 500], "price": [0.5, 0.5, 0.5, 0.5, 0.5]}, {"name": "Shinhan brand", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 1, 0, 0], "price": [1000, 1000, 600, 0, 0]}, {"name": "HLB brand", "type": "Tech service", "unit": "account", "ev": 0, "com": 0, "qty": [1, 0, 0, 0, 0], "price": [550, 0, 0, 0, 0]}, {"name": "Unilever Pilot", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 1, 0, 0], "price": [54, 54, 54, 500, 500]}, {"name": "Shinhan", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [1, 1, 1, 1, 1], "price": [132, 132, 132, 132, 132]}, {"name": "HLB", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 0, 0, 0], "price": [2, 2, 0, 0, 0]}, {"name": "Galaxy", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0, 0, 0, 0, 0]}, {"name": "HDbank", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0, 0, 0, 0, 0]}, {"name": "Placeholder", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 1, 1, 1], "price": [0, 0, 2000, 2000, 2000]}];
+
+const AM=['T1','T2','T3','T4','T5','T6','T7'], FM=['T8','T9','T10','T11','T12'];
+const ALLM=AM.concat(FM), nA=AM.length, nF=FM.length;
+const a5=v=>FM.map(()=>v), a7=v=>AM.map(()=>v);
+const isActM=m=>AM.indexOf(m)>=0, idxOf=m=>isActM(m)?AM.indexOf(m):FM.indexOf(m);
+const CH=['OWN','PTN','HLB'];
+const CHLABEL={OWN:'Own channel',PTN:'Partnership',HLB:'HLB',SHARED:'Chung SBH'};
+
+/* ================= PHÂN LOẠI DÒNG — chốt cùng CFO 30/08 =================
+   Trực tiếp của kênh  → vào CHANNEL CONTRIBUTION MARGIN
+   Chung toàn BU12     → 3.1 cloud (base dùng chung) · 6.1 CS · 6.3 Product · 6.4 Tech
+   Back office         → 7.x, ngoài trách nhiệm plan (NL-2)
+   Giữ ở kênh Own theo quyết định B/C/D: 6.5 Marketing · 5.1 Brand · 4.1 Lương đội bán */
+const SHARED_LINES=['3.1 COGS_Software','6.1 Staff - Customer Operation',
+  '6.3 Staff - Product Development','6.4 Staff - Technology'];
+
+/* ================= INPUT ================= */
+const DEF={
+ /* --- OWN --- */
+ o_ads:{v:[220,200,200,200,200],u:'tr',src:'seed',ch:'OWN'},
+ o_cpl:{v:[22,20,20,20,20],u:'K VND',src:'seed',ch:'OWN'},
+ o_crSelf:{v:a5(1.0),u:'%',src:'seed',ch:'OWN'}, o_crTele:{v:a5(3.0),u:'%',src:'seed',ch:'OWN'},
+ o_hcDirect:{v:a5(4),u:'người',src:'split',ch:'OWN'}, o_prodDirect:{v:a5(5),u:'HĐ/th',src:'split',ch:'OWN'},
+ o_hcBD:{v:[0,5,10,10,10],u:'người',src:'split',ch:'OWN'}, o_prodBD:{v:a5(10),u:'HĐ/th',src:'split',ch:'OWN'},
+ o_aovSelf:{v:a5(0.5),u:'tr',src:'seed',ch:'OWN'}, o_aovTele:{v:a5(3.2),u:'tr',src:'seed',ch:'OWN'},
+ o_aovDirect:{v:[3.2,3.4,3.4,3.6,3.6],u:'tr',src:'seed',ch:'OWN'}, o_aovBD:{v:a5(1.1),u:'tr',src:'seed',ch:'OWN'},
+ o_aovRenew:{v:a5(3.2),u:'tr',src:'none',ch:'OWN'}, o_aovReact:{v:a5(3.2),u:'tr',src:'none',ch:'OWN'},
+ o_shareRenew:{v:a5(100),u:'%',src:'none',ch:'OWN'},
+ o_attachHw:{v:a5(5.0),u:'%',src:'split',ch:'OWN'}, o_priceHw:{v:a5(1.6),u:'tr',src:'split',ch:'OWN'},
+ o_attachSvc:{v:a5(10.0),u:'%',src:'split',ch:'OWN'}, o_feeSvc:{v:a5(0.0255),u:'tr/th',src:'split',ch:'OWN'},
+ o_acctCust:{v:a5(40),u:'khách',src:'seed',ch:'OWN'}, o_acctFee:{v:a5(1.0),u:'tr',src:'seed',ch:'OWN'},
+ o_promo:{v:a5(40),u:'tr',src:'seed',ch:'OWN'},
+ o_cogsHwPct:{v:a5(90),u:'%',src:'seed',ch:'OWN'}, o_cogsAcctPct:{v:a5(75),u:'%',src:'seed',ch:'OWN'},
+ o_commSelf:{v:a5(15),u:'%',src:'none',ch:'OWN'}, o_commTele:{v:a5(15),u:'%',src:'none',ch:'OWN'},
+ o_commDirect:{v:a5(15),u:'%',src:'none',ch:'OWN'}, o_commRenew:{v:a5(15),u:'%',src:'none',ch:'OWN'},
+ o_commReact:{v:a5(15),u:'%',src:'none',ch:'OWN'},
+ o_salesSalary:{v:[410,350,350,350,350],u:'tr',src:'seed',ch:'OWN'},
+ o_brand:{v:a5(40),u:'tr',src:'seed',ch:'OWN'}, o_payMkt:{v:a5(200),u:'tr',src:'seed',ch:'OWN'},
+ /* --- PARTNERSHIP --- */
+ p_inhouseRate:{v:a5(5),u:'%',src:'seed',ch:'PTN'},
+ p_cogsSoftware:{v:[50,50,860,650,650],u:'tr',src:'seed',ch:'PTN'},
+ p_perfMkt:{v:[0,0,100,100,100],u:'tr',src:'seed',ch:'PTN'},
+ p_payBD:{v:a5(175),u:'tr',src:'seed',ch:'PTN'},
+ /* --- HLB --- */
+ h_l8:{v:a5(600),u:'lượt',src:'seed',ch:'HLB'}, h_conv:{v:a5(20),u:'%',src:'seed',ch:'HLB'},
+ h_commH5:{v:a5(0.05),u:'tr/H5',src:'seed',ch:'HLB'}, h_promoH5:{v:a5(0.2),u:'tr/H5',src:'seed',ch:'HLB'},
+ h_referral:{v:a5(150),u:'lượt',src:'seed',ch:'HLB'}, h_refBonus:{v:a5(0.2),u:'tr/lượt',src:'seed',ch:'HLB'},
+ h_affiliate:{v:a5(200),u:'lượt',src:'seed',ch:'HLB'}, h_affComm:{v:a5(0.1),u:'tr/lượt',src:'seed',ch:'HLB'},
+ h_revHw:{v:a5(4),u:'tr',src:'seed',ch:'HLB'}, h_brand:{v:a5(22),u:'tr',src:'seed',ch:'HLB'},
+ /* --- CHUNG SBH --- */
+ s_baseStart:{v:[8000,0,0,0,0],u:'user',src:'none',ch:'SHARED',chain:1},
+ s_due:{v:a5(667),u:'user',src:'none',ch:'SHARED'},
+ s_renewal:{v:a5(27.5),u:'%',src:'none',ch:'SHARED'},
+ s_react:{v:a5(0),u:'user',src:'none',ch:'SHARED'},
+ s_avgTerm:{v:a5(12),u:'tháng',src:'none',ch:'SHARED'},
+ s_cloudPerUser:{v:a5(22.5),u:'K VND',src:'none',ch:'SHARED'},
+ s_payCS:{v:[190,210,210,210,210],u:'tr',src:'seed',ch:'SHARED'},
+ s_payProduct:{v:a5(270),u:'tr',src:'seed',ch:'SHARED'},
+ s_payTech:{v:[220,230,240,250,250],u:'tr',src:'seed',ch:'SHARED'},
+ s_alloc7x:{v:a5(1329.4),u:'tr',src:'seed',ch:'SHARED'}
+};
+let IN={}; Object.keys(DEF).forEach(k=>IN[k]=DEF[k].v.slice());
+const SRC=k=>DEF[k].src, UNIT=k=>DEF[k].u, CHAIN=k=>!!DEF[k].chain;
+
+/* Danh mục đối tác — mỗi dòng khai contrib: 'stock' user đang có, 'flow' user mới mỗi tháng */
+let ACCS=PTN_ACC0.map(a=>({name:a.name,type:a.type,unit:a.unit,ev:a.ev,com:a.com,
+  qty:a.qty.slice(),price:a.price.slice(),contrib:(a.unit==='user'?'stock':'none')}));
+
+/* Số lượng actual — chỉ nơi suy ngược được */
+const AQDEF={
+ L1:{l:'L1 — lead thu về',u:'lead'}, l8Self:{l:'L8 mới · self-serve',u:'user'},
+ l8Tele:{l:'L8 mới · telesale',u:'user'}, l8Direct:{l:'L8 mới · direct',u:'user'},
+ l8BD:{l:'L8 mới · BD',u:'user'}, baseStart:{l:'Base đầu kỳ (toàn SBH)',u:'user'},
+ due:{l:'L8 đến hạn',u:'user'}, renewed:{l:'Số tái tục',u:'user'},
+ react:{l:'Re-activated',u:'user'}, avgTerm:{l:'Kỳ hạn trung bình',u:'tháng'},
+ ptnUsers:{l:'User từ Partnership',u:'user'},
+ unitsHw:{l:'Số thiết bị bán',u:'cái'}, usersSvc:{l:'Khách dùng dịch vụ',u:'user'},
+ acctCust:{l:'Khách dịch vụ kế toán',u:'khách'}, h5:{l:'H5 kích hoạt',u:'lượt'}
+};
+let AQ={}; Object.keys(AQDEF).forEach(k=>AQ[k]=a7(null));
+
+/* ================= ENGINE ================= */
+const g=(k,i)=>Number(IN[k][i])||0;
+function accRev(a,i){return (Number(a.qty[i])||0)*(Number(a.price[i])||0)*((Number(a.ev)||0)/100);}
+
+function engOwn(i,sh){                      /* kênh Own — cỗ máy lead */
+ const o={ch:'OWN'};
+ o.L1=g('o_cpl',i)>0?g('o_ads',i)*1000/g('o_cpl',i):0;
+ o.l8Self=o.L1*g('o_crSelf',i)/100; o.l8Tele=o.L1*g('o_crTele',i)/100;
+ o.l8Direct=g('o_hcDirect',i)*g('o_prodDirect',i); o.l8BD=g('o_hcBD',i)*g('o_prodBD',i);
+ o.newUsers=o.l8Self+o.l8Tele+o.l8Direct+o.l8BD;
+ o.crTotal=o.L1?(o.l8Self+o.l8Tele)/o.L1*100:0;
+ /* tái tục & re-activated thuộc tầng chung, kênh Own nhận phần được chia */
+ o.renewed=(sh.renewed||0)*g('o_shareRenew',i)/100;
+ o.react=(sh.react||0)*g('o_shareRenew',i)/100;
+ o.revSelf=o.l8Self*g('o_aovSelf',i); o.revTele=o.l8Tele*g('o_aovTele',i);
+ o.revDirect=o.l8Direct*g('o_aovDirect',i); o.revBD=o.l8BD*g('o_aovBD',i);
+ o.revNew=o.revSelf+o.revTele+o.revDirect+o.revBD;
+ o.revRenew=o.renewed*g('o_aovRenew',i); o.revReact=o.react*g('o_aovReact',i);
+ o['1.1']=o.revNew+o.revRenew+o.revReact;
+ o.unitsHw=o.newUsers*g('o_attachHw',i)/100; o['1.2']=o.unitsHw*g('o_priceHw',i);
+ o.usersSvc=(sh.baseAvg||0)*g('o_attachSvc',i)/100; o['1.3']=o.usersSvc*g('o_feeSvc',i);
+ o['1.4']=g('o_acctCust',i)*g('o_acctFee',i);
+ o['2.2']=-g('o_promo',i);
+ o['3.2']=-o['1.2']*g('o_cogsHwPct',i)/100; o['3.4']=-o['1.4']*g('o_cogsAcctPct',i)/100;
+ o['4.1']=-g('o_salesSalary',i);
+ o['4.2']=-(o.revSelf*g('o_commSelf',i)/100+o.revTele*g('o_commTele',i)/100
+   +(o.revDirect+o.revBD)*g('o_commDirect',i)/100+o.revRenew*g('o_commRenew',i)/100
+   +o.revReact*g('o_commReact',i)/100);
+ o['5.1']=-g('o_brand',i); o['5.3']=-g('o_ads',i); o['6.5']=-g('o_payMkt',i);
+ return o;
+}
+function engPtn(i,sh){                      /* kênh Partnership — danh mục đối tác */
+ const o={ch:'PTN'};
+ o['1.1']=ACCS.reduce((a,x)=>x.type==='SAAS'?a+accRev(x,i):a,0);
+ o['1.3']=ACCS.reduce((a,x)=>x.type!=='SAAS'?a+accRev(x,i):a,0);
+ const base=o['1.1']+o['1.3'];
+ o['4.2']=-base*g('p_inhouseRate',i)/100;
+ o['4.3']=-ACCS.reduce((a,x)=>a+accRev(x,i)*((Number(x.com)||0)/100),0);
+ o['5.3']=-g('p_perfMkt',i); o['6.2']=-g('p_payBD',i);
+ o.cogsPtnDirect=-g('p_cogsSoftware',i);   /* COGS phần mềm riêng của đối tác, không phải cloud */
+ o['3.1x']=o.cogsPtnDirect;
+ o.stockUsers=ACCS.reduce((a,x)=>a+(x.contrib==='stock'?(Number(x.qty[i])||0):0),0);
+ o.newUsers=ACCS.reduce((a,x)=>a+(x.contrib==='flow'?(Number(x.qty[i])||0):0),0);
+ return o;
+}
+function engHlb(i,sh){                      /* kênh HLB — chương trình thưởng */
+ const o={ch:'HLB'};
+ o.h5=g('h_l8',i)*g('h_conv',i)/100;
+ o['1.2']=g('h_revHw',i);
+ o['2.1']=-o.h5*g('h_promoH5',i);
+ o['4.2']=-(o.h5*g('h_commH5',i)+g('h_referral',i)*g('h_refBonus',i));
+ o['5.1']=-g('h_brand',i);
+ o['5.5']=-g('h_affiliate',i)*g('h_affComm',i);
+ o.newUsers=0; o.stockUsers=0;
+ return o;
+}
+const REVK=['1.1','1.2','1.3','1.4'], DISCK=['2.1','2.2'];
+const DIRK=['3.1x','3.2','3.4','4.1','4.2','4.3','5.1','5.3','5.5','6.2','6.5'];
+function chAgg(o){
+ const s=ks=>ks.reduce((a,k)=>a+(o[k]||0),0);
+ o.rev=s(REVK); o.disc=s(DISCK); o.direct=s(DIRK);
+ o.channelCM=o.rev+o.disc+o.direct;
+ return o;
+}
+/* ---- chạy cả 5 tháng: tầng chung trước (base), rồi ba kênh ---- */
+function calcAll(){
+ const out=[];
+ for(let i=0;i<nF;i++){
+  const sh={};
+  sh.baseStart=(i===0)?g('s_baseStart',i):out[i-1].sh.baseEnd;
+  sh.due=g('s_due',i); sh.renewalPct=g('s_renewal',i);
+  sh.renewed=sh.due*sh.renewalPct/100; sh.churned=sh.due-sh.renewed;
+  sh.react=g('s_react',i); sh.avgTerm=g('s_avgTerm',i);
+  /* vòng 1: lấy new users từ các kênh (chưa cần baseAvg) */
+  const pre={OWN:engOwn(i,{baseAvg:0,renewed:sh.renewed,react:sh.react}),PTN:engPtn(i,sh),HLB:engHlb(i,sh)};
+  sh.newUsers=CH.reduce((a,c)=>a+(pre[c].newUsers||0),0);
+  sh.stockUsers=CH.reduce((a,c)=>a+(pre[c].stockUsers||0),0);
+  sh.baseEnd=sh.baseStart+sh.newUsers-sh.churned+sh.react;
+  sh.baseTotal=sh.baseEnd+sh.stockUsers;          /* base dùng chung, gồm user từ đối tác */
+  sh.baseAvg=(sh.baseStart+sh.stockUsers+sh.baseTotal)/2;
+  sh.paying=sh.newUsers+sh.react+sh.renewed;
+  /* vòng 2: chạy lại kênh với baseAvg thật (chỉ Own dùng base cho service attach) */
+  const ch={OWN:chAgg(engOwn(i,sh)),PTN:chAgg(engPtn(i,sh)),HLB:chAgg(engHlb(i,sh))};
+  sh.cloud=-sh.baseAvg*g('s_cloudPerUser',i)/1000;
+  sh.payCS=-g('s_payCS',i); sh.payProduct=-g('s_payProduct',i); sh.payTech=-g('s_payTech',i);
+  sh.platform=sh.cloud+sh.payCS+sh.payProduct+sh.payTech;
+  sh.alloc=allocFromCSS(i,'12');   /* nối từ CSS — không còn gõ tay */
+  const sumCM=CH.reduce((a,c)=>a+ch[c].channelCM,0);
+  const bu={channelCM:sumCM, platform:sh.platform, opBefore:sumCM+sh.platform,
+    alloc:sh.alloc, opAfter:sumCM+sh.platform+sh.alloc,
+    rev:CH.reduce((a,c)=>a+ch[c].rev,0), disc:CH.reduce((a,c)=>a+ch[c].disc,0),
+    direct:CH.reduce((a,c)=>a+ch[c].direct,0)};
+  out.push({sh:sh,ch:ch,bu:bu});
+ }
+ return out;
+}
+
+/* ================= ACTUAL ================= */
+const AL=(seg,k,i)=>((ACTS[seg]&&ACTS[seg][k])&&ACTS[seg][k][i])||0;
+function actCh(seg,i){
+ const o={ch:seg};
+ const S=p=>Object.keys(ACTS[seg]||{}).filter(k=>k.indexOf(p)===0).reduce((a,k)=>a+AL(seg,k,i),0);
+ o['1.1']=AL(seg,'1.1 Revenue_Software',i); o['1.2']=AL(seg,'1.2 Revenue_Hardware',i);
+ o['1.3']=AL(seg,'1.3 Revenue_Service',i); o['1.4']=AL(seg,'1.4 Revenue_Accounting Svc',i);
+ o['2.1']=AL(seg,'2.1 Sale discount',i); o['2.2']=AL(seg,'2.2 Sale promotion',i);
+ o['3.1x']=AL(seg,'3.2 COGS_Hardware',i)?0:0; /* COGS software actual chuyển lên tầng chung */
+ o['3.2']=AL(seg,'3.2 COGS_Hardware',i); o['3.4']=AL(seg,'3.4 COGS_Accounting Svc',i);
+ o['4.1']=AL(seg,'4.1 Staff cost — Salary',i); o['4.2']=AL(seg,'4.2 In-house commission',i);
+ o['4.3']=AL(seg,'4.3 Partner commission',i);
+ o['5.1']=AL(seg,'5.1 Brand / Comms',i); o['5.3']=AL(seg,'5.3 Performance Marketing',i);
+ o['5.5']=AL(seg,'5.5 Partnership Marketing',i);
+ o['6.2']=AL(seg,'6.2 Staff - BD & Partnership',i); o['6.5']=AL(seg,'6.5 Staff - Marketing',i);
+ if(seg==='PTN')o['3.1x']=AL(seg,'3.1 COGS_Software',i);  /* Ptn: COGS phần mềm là của đối tác */
+ return chAgg(o);
+}
+function actShared(i){
+ const sh={};
+ sh.cloud=CH.reduce((a,c)=>a+(c==='PTN'?0:AL(c,'3.1 COGS_Software',i)),0);
+ sh.payCS=CH.reduce((a,c)=>a+AL(c,'6.1 Staff - Customer Operation',i),0);
+ sh.payProduct=CH.reduce((a,c)=>a+AL(c,'6.3 Staff - Product Development',i),0);
+ sh.payTech=CH.reduce((a,c)=>a+AL(c,'6.4 Staff - Technology',i),0);
+ sh.platform=sh.cloud+sh.payCS+sh.payProduct+sh.payTech;
+ sh.alloc=CH.reduce((a,c)=>a+Object.keys(ACTS[c]||{}).filter(k=>k.indexOf('7.')===0)
+   .reduce((t,k)=>t+AL(c,k,i),0),0);
+ /* số lượng người dùng điền */
+ const qv=k=>{const v=AQ[k][i];return (v===null||v===''||isNaN(v))?null:Number(v);};
+ sh.baseStart=qv('baseStart'); sh.due=qv('due'); sh.renewed=qv('renewed');
+ sh.react=qv('react'); sh.avgTerm=qv('avgTerm'); sh.ptnUsers=qv('ptnUsers');
+ const p=['l8Self','l8Tele','l8Direct','l8BD'].map(qv);
+ sh.newUsers=p.every(x=>x!==null)?p.reduce((a,b)=>a+b,0):null;
+ sh.churned=(sh.due!==null&&sh.renewed!==null)?sh.due-sh.renewed:null;
+ sh.renewalPct=(sh.due&&sh.renewed!==null)?sh.renewed/sh.due*100:null;
+ sh.baseEnd=(sh.baseStart!==null&&sh.newUsers!==null&&sh.churned!==null)
+   ?sh.baseStart+sh.newUsers+(sh.react||0)-sh.churned:null;
+ sh.baseTotal=(sh.baseEnd!==null)?sh.baseEnd+(sh.ptnUsers||0):null;
+ sh.baseAvg=(sh.baseStart!==null&&sh.baseTotal!==null)?(sh.baseStart+(sh.ptnUsers||0)+sh.baseTotal)/2:null;
+ sh.paying=(sh.newUsers!==null&&sh.renewed!==null)?sh.newUsers+(sh.react||0)+sh.renewed:null;
+ sh.L1=qv('L1'); sh.h5=qv('h5');
+ sh.crTotal=(sh.L1&&qv('l8Self')!==null&&qv('l8Tele')!==null)?(qv('l8Self')+qv('l8Tele'))/sh.L1*100:null;
+ sh.impCPL=(sh.L1)?-AL('OWN','5.3 Performance Marketing',i)*1000/sh.L1:null;
+ sh.impCloud=(sh.baseAvg)?-sh.cloud*1000/sh.baseAvg:null;
+ sh.impAOV=(sh.paying)?AL('OWN','1.1 Revenue_Software',i)/sh.paying:null;
+ return sh;
+}
+function actAll(i){
+ const ch={}; CH.forEach(c=>ch[c]=actCh(c,i));
+ const sh=actShared(i);
+ const sumCM=CH.reduce((a,c)=>a+ch[c].channelCM,0);
+ return {sh:sh,ch:ch,bu:{channelCM:sumCM,platform:sh.platform,opBefore:sumCM+sh.platform,
+   alloc:sh.alloc,opAfter:sumCM+sh.platform+sh.alloc,
+   rev:CH.reduce((a,c)=>a+ch[c].rev,0),disc:CH.reduce((a,c)=>a+ch[c].disc,0),
+   direct:CH.reduce((a,c)=>a+ch[c].direct,0)}};
+}
+function dataFor(m){return isActM(m)?actAll(idxOf(m)):calcAll()[idxOf(m)];}
+
+/* ================= KHU VỰC theo từng kênh ================= */
+const ZN={
+ OWN:[
+  {n:'1',t:'Cỗ máy lead — digital',s:'Ngân sách → lead → CR → khách mới.',r:[
+   {l:'Ngân sách ads',k:'o_ads'},{l:'CPL',k:'o_cpl'},
+   {l:'L1 — lead thu về',o:'L1',d:0,f:'ngân sách ÷ CPL',aq:'L1',ai:'impCPL',al:'CPL suy ra',au:'K VND'},
+   {l:'CR self-serve',k:'o_crSelf'},{l:'CR telesale',k:'o_crTele'},
+   {l:'L8 mới · self-serve',o:'l8Self',d:0,aq:'l8Self'},{l:'L8 mới · telesale',o:'l8Tele',d:0,aq:'l8Tele'}]},
+  {n:'2',t:'Kênh có người bán',s:'Người × năng suất, không qua pool lead.',r:[
+   {l:'Direct — số nhân viên',k:'o_hcDirect'},{l:'Direct — năng suất',k:'o_prodDirect'},
+   {l:'L8 mới · direct',o:'l8Direct',d:0,aq:'l8Direct'},
+   {l:'BD — số nhân viên',k:'o_hcBD'},{l:'BD — năng suất',k:'o_prodBD'},
+   {l:'L8 mới · BD',o:'l8BD',d:0,aq:'l8BD'},
+   {l:'KHÁCH MỚI — tổng',o:'newUsers',d:0,big:1}]},
+  {n:'3',t:'Doanh thu tiền mặt',s:'Tái tục và re-activated lấy từ tầng chung theo % chia cho kênh.',r:[
+   {l:'AOV self-serve',k:'o_aovSelf'},{l:'AOV telesale',k:'o_aovTele'},
+   {l:'AOV direct',k:'o_aovDirect'},{l:'AOV BD',k:'o_aovBD'},
+   {l:'% tái tục thuộc kênh Own',k:'o_shareRenew'},
+   {l:'AOV tái tục',k:'o_aovRenew'},{l:'AOV re-activated',k:'o_aovReact'},
+   {l:'Doanh thu khách mới',o:'revNew',d:1},{l:'Doanh thu tái tục',o:'revRenew',d:1},
+   {l:'1.1 Cash revenue — phần mềm',o:'1.1',d:1,big:1}]},
+  {n:'4',t:'Bán kèm',s:'Thiết bị trên khách mới · dịch vụ trên base dùng chung (G2).',r:[
+   {l:'Attach hardware',k:'o_attachHw'},{l:'Giá thiết bị',k:'o_priceHw'},
+   {l:'1.2 Revenue_Hardware',o:'1.2',d:1,aq:'unitsHw'},
+   {l:'Attach dịch vụ',k:'o_attachSvc'},{l:'Phí dịch vụ/khách',k:'o_feeSvc'},
+   {l:'1.3 Revenue_Service',o:'1.3',d:1,aq:'usersSvc'},
+   {l:'Khách dịch vụ kế toán',k:'o_acctCust',aq:'acctCust'},{l:'Phí kế toán',k:'o_acctFee'},
+   {l:'1.4 Revenue_Accounting Svc',o:'1.4',d:1},{l:'2.2 Sale promotion',k:'o_promo'}]},
+  {n:'5',t:'Chi phí trực tiếp của kênh',s:'Cloud KHÔNG ở đây — đã lên tầng chung vì base dùng chung.',r:[
+   {l:'COGS hardware %',k:'o_cogsHwPct'},{l:'3.2 COGS_Hardware',o:'3.2',d:1},
+   {l:'COGS kế toán %',k:'o_cogsAcctPct'},{l:'3.4 COGS_Accounting Svc',o:'3.4',d:1},
+   {l:'Hoa hồng · self-serve',k:'o_commSelf'},{l:'Hoa hồng · telesale',k:'o_commTele'},
+   {l:'Hoa hồng · direct & BD',k:'o_commDirect'},{l:'Hoa hồng · tái tục',k:'o_commRenew'},
+   {l:'Hoa hồng · re-activated',k:'o_commReact'},
+   {l:'4.2 In-house commission',o:'4.2',d:1,big:1},
+   {l:'4.1 Lương đội bán',k:'o_salesSalary'},{l:'5.1 Brand / Comms',k:'o_brand'},
+   {l:'6.5 Staff - Marketing',k:'o_payMkt'},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+ PTN:[
+  {n:'1',t:'Danh mục đối tác',s:'rev = số lượng × đơn giá × ev%. type SAAS → 1.1, còn lại → 1.3.',acc:1,r:[]},
+  {n:'2',t:'Chi phí trực tiếp',s:'Hoa hồng in-house trên tổng doanh thu; hoa hồng đối tác theo từng dòng.',r:[
+   {l:'1.1 Revenue_Software',o:'1.1',d:1},{l:'1.3 Revenue_Service',o:'1.3',d:1,big:1},
+   {l:'Hoa hồng in-house %',k:'p_inhouseRate'},{l:'4.2 In-house commission',o:'4.2',d:1},
+   {l:'4.3 Partner commission',o:'4.3',d:1,f:'Σ rev × com% từng đối tác'},
+   {l:'COGS phần mềm đối tác',k:'p_cogsSoftware'},{l:'3.1 COGS đối tác',o:'3.1x',d:1},
+   {l:'5.3 Performance Marketing',k:'p_perfMkt'},{l:'6.2 Staff - BD & Partnership',k:'p_payBD'},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+ HLB:[
+  {n:'1',t:'Kích hoạt H5',s:'H5 = l8 tiếp cận × tỷ lệ chuyển đổi.',r:[
+   {l:'L8 tiếp cận',k:'h_l8'},{l:'Tỷ lệ chuyển đổi',k:'h_conv'},
+   {l:'H5 kích hoạt',o:'h5',d:0,big:1,aq:'h5'}]},
+  {n:'2',t:'Các lớp thưởng',s:'Bốn lớp: promotion, commission, referral, affiliate.',r:[
+   {l:'Promotion / H5',k:'h_promoH5'},{l:'2.1 Sale discount',o:'2.1',d:1},
+   {l:'Commission / H5',k:'h_commH5'},{l:'Referral — số lượt',k:'h_referral'},
+   {l:'Referral bonus',k:'h_refBonus'},{l:'4.2 In-house commission',o:'4.2',d:1},
+   {l:'Affiliate — số lượt',k:'h_affiliate'},{l:'Affiliate commission',k:'h_affComm'},
+   {l:'5.5 Partnership Marketing',o:'5.5',d:1}]},
+  {n:'3',t:'Doanh thu & brand',s:'Segment này gần như không có doanh thu — 4 tr/tháng.',r:[
+   {l:'1.2 Revenue_Hardware',k:'h_revHw'},{l:'5.1 Brand / Comms',k:'h_brand'},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+ SHARED:[
+  {n:'1',t:'Customer base — DÙNG CHUNG toàn SBH',s:'opening + new (cả 3 kênh) + re-activated − churned.',r:[
+   {l:'Base đầu kỳ',k:'s_baseStart',aq:'baseStart',f:'chỉ nhập T8 — các tháng sau nối từ base cuối tháng trước'},
+   {l:'Khách mới — cộng 3 kênh',sh:'newUsers',d:0,f:'Own + Partnership + HLB'},
+   {l:'L8 đến hạn',k:'s_due',aq:'due'},{l:'Renewal rate',k:'s_renewal',aq:null,ai:'renewalPct'},
+   {l:'Tái tục',sh:'renewed',d:0,aq:'renewed'},
+   {l:'Re-activated',k:'s_react',aq:'react'},
+   {l:'Rời bỏ',sh:'churned',d:0,f:'đến hạn − tái tục'},
+   {l:'Base cuối kỳ — kênh trực tiếp',sh:'baseEnd',d:0},
+   {l:'User đang có từ đối tác',sh:'stockUsers',d:0,aq:'ptnUsers',f:'các dòng đối tác khai contrib = stock'},
+   {l:'BASE TỔNG — toàn SBH',sh:'baseTotal',d:0,big:1},
+   {l:'Kỳ hạn trung bình',k:'s_avgTerm',aq:'avgTerm'}]},
+  {n:'2',t:'Nền tảng dùng chung',s:'Chi phí phục vụ cả ba kênh — không thuộc kênh nào.',r:[
+   {l:'Cloud / active user',k:'s_cloudPerUser',ai:'impCloud'},
+   {l:'3.1 COGS_Software — cloud',sh:'cloud',d:1,f:'base tổng bq × đơn giá',big:1},
+   {l:'6.1 Staff - Customer Operation',k:'s_payCS'},
+   {l:'6.3 Staff - Product Development',k:'s_payProduct'},
+   {l:'6.4 Staff - Technology',k:'s_payTech'},
+   {l:'Cộng nền tảng',sh:'platform',d:1,big:1,cm:1}]},
+  {n:'3',t:'Back office',s:'Nhận phân bổ từ CSS — ngoài trách nhiệm plan (NL-2).',r:[
+   {l:'7.x nhận phân bổ',sh:'alloc',d:1,f:'nối từ tab CSS — sửa ở đó, không nhập ở đây'}]}]
+};
+let SEG='OWN';
+let EDITM={T9:true};
+let SHOW={}; ALLM.forEach(m=>SHOW[m]=true);
+let RTAB='seg';
+const fmt=(v,d=1)=>{if(v===null||v===undefined||isNaN(v))return '—';
+ const n=Number(v);const s=n.toLocaleString('vi-VN',{minimumFractionDigits:d,maximumFractionDigits:d});
+ return n<0?'('+s.replace('-','')+')':s;};
+const SRCNOTE={seed:'',split:'cách tách là giả định',none:'CHƯA có nguồn'};
+const editList=()=>ALLM.filter(m=>EDITM[m]);
+const showList=()=>ALLM.filter(m=>SHOW[m]);
+const ACTS3={"DIR": {"1.1 Revenue_Software": [4.9, 4.9, 6.4, 50.8, 15.4, 11.0, 15.3], "1.3 Revenue_Service": [0, 0, 0, 0, 0, 152.0, 0], "2.1 Sale discount": [0, 0, 0, 0, 0, -6.0, 0], "5.1 Brand / Comms": [0, 0, 0, -3.3, -6.9, 0, -19.6], "5.3 Performance Marketing": [0, 0, -7.7, -2.2, -4.0, -9.3, -4.1], "6.2 Staff - BD & Partnership": [0, -36.4, -76.4, -39.1, -66.8, -41.8, -28.6], "6.3 Staff - Product Development": [-241.0, -341.4, -228, -281.4, -93.0, -233.2, -288.2], "6.4 Staff - Technology": [-250.0, -285.5, -303.2, -216.9, -296.0, -320.8, -370.4], "6.5 Staff - Marketing": [0, -0.6, 0, -54.5, -59.1, -58.7, 0], "7.1 Staff - Management": [0, 0, 0, 0, 0, -169.5, -145.0], "7.2 Staff - Accounting & Finance": [-13.4, -14.2, -13.4, -15.4, -10.6, -40.6, -49.7], "7.3 Staff - Human Resource": [-6.3, -3.2, -14.6, -10.4, -7.5, -28.3, -28.3], "7.4 System": [-24.1, -28.4, -27.0, -30.2, -40.0, -34.6, -44.3], "7.5 Rental": [-38.0, -36.0, -36.8, -40.4, -41.8, -36.9, -36.4], "7.6 Công tác phí": [-1.6, -5.4, -1.6, -3.5, -6.2, -4.6, -12.3], "7.7 Tiếp khách": [-18.7, -4.2, -5.3, -27.3, -9.9, -5.4, -3.1], "7.9 Team engagement": [-3.7, -20.2, -6.9, -7.7, -7.4, -0.5, -32.3], "7.99 Khác": [-4.8, -3.8, -11.7, -8.7, -9.2, -12.9, -4.5]}, "PPN": {}, "LEN": {}, "VPB": {}, "AFF": {}};
+const PPN_ACC0=[{"name": "Mastercard", "type": "Strategic project", "unit": "package", "ev": 100, "com": 0, "qty": [1, 0, 1, 0, 1], "price": [6625, 0, 2650, 0, 3975]}, {"name": "HLB MY", "type": "Strategic project", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 1, 1, 1], "price": [0, 0, 1325, 1325, 2650]}, {"name": "TAF", "type": "Strategic project", "unit": "package", "ev": 100, "com": 0, "qty": [0, 1, 0, 0, 0], "price": [0, 79.5, 0, 0, 0]}, {"name": "Partner mới", "type": "Strategic project", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 0, 0, 1], "price": [0, 0, 0, 0, 1325]}];
+
+/* ================= BU3 ================= */
+const CH3=['DIR','PPN','LEN','VPB','AFF'];
+Object.assign(CHLABEL,{DIR:'Direct',PPN:'Partnership BU3',LEN:'EF · Lending book',
+ VPB:'EF · VPB Interchange',AFF:'EF · Affiliate & Data',SHARED3:'Chung FinanOne'});
+const BUDEF={
+ BU12:{label:'SBH — BU12',ch:CH,shared:'SHARED',acts:'ACTS'},
+ BU3 :{label:'FinanOne — BU3',ch:CH3,shared:'SHARED3',acts:'ACTS3'}
+};
+/* pipeline outsource — nguồn của 1.3 Revenue_Service (câu D).
+   Cùng hình dạng bảng đối tác: tên · tháng · giá trị · % chia sẻ cho đối tác. */
+let PIPE=[
+ {name:'Pipeline outsource #1',share:50,val:[0,0,2367,4471,4997],contrib:'none'}
+];
+let PACC=PPN_ACC0.map(a=>({name:a.name,type:a.type,unit:a.unit,ev:a.ev,com:a.com,
+ qty:a.qty.slice(),price:a.price.slice(),share:15,contrib:'none'}));
+
+Object.assign(DEF,{
+ /* --- DIRECT --- */
+ d_custBaseline:{v:[10,0,0,0,0],u:'khách',src:'seed',ch:'DIR',chain:1},
+ d_grossNewAdds:{v:[35,50,264,308,308],u:'khách',src:'seed',ch:'DIR'},
+ d_churnPct:{v:a5(3),u:'%',src:'seed',ch:'DIR'},
+ d_blendedARPA:{v:a5(0.95),u:'tr',src:'seed',ch:'DIR'},
+ d_arpuToken:{v:[0.15,0.3,0.6,1,1.4],u:'tr',src:'seed',ch:'DIR'},
+ d_cogsTokenPct:{v:a5(70),u:'%',src:'seed',ch:'DIR'},
+ d_commissionPct:{v:a5(10),u:'%',src:'seed',ch:'DIR'},
+ d_perfMkt:{v:a5(4.64),u:'tr',src:'seed',ch:'DIR'},
+ d_ptnMkt:{v:[2000,500,700,700,700],u:'tr',src:'seed',ch:'DIR'},
+ d_payBD:{v:[28,28,63,210,210],u:'tr',src:'seed',ch:'DIR'},
+ d_payMkt:{v:a5(37.85),u:'tr',src:'seed',ch:'DIR'},
+ /* --- EF LENDING --- */
+ l_newBorrowers:{v:[0,0,11,21,21],u:'người',src:'seed',ch:'LEN'},
+ l_disbPer:{v:a5(250),u:'tr',src:'seed',ch:'LEN'},
+ l_avgOutstanding:{v:[0,0,1325,5300,10600],u:'tr',src:'seed',ch:'LEN'},
+ l_interestPct:{v:a5(2),u:'%/th',src:'seed',ch:'LEN'},
+ l_fundingPct:{v:a5(1),u:'%/th',src:'seed',ch:'LEN'},
+ l_creditPct:{v:a5(30),u:'%',src:'seed',ch:'LEN'},
+ l_feePct:{v:a5(2),u:'%',src:'seed',ch:'LEN'},
+ /* --- EF VPB --- */
+ v_cards:{v:a5(0),u:'thẻ',src:'none',ch:'VPB'},
+ v_activePct:{v:a5(40),u:'%',src:'seed',ch:'VPB'},
+ v_gtvPerSME:{v:a5(1.3),u:'tr',src:'seed',ch:'VPB'},
+ v_interchangePct:{v:a5(0.2775),u:'%',src:'seed',ch:'VPB'},
+ /* --- EF AFFILIATE --- */
+ f_referralLoans:{v:[0,0,0,0,100],u:'khoản',src:'seed',ch:'AFF'},
+ f_avgTicket:{v:[0,0,0,0,20],u:'tr',src:'seed',ch:'AFF'},
+ f_commPct:{v:a5(1),u:'%',src:'seed',ch:'AFF'},
+ /* --- CHUNG FinanOne --- */
+ s3_platform:{v:[1060,1060,1590,1855,1855],u:'tr',src:'seed',ch:'SHARED3'},
+ s3_payCS:{v:[39,81,158,235,235],u:'tr',src:'seed',ch:'SHARED3'},
+ s3_payProduct:{v:[226,338,338,338,338],u:'tr',src:'seed',ch:'SHARED3'},
+ s3_payTech:{v:[552,552,664,664,664],u:'tr',src:'seed',ch:'SHARED3'},
+ s3_alloc7x:{v:[369,389,389,389,369],u:'tr',src:'seed',ch:'SHARED3'}
+});
+CH3.concat(['SHARED3']).forEach(()=>{});
+Object.keys(DEF).forEach(k=>{if(!IN[k])IN[k]=DEF[k].v.slice();});
+
+/* ---- engine BU3 ---- */
+function engDir(i,sh){
+ const o={ch:'DIR'};
+ o.custStart=sh.baseStart;
+ o.newAdds=g('d_grossNewAdds',i);
+ o.churned=o.custStart*g('d_churnPct',i)/100;
+ o.custEnd=o.custStart+o.newAdds-o.churned;
+ o.custAvg=(o.custStart+o.custEnd)/2;
+ o.newUsers=o.newAdds; o.churnOut=o.churned;
+ o['1.1']=sh.custAvg*g('d_blendedARPA',i);
+ o['1.5']=sh.custAvg*g('d_arpuToken',i);
+ o.pipeGross=PIPE.reduce((a,p)=>a+(Number(p.val[i])||0),0);
+ o.pipeShare=-PIPE.reduce((a,p)=>a+(Number(p.val[i])||0)*(Number(p.share)||0)/100,0);
+ o['1.3']=o.pipeGross;
+ o['4.4']=o.pipeShare;
+ o['3.5']=-o['1.5']*g('d_cogsTokenPct',i)/100;
+ o['4.2']=-(o['1.1']+o['1.5'])*g('d_commissionPct',i)/100;
+ o['5.3']=-g('d_perfMkt',i); o['5.5']=-g('d_ptnMkt',i);
+ o['6.2']=-g('d_payBD',i); o['6.5']=-g('d_payMkt',i);
+ return o;
+}
+function engPpn(i,sh){
+ const o={ch:'PPN'};
+ o['1.3']=PACC.reduce((a,x)=>a+accRev(x,i),0);
+ o['4.4']=-PACC.reduce((a,x)=>a+accRev(x,i)*((Number(x.share)||0)/100),0);
+ o.newUsers=PACC.reduce((a,x)=>a+(x.contrib==='flow'?(Number(x.qty[i])||0):0),0);
+ o.stockUsers=PACC.reduce((a,x)=>a+(x.contrib==='stock'?(Number(x.qty[i])||0):0),0);
+ return o;
+}
+function engLen(i,sh){
+ const o={ch:'LEN'};
+ o.disb=g('l_newBorrowers',i)*g('l_disbPer',i);
+ o['1.2']=o.disb;
+ o['1.6']=g('l_avgOutstanding',i)*g('l_interestPct',i)/100;
+ o['3.2']=-o.disb*(100-g('l_feePct',i))/100;
+ o['3.6']=-g('l_avgOutstanding',i)*g('l_fundingPct',i)/100;
+ o['3.7']=-o.disb*g('l_creditPct',i)/100;
+ o.newUsers=0;o.stockUsers=0;
+ return o;
+}
+function engVpb(i,sh){
+ const o={ch:'VPB'};
+ o.activeCards=g('v_cards',i)*g('v_activePct',i)/100;
+ o.gtv=o.activeCards*g('v_gtvPerSME',i);
+ o['1.7']=o.gtv*g('v_interchangePct',i)/100;
+ o.newUsers=0;o.stockUsers=0;
+ return o;
+}
+function engAff(i,sh){
+ const o={ch:'AFF'};
+ o['1.7']=g('f_referralLoans',i)*g('f_avgTicket',i)*g('f_commPct',i)/100;
+ o.newUsers=0;o.stockUsers=0;
+ return o;
+}
+const ENG3={DIR:engDir,PPN:engPpn,LEN:engLen,VPB:engVpb,AFF:engAff};
+
+/* ================= CSS — Corporate Shared Service =================
+   CSS chịu chi phí gross 7.x cho toàn công ty rồi phân bổ về BU12 và BU3 theo
+   luật khai từng dòng. Phần không phân bổ ở lại CSS.
+   Bất biến: gross = phân bổ BU12 + phân bổ BU3 + CSS giữ lại. */
+const CSS_LINES=[
+ {k:'7.1',  l:'7.1 Staff - Management',            g:[900,900,900,900,900], own:75, bu3:25},
+ {k:'7.2',  l:'7.2 Staff - Accounting & Finance',  g:[90,90,90,90,90],      own:80, bu3:20},
+ {k:'7.3',  l:'7.3 Staff - Human Resource',        g:[36,36,36,36,36],      own:80, bu3:20},
+ {k:'7.4',  l:'7.4 System',                        g:[224,324,324,324,224], own:80, bu3:20},
+ {k:'7.5',  l:'7.5 Rental',                        g:[190,190,190,190,190], own:80, bu3:20},
+ {k:'7.6',  l:'7.6 Công tác phí',                  g:[30,30,30,30,30],      own:80, bu3:20},
+ {k:'7.7',  l:'7.7 Tiếp khách',                    g:[68,68,68,68,68],      own:80, bu3:20},
+ {k:'7.9',  l:'7.9 Team engagement',               g:[30,30,30,30,30],      own:80, bu3:20},
+ {k:'7.99', l:'7.99 Khác',                         g:[50,50,50,50,50],      own:80, bu3:20},
+ {k:'7.8',  l:'7.8 Tư vấn pháp lý',                g:[70,100,100,100,100],  own:0,  bu3:0,
+    note:'Chi phí admin cấp công ty — không phân bổ (Đ12)'},
+ {k:'7.10', l:'7.10 Vận chuyển',                   g:[20,20,20,20,20],      own:0,  bu3:0,
+    note:'Chi phí admin cấp công ty — không phân bổ (Đ12)'}
+];
+let CSSL=CSS_LINES.map(x=>({k:x.k,l:x.l,g:x.g.slice(),own:x.own,bu3:x.bu3,note:x.note||''}));
+CHLABEL.CSS='CSS — Corporate Shared Service';
+BUDEF.CSS={label:'CSS',ch:['CSSC'],shared:'CSSC',acts:null};
+CHLABEL.CSSC='Chi phí & phân bổ';
+
+function calcCSS(){
+ const out=[];
+ for(let i=0;i<nF;i++){
+  const per=CSSL.map(x=>{const gr=Number(x.g[i])||0;
+    const o=gr*(Number(x.own)||0)/100, b=gr*(Number(x.bu3)||0)/100;
+    return {k:x.k,l:x.l,gross:gr,to12:o,to3:b,keep:gr-o-b};});
+  const S=f=>per.reduce((a,x)=>a+x[f],0);
+  const sh={gross:-S('gross'), to12:S('to12'), to3:S('to3'), keep:-S('keep'),
+    platform:0, alloc:0, per:per};
+  sh.channelCM=0;
+  const ch={CSSC:{ch:'CSSC',rev:0,disc:0,direct:-S('gross')+S('to12')+S('to3'),
+    channelCM:-S('keep'), gross:-S('gross'), to12:S('to12'), to3:S('to3'), keep:-S('keep')}};
+  out.push({sh:sh,ch:ch,bu:{channelCM:-S('keep'),platform:0,opBefore:-S('keep'),
+    alloc:0,opAfter:-S('keep'),rev:0,disc:0,direct:-S('keep')}});
+ }
+ return out;
+}
+/* Số phân bổ mà BU12 / BU3 nhận — LẤY TỪ CSS, không còn gõ tay */
+function allocFromCSS(i,which){const c=calcCSS()[i];return -(which==='12'?c.sh.to12:c.sh.to3);}
+
+/* Actual CSS — lấy từ sổ, dòng 7.x của cả ba nguồn */
+function actCSS(i){
+ const per=CSSL.map(x=>({k:x.k,l:x.l,gross:null,to12:null,to3:null,keep:null}));
+ const g12=CH.reduce((a,c)=>a+Object.keys(ACTS[c]||{}).filter(k=>k.indexOf('7.')===0)
+   .reduce((t,k)=>t+((ACTS[c][k]&&ACTS[c][k][i])||0),0),0);
+ const g3=CH3.reduce((a,c)=>a+Object.keys(ACTS3[c]||{}).filter(k=>k.indexOf('7.')===0)
+   .reduce((t,k)=>t+((ACTS3[c][k]&&ACTS3[c][k][i])||0),0),0);
+ const sh={gross:null,to12:-g12,to3:-g3,keep:null,platform:0,alloc:0,per:per};
+ const ch={CSSC:{ch:'CSSC',rev:0,disc:0,direct:null,channelCM:null,gross:null,to12:-g12,to3:-g3,keep:null}};
+ return {sh:sh,ch:ch,bu:{channelCM:null,platform:0,opBefore:null,alloc:0,opAfter:null,
+   rev:0,disc:0,direct:null}};
+}
+/* Khu vực nhập của CSS */
+ZN.CSSC=[{n:'1',t:'Chi phí gross & luật phân bổ',css:1,
+  s:'Mỗi dòng khai % về BU12 và BU3. Phần còn lại ở lại CSS.',r:[]}];
+
+REVK.push('1.5','1.6','1.7'); DIRK.push('3.5','3.6','3.7','4.4');
+function calcBU3(){
+ const out=[];
+ for(let i=0;i<nF;i++){
+  const sh={};
+  sh.baseStart=(i===0)?g('d_custBaseline',i):out[i-1].sh.baseEnd;
+  const pre={}; CH3.forEach(c=>pre[c]=ENG3[c](i,{baseStart:sh.baseStart,custAvg:0}));
+  sh.newUsers=CH3.reduce((a,c)=>a+(pre[c].newUsers||0),0);
+  sh.churned=pre.DIR.churnOut||0;
+  sh.baseEnd=sh.baseStart+sh.newUsers-sh.churned;
+  sh.stockUsers=CH3.reduce((a,c)=>a+(pre[c].stockUsers||0),0);
+  sh.baseTotal=sh.baseEnd+sh.stockUsers;
+  sh.custAvg=(sh.baseStart+sh.baseEnd)/2;
+  sh.baseAvg=sh.custAvg;
+  sh.paying=sh.baseEnd;
+  const ch={}; CH3.forEach(c=>ch[c]=chAgg(ENG3[c](i,sh)));
+  sh.cloud=-g('s3_platform',i); sh.payCS=-g('s3_payCS',i);
+  sh.payProduct=-g('s3_payProduct',i); sh.payTech=-g('s3_payTech',i);
+  sh.platform=sh.cloud+sh.payCS+sh.payProduct+sh.payTech;
+  sh.alloc=allocFromCSS(i,'3');    /* nối từ CSS — không còn gõ tay */
+  const sumCM=CH3.reduce((a,c)=>a+ch[c].channelCM,0);
+  out.push({sh:sh,ch:ch,bu:{channelCM:sumCM,platform:sh.platform,opBefore:sumCM+sh.platform,
+    alloc:sh.alloc,opAfter:sumCM+sh.platform+sh.alloc,
+    rev:CH3.reduce((a,c)=>a+ch[c].rev,0),disc:CH3.reduce((a,c)=>a+ch[c].disc,0),
+    direct:CH3.reduce((a,c)=>a+ch[c].direct,0)}});
+ }
+ return out;
+}
+function actBU3(i){
+ const ch={}; CH3.forEach(c=>{
+  const A=ACTS3[c]||{}; const L=(k)=>(A[k]&&A[k][i])||0;
+  const o={ch:c};
+  o['1.1']=L('1.1 Revenue_Software');o['1.2']=L('1.2 Revenue_Hardware');o['1.3']=L('1.3 Revenue_Service');
+  o['1.4']=L('1.4 Revenue_Accounting Svc');o['1.5']=L('1.5 Revenue_AI Token');
+  o['1.6']=L('1.6 Interest income');o['1.7']=L('1.7 Revenue_Embedded Finance');
+  o['2.1']=L('2.1 Sale discount');o['2.2']=L('2.2 Sale promotion');
+  o['3.2']=L('3.2 COGS_Hardware');o['3.4']=L('3.4 COGS_Accounting Svc');o['3.5']=L('3.5 COGS_AI Token');
+  o['3.6']=L('3.6 COGS_Funding cost');o['3.7']=L('3.7 COGS_Provision');
+  o['4.1']=L('4.1 Staff cost — Salary');o['4.2']=L('4.2 In-house commission');
+  o['4.3']=L('4.3 Partner commission');o['4.4']=L('4.4 Direct cost (commission/partner/sharing/kickback)');
+  o['5.1']=L('5.1 Brand / Comms');o['5.3']=L('5.3 Performance Marketing');o['5.5']=L('5.5 Partnership Marketing');
+  o['6.2']=L('6.2 Staff - BD & Partnership');o['6.5']=L('6.5 Staff - Marketing');
+  ch[c]=chAgg(o);});
+ const A=ACTS3.DIR||{},L=k=>(A[k]&&A[k][i])||0;
+ const sh={cloud:L('3.1 COGS_Software'),payCS:L('6.1 Staff - Customer Operation'),
+   payProduct:L('6.3 Staff - Product Development'),payTech:L('6.4 Staff - Technology')};
+ sh.platform=sh.cloud+sh.payCS+sh.payProduct+sh.payTech;
+ sh.alloc=Object.keys(A).filter(k=>k.indexOf('7.')===0).reduce((t,k)=>t+L(k),0);
+ ['baseStart','baseEnd','baseTotal','baseAvg','newUsers','churned','stockUsers','paying','custAvg']
+   .forEach(k=>sh[k]=null);
+ const sumCM=CH3.reduce((a,c)=>a+ch[c].channelCM,0);
+ return {sh:sh,ch:ch,bu:{channelCM:sumCM,platform:sh.platform,opBefore:sumCM+sh.platform,
+   alloc:sh.alloc,opAfter:sumCM+sh.platform+sh.alloc,
+   rev:CH3.reduce((a,c)=>a+ch[c].rev,0),disc:CH3.reduce((a,c)=>a+ch[c].disc,0),
+   direct:CH3.reduce((a,c)=>a+ch[c].direct,0)}};
+}
+let BU='BU12';
+const curCalc=()=>BU==='BU3'?calcBU3():(BU==='CSS'?calcCSS():calcAll());
+const curCH=()=>BUDEF[BU].ch;
+function dataFor(m){
+ const i=idxOf(m);
+ if(BU==='CSS')return isActM(m)?actCSS(i):calcCSS()[i];
+ if(BU==='BU3')return isActM(m)?actBU3(i):calcBU3()[i];
+ return isActM(m)?actAll(i):calcAll()[i];
+}
+function dataCo(m){   /* toàn công ty = BU12 + BU3 + CSS */
+ const i=idxOf(m), a=isActM(m)?actAll(i):calcAll()[i], b=isActM(m)?actBU3(i):calcBU3()[i],
+   c=isActM(m)?actCSS(i):calcCSS()[i];
+ const s=(x,y)=>{const o={};Object.keys(x).forEach(k=>{const u=x[k],v=y[k];
+   o[k]=(typeof u==='number'&&typeof v==='number')?u+v:(typeof u==='number'?u:null);});return o;};
+ return {bu:s(s(a.bu,b.bu),c.bu), sh:s(a.sh,b.sh), a:a, b:b, c:c};
+}
+
+/* ================= KHU VỰC BU3 ================= */
+Object.assign(ZN,{
+ DIR:[
+  {n:'1',t:'Tồn khách — mô hình thuê bao',s:'Khác Own channel: không có phễu lead, thu theo khách bình quân × ARPA.',r:[
+   {l:'Khách đầu kỳ',k:'d_custBaseline',f:'chỉ nhập T8 — các tháng sau nối từ khách cuối tháng trước'},
+   {l:'Khách mới trong tháng',k:'d_grossNewAdds'},
+   {l:'Churn %/tháng',k:'d_churnPct'},
+   {l:'Rời bỏ',o:'churned',d:1,f:'đầu kỳ × churn%'},
+   {l:'Khách cuối kỳ',o:'custEnd',d:0,big:1},
+   {l:'Khách bình quân',o:'custAvg',d:0,f:'(đầu + cuối) ÷ 2 — cơ sở tính doanh thu'}]},
+  {n:'2',t:'Doanh thu thuê bao',s:'Khách bình quân × đơn giá. Đây là chỗ khác Own channel nhất.',r:[
+   {l:'Blended ARPA',k:'d_blendedARPA'},
+   {l:'1.1 Revenue_Software',o:'1.1',d:1,big:1,f:'khách bq × ARPA'},
+   {l:'ARPU AI token',k:'d_arpuToken'},
+   {l:'1.5 Revenue_AI Token',o:'1.5',d:1,f:'khách bq × ARPU token'},
+   {l:'COGS token %',k:'d_cogsTokenPct'},{l:'3.5 COGS_AI Token',o:'3.5',d:1}]},
+  {n:'3',t:'Pipeline outsource',s:'Nguồn của 1.3 Revenue_Service. Mỗi dòng là một đối tác outsource, chia sẻ % doanh thu.',pipe:1,r:[]},
+  {n:'4',t:'Chi phí trực tiếp của kênh',s:'Nền tảng và 6.1/6.3/6.4 đã lên tầng chung FinanOne.',r:[
+   {l:'1.3 Revenue_Service',o:'1.3',d:1},{l:'4.4 Direct cost — chia sẻ đối tác',o:'4.4',d:1},
+   {l:'Hoa hồng in-house %',k:'d_commissionPct'},{l:'4.2 In-house commission',o:'4.2',d:1},
+   {l:'5.3 Performance Marketing',k:'d_perfMkt'},{l:'5.5 Partnership Marketing',k:'d_ptnMkt'},
+   {l:'6.2 Staff - BD & Partnership',k:'d_payBD'},{l:'6.5 Staff - Marketing',k:'d_payMkt'},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+ PPN:[
+  {n:'1',t:'Danh mục deal theo gói',s:'Mastercard · HLB MY · TAF · Partner mới. Lởm chởm theo tháng (Đ10).',acc3:1,r:[]},
+  {n:'2',t:'Kết quả kênh',s:'Chi phí trực tiếp là phần chia sẻ cho đối tác.',r:[
+   {l:'1.3 Revenue_Service',o:'1.3',d:1,big:1},
+   {l:'4.4 Direct cost — chia sẻ',o:'4.4',d:1},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+ LEN:[
+  {n:'1',t:'Giải ngân',s:'Phí thu xếp khai theo chiều đàm phán được (Đ11), không phải giá vốn 98%.',r:[
+   {l:'Số người vay mới',k:'l_newBorrowers'},{l:'Giải ngân / người',k:'l_disbPer'},
+   {l:'Tổng giải ngân',o:'disb',d:0,big:1},
+   {l:'Phí thu xếp %',k:'l_feePct'},
+   {l:'1.2 Revenue_Hardware (giải ngân)',o:'1.2',d:1},
+   {l:'3.2 COGS_Hardware',o:'3.2',d:1,f:'−giải ngân × (100 − phí)%'}]},
+  {n:'2',t:'Sổ cho vay',s:'Provision tính trên vintage giải ngân mới (Đ16).',r:[
+   {l:'Dư nợ bình quân',k:'l_avgOutstanding'},
+   {l:'Lãi suất %/tháng',k:'l_interestPct'},{l:'1.6 Interest income',o:'1.6',d:1},
+   {l:'Funding cost %/tháng',k:'l_fundingPct'},{l:'3.6 COGS_Funding cost',o:'3.6',d:1},
+   {l:'Credit cost % trên giải ngân',k:'l_creditPct'},{l:'3.7 COGS_Provision',o:'3.7',d:1},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+ VPB:[
+  {n:'1',t:'Interchange thẻ',s:'Số thẻ phát hành chưa có nguồn — engine gốc cũng không có.',r:[
+   {l:'Số thẻ phát hành',k:'v_cards'},{l:'% thẻ hoạt động',k:'v_activePct'},
+   {l:'Thẻ hoạt động',o:'activeCards',d:0},
+   {l:'GTV / SME / tháng',k:'v_gtvPerSME'},{l:'Tổng GTV',o:'gtv',d:1},
+   {l:'Interchange %',k:'v_interchangePct'},
+   {l:'1.7 Revenue_Embedded Finance',o:'1.7',d:1,big:1},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+ AFF:[
+  {n:'1',t:'Giới thiệu khoản vay',s:'Hoa hồng trên giá trị khoản vay giới thiệu.',r:[
+   {l:'Số khoản vay giới thiệu',k:'f_referralLoans'},{l:'Giá trị bình quân',k:'f_avgTicket'},
+   {l:'Hoa hồng %',k:'f_commPct'},
+   {l:'1.7 Revenue_Embedded Finance',o:'1.7',d:1,big:1},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+ SHARED3:[
+  {n:'1',t:'Customer base — DÙNG CHUNG toàn FinanOne',s:'Khách mới cộng từ các kênh; churn tính trên base đầu kỳ.',r:[
+   {l:'Base đầu kỳ',k:'d_custBaseline',f:'chỉ nhập T8 — các tháng sau nối từ base cuối tháng trước'},
+   {l:'Khách mới — cộng các kênh',sh:'newUsers',d:0},
+   {l:'Rời bỏ',sh:'churned',d:1},
+   {l:'BASE CUỐI KỲ',sh:'baseEnd',d:0,big:1},
+   {l:'Khách bình quân',sh:'custAvg',d:0,f:'cơ sở tính doanh thu thuê bao'}]},
+  {n:'2',t:'Nền tảng dùng chung',s:'Chốt (a)(b): COGS nền tảng + 6.1 + 6.3 + 6.4 lên tầng BU3.',r:[
+   {l:'COGS nền tảng',k:'s3_platform'},{l:'6.1 Staff - Customer Operation',k:'s3_payCS'},
+   {l:'6.3 Staff - Product Development',k:'s3_payProduct'},{l:'6.4 Staff - Technology',k:'s3_payTech'},
+   {l:'Cộng nền tảng',sh:'platform',d:1,big:1,cm:1}]},
+  {n:'3',t:'Back office',s:'Nhận phân bổ từ CSS (NL-2).',r:[{l:'7.x nhận phân bổ',sh:'alloc',d:1,f:'nối từ tab CSS — sửa ở đó, không nhập ở đây'}]}]
+});
+
+/* ================= RENDER ================= */
+function renderPanel(){
+ const chk=(m,t,grp)=>`<label class="mchk"><input type="checkbox" data-${grp}="${m}" ${(grp==='show'?SHOW[m]:!!EDITM[m])?'checked':''}>
+   <span>${m}</span><span class="tag ${t}">${t==='a'?'actual':'plan'}</span></label>`;
+ return `<div class="pt">Business Unit</div>
+ <div class="pbtns">${Object.keys(BUDEF).map(b=>
+   `<button class="btn${BU===b?' on':''}" data-bu="${b}">${BUDEF[b].label}</button>`).join('')}</div>
+ <div class="pt">Kênh đang nhập</div>
+ <div class="pbtns">${curCH().concat([BUDEF[BU].shared]).map(s=>
+   `<button class="btn${SEG===s?' on':''}" data-seg="${s}">${CHLABEL[s]}</button>`).join('')}</div>
+ <div class="pt">Tháng đang nhập <span class="cnt">${editList().length}</span></div>
+ ${AM.map(m=>chk(m,'a','edit')).join('')}${FM.map(m=>chk(m,'p','edit')).join('')}
+ <div class="pbtns"><button class="btn" data-esel="all">Tất cả</button><button class="btn" data-esel="act">Actual</button>
+ <button class="btn" data-esel="plan">Plan</button><button class="btn" data-esel="none">Bỏ hết</button></div>
+ <div class="pt">Cột hiện bên phải <span class="cnt">${showList().length}</span></div>
+ ${AM.map(m=>chk(m,'a','show')).join('')}${FM.map(m=>chk(m,'p','show')).join('')}
+ <div class="pbtns"><button class="btn" data-sel="all">Tất cả</button><button class="btn" data-sel="act">Actual</button>
+ <button class="btn" data-sel="plan">Plan</button><button class="btn" data-sel="none">Bỏ hết</button></div>
+ <div class="pt">Dữ liệu</div>
+ <div class="dbtns"><button class="btn" id="btnExport">Xuất JSON</button><button class="btn" id="btnImport">Nhập JSON</button>
+ <button class="btn wide" id="btnCSV">Xuất CSV bảng đang xem</button>
+ <button class="btn wide" id="btnClear">Xoá bản lưu trình duyệt</button></div>
+ <div class="saveinfo" id="saveInfo">—</div>
+ <div class="infobox" style="margin-top:8px">Cloud, 6.1 CS, 6.3 Product, 6.4 Tech nằm ở <b>Chung SBH</b> — không thuộc kênh nào.
+ Mỗi kênh chỉ tới <b>Channel CM</b>.</div>
+ <div class="warnbox">Ô viền đứt = chưa có số. Suy ra từ nó hiện <b>—</b>.</div>`;
+}
+function cellFor(m,r){
+ const act=isActM(m), i=idxOf(m), D=dataFor(m);
+ const seg=SEG, node=(seg==='SHARED')?D.sh:D.ch[seg];
+ if(act){
+  if(r.aq){const v=AQ[r.aq][i];
+   return `<div class="cell"><input class="num${(v===null||v==='')?' empty':''}" type="number" step="any"
+     data-aq="${r.aq}" data-mi="${i}" value="${v===null?'':v}" placeholder="—"></div>`;}
+  if(r.ai){const v=D.sh[r.ai];
+   return `<div class="cell"><div class="val imp ${v===null||v===undefined?'na':''}">${fmt(v,r.d===undefined?1:r.d)}</div></div>`;}
+  const key=r.o||r.sh||r.k;
+  let v=(r.sh)?D.sh[r.sh]:(node?node[r.o]:undefined);
+  if(v===undefined&&r.k)return `<div class="cell na">—</div>`;
+  const cls=(v===null||v===undefined)?'na':(v<0?'neg':'');
+  return `<div class="cell"><div class="val ${cls}">${fmt(v,r.d===undefined?1:r.d)}</div></div>`;
+ }
+ if(r.k){
+  const ch=CHAIN(r.k)&&i>0;
+  if(ch){ /* LỖI v0.7: gọi cứng calcAll() nên tab BU3 hiện base của BU12. Phải theo BU đang chọn. */
+   const prev=curCalc()[i-1].sh.baseEnd;
+   return `<div class="cell"><div class="val chained" title="Nối từ base cuối ${FM[i-1]} — không sửa được, đây là kết quả của tháng trước">${fmt(prev,0)}</div></div>`;}
+  return `<div class="cell"><input class="num" type="number" step="any" data-in="${r.k}" data-mi="${i}" value="${IN[r.k][i]}"></div>`;
+ }
+ const v=(r.sh)?D.sh[r.sh]:(node?node[r.o]:null);
+ return `<div class="cell"><div class="val ${(v===null||v===undefined)?'na':(v<0?'neg':'')}">${fmt(v,r.d===undefined?1:r.d)}</div></div>`;
+}
+function renderAccounts(ms,LIST,tag){
+ LIST=LIST||ACCS; tag=tag||'acc';
+ const cols=ms.filter(m=>!isActM(m));
+ if(!cols.length)return `<div class="warnbox">Danh mục đối tác chỉ nhập ở tháng plan. Tháng actual lấy số tổng từ sổ.</div>`;
+ const head=`<tr><th class="rl">Đối tác</th><th>Loại</th><th>ev%</th><th>com%</th><th>Góp base</th>
+   ${cols.map(m=>`<th colspan="2">${m}</th>`).join('')}<th>Doanh thu</th></tr>`;
+ const sub=`<tr class="sub"><td class="rl"></td><td></td><td></td><td></td><td></td>
+   ${cols.map(()=>'<td>SL</td><td>Đơn giá</td>').join('')}<td></td></tr>`;
+ const rows=LIST.map((a,ai)=>{
+  const rev=cols.reduce((t,m)=>t+accRev(a,idxOf(m)),0);
+  return `<tr><td class="rl"><input class="txt" data-${tag}="${ai}" data-f="name" value="${a.name||''}"></td>
+   <td><select data-${tag}="${ai}" data-f="type"><option${a.type==='SAAS'?' selected':''}>SAAS</option><option${a.type!=='SAAS'?' selected':''}>Tech service</option></select></td>
+   <td><input class="num sm" type="number" data-${tag}="${ai}" data-f="ev" value="${a.ev}"></td>
+   <td><input class="num sm" type="number" data-${tag}="${ai}" data-f="com" value="${a.com}"></td>
+   <td><select data-${tag}="${ai}" data-f="contrib">
+     <option value="stock"${a.contrib==='stock'?' selected':''}>user đang có</option>
+     <option value="flow"${a.contrib==='flow'?' selected':''}>user mới</option>
+     <option value="none"${a.contrib==='none'?' selected':''}>không góp</option></select></td>
+   ${cols.map(m=>{const i=idxOf(m);return `<td><input class="num sm" type="number" step="any" data-${tag}="${ai}" data-f="qty" data-mi="${i}" value="${a.qty[i]}"></td>
+     <td><input class="num sm" type="number" step="any" data-${tag}="${ai}" data-f="price" data-mi="${i}" value="${a.price[i]}"></td>`;}).join('')}
+   <td class="rev ${rev<0?'neg':''}">${fmt(rev,0)}</td></tr>`;}).join('');
+ return `<div class="acctbl"><table class="acc"><thead>${head}${sub}</thead><tbody>${rows}</tbody></table></div>
+ <div class="infobox">Cột <b>Góp base</b> quyết định user của đối tác có vào customer base chung không.
+ Mặc định các dòng đơn vị <i>user</i> là <b>user đang có</b> (thu định kỳ) — nếu thực tế là user mới mỗi tháng thì đổi, base sẽ tăng theo.</div>`;
+}
+function renderMid(){
+ const ms=editList();
+ if(!ms.length)return `<div class="zone"><div class="zb" style="padding:18px;color:var(--muted)">Chưa chọn tháng nhập nào.</div></div>`;
+ const gt=`grid-template-columns:minmax(150px,1.4fr) ${ms.map(()=>'minmax(84px,1fr)').join(' ')} 56px`;
+ const hdr=`<div class="zrow zhead" style="${gt}"><div class="lb"></div>
+   ${ms.map(m=>`<div class="cell mh ${isActM(m)?'a':''}">${m}</div>`).join('')}<div class="unit"></div></div>`;
+ return `<div class="zone seghead"><div class="zh"><span class="zn">${SEG==='SHARED'?'SBH':'KÊNH'}</span>
+   <span class="zt">${CHLABEL[SEG]}</span><span class="zs">${SEG==='SHARED'
+   ?'Base dùng chung + nền tảng + back office. Ba kênh cùng dùng.'
+   :'Chỉ chi phí trực tiếp của kênh → Channel Contribution Margin.'}</span></div></div>`
+ +ZN[SEG].map(z=>{
+  if(z.acc||z.acc3||z.pipe||z.css)return `<div class="zone"><div class="zh"><span class="zn">KV ${z.n}</span><span class="zt">${z.t}</span>
+    <span class="zs">${z.s}</span></div><div class="zb">${z.css?renderCSS(ms):(z.pipe?renderPipe(ms):renderAccounts(ms,z.acc3?PACC:ACCS,z.acc3?'pacc':'acc'))}</div></div>`;
+  const rows=z.r.map(r=>{
+   const flagged=r.k&&SRC(r.k)!=='seed';
+   const isOut=!r.k;
+   return `<div class="zrow${isOut?' out':''}${flagged?' flagged':''}${r.cm?' cmrow':''}" style="${gt}">
+     <div class="lb">${r.l}${(r.f||flagged)?`<small>${r.f||''}${r.f&&flagged?' · ':''}${flagged?SRCNOTE[SRC(r.k)]:''}</small>`:''}</div>
+     ${ms.map(m=>cellFor(m,r)).join('')}<div class="unit">${r.k?UNIT(r.k):''}</div></div>`;}).join('');
+  return `<div class="zone"><div class="zh"><span class="zn">KV ${z.n}</span><span class="zt">${z.t}</span>
+    <span class="zs">${z.s}</span></div><div class="zb">${hdr}${rows}</div></div>`;
+ }).join('');
+}
+
+function renderPipe(ms){
+ const cols=ms.filter(m=>!isActM(m));
+ if(!cols.length)return `<div class="warnbox">Pipeline chỉ nhập ở tháng plan.</div>`;
+ const rows=PIPE.map((p,pi)=>`<tr><td class="rl"><input class="txt" data-pipe="${pi}" data-f="name" value="${p.name}"></td>
+  <td><input class="num sm" type="number" data-pipe="${pi}" data-f="share" value="${p.share}"></td>
+  ${cols.map(m=>`<td><input class="num sm" type="number" step="any" data-pipe="${pi}" data-f="val" data-mi="${idxOf(m)}" value="${p.val[idxOf(m)]}"></td>`).join('')}
+  ${(()=>{const s=cols.reduce((t,m)=>t+(Number(p.val[idxOf(m)])||0),0);return `<td class="rev ${s<0?'neg':''}">${fmt(s,0)}</td>`;})()}</tr>`).join('');
+ return `<div class="acctbl"><table class="acc"><thead><tr><th class="rl">Đối tác outsource</th><th>Chia sẻ %</th>
+  ${cols.map(m=>`<th>${m}</th>`).join('')}<th>Tổng</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="dbtns"><button class="btn wide" id="pipeAdd">+ Thêm dòng pipeline</button></div>
+  <div class="infobox">Đây là nguồn của <b>1.3 Revenue_Service</b> — trước đây là một mảng gõ tay không nối vào đâu.
+  Chia sẻ % sinh ra dòng <b>4.4 Direct cost</b>.</div>`;
+}
+function renderCSS(ms){
+ const cols=ms.filter(m=>!isActM(m));
+ if(!cols.length)return `<div class="warnbox">Luật phân bổ chỉ nhập ở tháng plan.</div>`;
+ const rows=CSSL.map((x,xi)=>{
+  const gross=cols.reduce((t,m)=>t+(Number(x.g[idxOf(m)])||0),0);
+  const bad=(Number(x.own)||0)+(Number(x.bu3)||0)>100;
+  return `<tr class="${bad?'badrow':''}"><td class="rl">${x.l}${x.note?`<small>${x.note}</small>`:''}</td>
+   <td><input class="num sm" type="number" data-css="${xi}" data-f="own" value="${x.own}"></td>
+   <td><input class="num sm" type="number" data-css="${xi}" data-f="bu3" value="${x.bu3}"></td>
+   <td class="${bad?'badchk':'okchk'}">${bad?'>100':fmt(100-(Number(x.own)||0)-(Number(x.bu3)||0),0)+'%'}</td>
+   ${cols.map(m=>`<td><input class="num sm" type="number" step="any" data-css="${xi}" data-f="g" data-mi="${idxOf(m)}" value="${x.g[idxOf(m)]}"></td>`).join('')}
+   <td class="rev ${gross<0?'neg':''}">${fmt(gross,0)}</td></tr>`;}).join('');
+ const tot=(f)=>cols.reduce((t,m)=>{const c=calcCSS()[idxOf(m)];return t+(f==='g'?-c.sh.gross:(f==='a'?c.sh.to12:(f==='b'?c.sh.to3:-c.sh.keep)));},0);
+ return `<div class="acctbl"><table class="acc"><thead><tr>
+  <th class="rl">Dòng chi phí</th><th>→BU12 %</th><th>→BU3 %</th><th>Giữ lại</th>
+  ${cols.map(m=>`<th>${m}</th>`).join('')}<th>Gross</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="zrow out" style="grid-template-columns:1fr 110px"><div class="lb">Gross toàn công ty</div><div class="val">${fmt(tot('g'),0)}</div></div>
+  <div class="zrow out" style="grid-template-columns:1fr 110px"><div class="lb">→ phân bổ về BU12</div><div class="val">${fmt(tot('a'),0)}</div></div>
+  <div class="zrow out" style="grid-template-columns:1fr 110px"><div class="lb">→ phân bổ về BU3</div><div class="val">${fmt(tot('b'),0)}</div></div>
+  <div class="zrow cmrow" style="grid-template-columns:1fr 110px"><div class="lb">CSS giữ lại</div><div class="val">${fmt(tot('k'),0)}</div></div>
+  <div class="zrow chkrow" style="grid-template-columns:1fr 110px"><div class="lb">Kiểm: gross − BU12 − BU3 − giữ lại</div>
+   <div class="val ${Math.abs(tot('g')-tot('a')-tot('b')-tot('k'))<0.005?'okchk':'badchk'}">${Math.abs(tot('g')-tot('a')-tot('b')-tot('k'))<0.005?'✓ khớp':fmt(tot('g')-tot('a')-tot('b')-tot('k'),2)}</div></div>
+  <div class="infobox">Số ở đây chảy thẳng vào dòng <b>7.x nhận phân bổ</b> của BU12 và BU3 — không còn gõ tay ở hai BU đó nữa.</div>`;
+}
+/* ================= P&L THEO TẦNG: kênh → BU → công ty ================= */
+const LINELBL={
+ '1.1':'1.1 Revenue_Software','1.2':'1.2 Revenue_Hardware','1.3':'1.3 Revenue_Service',
+ '1.4':'1.4 Revenue_Accounting Svc','1.5':'1.5 Revenue_AI Token','1.6':'1.6 Interest income',
+ '1.7':'1.7 Revenue_Embedded Finance','2.1':'2.1 Sale discount','2.2':'2.2 Sale promotion',
+ '3.1x':'3.1 COGS_Software (riêng kênh)','3.2':'3.2 COGS_Hardware','3.4':'3.4 COGS_Accounting Svc',
+ '3.5':'3.5 COGS_AI Token','3.6':'3.6 COGS_Funding cost','3.7':'3.7 COGS_Provision',
+ '4.1':'4.1 Staff cost — Salary','4.2':'4.2 In-house commission','4.3':'4.3 Partner commission',
+ '4.4':'4.4 Direct cost — chia sẻ đối tác','5.1':'5.1 Brand / Comms',
+ '5.3':'5.3 Performance Marketing','5.5':'5.5 Partnership Marketing',
+ '6.2':'6.2 Staff - BD & Partnership','6.5':'6.5 Staff - Marketing'
+};
+/* Dựng dòng P&L của KÊNH đang chọn — chỉ hiện dòng có số ở các tháng đang xem */
+function segRows(seg,ms){
+ const used=k=>ms.some(m=>{const D=dataFor(m),n=D.ch[seg];return n&&Math.abs(Number(n[k])||0)>0.004;});
+ const grp=(title,keys)=>{const ks=keys.filter(used);
+   return ks.length?[{g:title}].concat(ks.map(k=>({l:LINELBL[k]||k,p:['ch',seg,k]}))):[];};
+ return [].concat(
+  grp('Doanh thu',REVK),
+  [{l:'Tổng doanh thu',p:['ch',seg,'rev'],cls:'cm'}],
+  grp('Chiết khấu / promotion',DISCK),
+  grp('Chi phí trực tiếp của kênh',DIRK),
+  [{l:'Cộng chi phí trực tiếp',p:['ch',seg,'direct'],cls:'cm'},
+   {l:'CHANNEL CONTRIBUTION MARGIN',p:['ch',seg,'channelCM'],cls:'op'}]);
+}
+/* ===== P&L cấp trên: TRÌNH BÀY THEO LINE ITEM, rồi reconcile ngược về segment =====
+   Hai mặt của cùng một con số:
+     mặt 1 — cộng ngang theo từng dòng P&L (giống hệt cấp segment)
+     mặt 2 — cộng dọc theo từng segment/BU
+   Hai mặt phải ra cùng Σ Channel CM; dòng chênh lệch kiểm điều đó. */
+function nodesOf(D){
+ if(D.ch)return Object.keys(D.ch).map(c=>D.ch[c]);
+ return [].concat(D.a?Object.keys(D.a.ch).map(c=>D.a.ch[c]):[],
+                  D.b?Object.keys(D.b.ch).map(c=>D.b.ch[c]):[]);
+}
+function lineRows(ms,scope){
+ const get=m=>(scope==='co')?dataCo(m):dataFor(m);
+ const used=k=>ms.some(m=>nodesOf(get(m)).some(n=>n&&Math.abs(Number(n[k])||0)>0.004));
+ const grp=(t,keys)=>{const ks=keys.filter(used);
+   return ks.length?[{g:t}].concat(ks.map(k=>({l:LINELBL[k]||k,p:['line',k]}))):[];};
+ return [].concat(
+  grp('Doanh thu — theo dòng',REVK),
+  [{l:'Tổng doanh thu',p:['line','rev'],cls:'cm'}],
+  grp('Chiết khấu / promotion',DISCK),
+  grp('Chi phí trực tiếp của kênh — theo dòng',DIRK),
+  [{l:'Cộng chi phí trực tiếp',p:['line','direct']},
+   {l:'Σ CHANNEL CM — cộng theo dòng',p:['line','channelCM'],cls:'op'}]);
+}
+/* Reconcile  — luôn kèm dòng chênh lệch phải bằng 0 */
+function recRowsBU(){
+ const CHs=curCH(), nm=BU==='BU12'?'SBH':'FinanOne';
+ return [{g:'Reconcile — cùng con số đó, nhìn theo segment'}]
+  .concat(CHs.map(c=>({l:'CM · '+CHLABEL[c],p:['ch',c,'channelCM'],sub:1})))
+  .concat([
+   {l:'= Σ Channel CM — cộng theo segment',p:['bu','channelCM'],cls:'cm'},
+   {l:'Chênh lệch với cách cộng theo dòng (phải = 0)',p:['__gapCMbu'],d:2,cls:'chk'},
+   {g:'Trừ chi phí dùng chung toàn '+nm},
+   {l:'Nền tảng / cloud',p:['sh','cloud'],sub:1},
+   {l:'6.1 Customer Operation',p:['sh','payCS'],sub:1},
+   {l:'6.3 Product Development',p:['sh','payProduct'],sub:1},
+   {l:'6.4 Technology',p:['sh','payTech'],sub:1},
+   {l:'Cộng chi phí dùng chung',p:['sh','platform'],cls:'cm'},
+   {l:'= OP TRƯỚC PHÂN BỔ — '+nm,p:['bu','opBefore'],cls:'op'},
+   {l:'Chênh lệch (phải = 0)',p:['__gapBU'],d:2,cls:'chk'},
+   {g:'Xuống OP sau phân bổ'},
+   {l:'7.x nhận phân bổ từ CSS',p:['sh','alloc'],sub:1},
+   {l:'= OP SAU PHÂN BỔ',p:['bu','opAfter'],cls:'aft'},
+   {l:'Chênh lệch (phải = 0)',p:['__gapAft'],d:2,cls:'chk'}]);
+}
+const recRowsCo=()=>[
+ {g:'Reconcile — cùng con số đó, nhìn theo BU'},
+ {l:'Channel CM · SBH (BU12)',p:['__a','channelCM'],sub:1},
+ {l:'Channel CM · FinanOne (BU3)',p:['__b','channelCM'],sub:1},
+ {l:'= Σ Channel CM — cộng theo BU',p:['__abCM'],cls:'cm'},
+ {l:'Chênh lệch với cách cộng theo dòng (phải = 0)',p:['__gapCMco'],d:2,cls:'chk'},
+ {g:'Trừ chi phí dùng chung'},
+ {l:'Nền tảng dùng chung · SBH',p:['__a','platform'],sub:1},
+ {l:'Nền tảng dùng chung · FinanOne',p:['__b','platform'],sub:1},
+ {l:'CSS giữ lại — phần không phân bổ',p:['__c','opBefore'],sub:1},
+ {l:'= OP TRƯỚC PHÂN BỔ — công ty',p:['bu','opBefore'],cls:'op'},
+ {l:'Chênh lệch (phải = 0)',p:['__gapCo'],d:2,cls:'chk'},
+ {g:'Xuống OP sau phân bổ'},
+ {l:'7.x nhận phân bổ từ CSS',p:['bu','alloc'],sub:1},
+ {l:'= OP SAU PHÂN BỔ',p:['bu','opAfter'],cls:'aft'},
+ {l:'Chênh lệch (phải = 0)',p:['__gapAft'],d:2,cls:'chk'}
+];
+
+/* ================= PHẢI — P&L hợp nhất BU12 / Customer / theo kênh ================= */
+function plRows(ms){return lineRows(ms,'bu');}
+const coRows=(ms)=>[{g:'Hợp nhất công ty — BU12 + BU3 + CSS'}].concat(lineRows(ms,'co'));
+const CUSTROWS=[
+ {g:'A · Biến động customer base'},
+ {l:'Opening',p:['sh','baseStart'],d:0},
+ {l:'+ New (cộng các kênh)',p:['sh','newUsers'],d:0,sub:1},
+ {l:'+ Re-activated',p:['sh','react'],d:0,sub:1},
+ {l:'− Churned',p:['sh','churned'],d:0,sub:1,inv:1},
+ {l:'= Base kênh trực tiếp',p:['sh','baseEnd'],d:0},
+ {l:'+ User đang có từ đối tác',p:['sh','stockUsers'],d:0,sub:1},
+ {l:'= BASE TỔNG',p:['sh','baseTotal'],d:0,cls:'op'},
+ {g:'B · Khách trả phí trong tháng'},
+ {l:'New',p:['sh','newUsers'],d:0},{l:'Re-activated',p:['sh','react'],d:0},
+ {l:'Renewed',p:['sh','renewed'],d:0},{l:'Tổng khách trả phí',p:['sh','paying'],d:0,cls:'cm'},
+ {g:'C · Tỷ lệ & đơn giá'},
+ {l:'L1 — lead (Own)',p:['ch','OWN','L1'],d:0},
+ {l:'CR tổng từ lead',p:['ch','OWN','crTotal'],d:2,avg:1},
+ {l:'Khách bình quân (BU3)',p:['sh','custAvg'],d:0},
+ {l:'L8 đến hạn',p:['sh','due'],d:0},
+ {l:'Renewal rate',p:['sh','renewalPct'],d:1,avg:1},
+ {l:'Kỳ hạn trung bình',p:['sh','avgTerm'],d:1,last:1},
+ {l:'H5 kích hoạt (HLB)',p:['ch','HLB','h5'],d:0},
+ {g:'D · Kiểm chéo'},
+ {l:'Cloud / active user (K VND)',p:['__cloudpu'],d:1,avg:1},
+ {l:'Base cuối / base đầu',p:['__ratio'],d:3,avg:1}
+];
+function pick(D,r){
+ const p=r.p;
+ if(p[0]==='line'){let t=0,any=false;
+   nodesOf(D).forEach(n=>{const v=n?n[p[1]]:undefined;if(v!==undefined&&v!==null&&!isNaN(v)){t+=v;any=true;}});
+   return any?t:null;}
+ if(p[0]==='__gapCMbu'){let t=0;nodesOf(D).forEach(n=>{t+=Number(n.channelCM)||0;});return t-D.bu.channelCM;}
+ if(p[0]==='__gapCMco'){let t=0;nodesOf(D).forEach(n=>{t+=Number(n.channelCM)||0;});
+   return t-((D.a?D.a.bu.channelCM:0)+(D.b?D.b.bu.channelCM:0));}
+ if(p[0]==='__abCM')return (D.a?D.a.bu.channelCM:0)+(D.b?D.b.bu.channelCM:0);
+ if(p[0]==='__abPlat')return (D.a?D.a.bu.platform:0)+(D.b?D.b.bu.platform:0);
+ if(p[0]==='__gapBU')return D.bu.opBefore-(D.bu.channelCM+D.sh.platform);
+ if(p[0]==='__gapAft')return D.bu.opAfter-(D.bu.opBefore+(D.sh&&D.sh.alloc!==undefined&&D.ch?D.sh.alloc:D.bu.alloc));
+ if(p[0]==='__gapCo')return D.bu.opBefore-((D.a?D.a.bu.opBefore:0)+(D.b?D.b.bu.opBefore:0)+(D.c?D.c.bu.opBefore:0));
+ if(p[0]==='__cloudpu')return D.sh.baseAvg?-D.sh.cloud*1000/D.sh.baseAvg:null;
+ if(p[0]==='__ratio')return (D.sh.baseStart&&D.sh.baseTotal)?D.sh.baseTotal/D.sh.baseStart:null;
+ let v;
+ if(p[0]==='__a')v=D.a?D.a.bu[p[1]]:null;
+ else if(p[0]==='__b')v=D.b?D.b.bu[p[1]]:null;
+ else if(p[0]==='__c')v=D.c?D.c.bu[p[1]]:null;
+ else if(p[0]==='ch')v=D.ch[p[1]]?D.ch[p[1]][p[2]]:null;
+ else if(p[0]==='sh')v=D.sh[p[1]];
+ else v=D.bu[p[1]];
+ if(r.inv&&v!==null&&v!==undefined)v=-v;
+ return (v===undefined)?null:v;
+}
+function renderRight(){
+ const ms=showList();
+ const tabs=`<div class="rtabs">
+   <button class="rtab${RTAB==='seg'?' on':''}" data-rtab="seg">P&L · ${CHLABEL[SEG]}</button>
+   <button class="rtab${RTAB==='pl'?' on':''}" data-rtab="pl">P&L ${BU==='BU12'?'SBH':'FinanOne'}</button>
+   <button class="rtab${RTAB==='co'?' on':''}" data-rtab="co">Hợp nhất công ty</button>
+   <button class="rtab${RTAB==='cust'?' on':''}" data-rtab="cust">Customer performance</button>
+   <span class="rmeta">${ms.length} tháng · actual nền xám</span></div>`;
+ if(!ms.length)return `<div class="plwrap">${tabs}<div style="padding:20px;color:var(--muted)">Chưa chọn tháng nào.</div></div>`;
+ const D=ms.map(m=>({m:m,a:isActM(m),d:RTAB==='co'?dataCo(m):dataFor(m)}));
+ const th=D.map(c=>`<th class="${c.a?'a':''}">${c.m}</th>`).join('');
+  let ROWS;
+ if(RTAB==='seg'){const seg=(SEG===BUDEF[BU].shared)?curCH()[0]:SEG;ROWS=segRows(seg,ms);}
+ else if(RTAB==='pl')ROWS=plRows(ms).concat(recRowsBU());
+ else if(RTAB==='co')ROWS=coRows(ms).concat(recRowsCo());
+ else ROWS=CUSTROWS;
+ const body=ROWS.map(r=>{
+  if(r.g)return `<tr class="g"><td class="rl">${r.g}</td>${D.map(()=>'<td></td>').join('')}<td></td></tr>`;
+  const vs=D.map(c=>pick(c.d,r));
+  const ok=vs.filter(v=>v!==null&&v!==undefined);
+  const isChk=(r.cls==='chk');
+  const tds=D.map((c,j)=>{const v=vs[j];
+   if(v===null||v===undefined)return `<td class="${c.a?'a ':''}na">—</td>`;
+   if(isChk)return `<td class="${c.a?'a ':''}${Math.abs(v)<0.005?'okchk':'badchk'}">${Math.abs(v)<0.005?'✓':fmt(v,2)}</td>`;
+   return `<td class="${c.a?'a ':''}${v<0?'neg':''}">${fmt(v,r.d===undefined?0:r.d)}</td>`;}).join('');
+  let tot=null;
+  if(ok.length){ tot = r.last?ok[ok.length-1]
+    : (r.avg?ok.reduce((a,b)=>a+b,0)/ok.length
+    : (r.p[0]==='sh'&&['baseStart','baseTotal','baseEnd','stockUsers'].indexOf(r.p[1])>=0?ok[ok.length-1]
+    : ok.reduce((a,b)=>a+b,0)));}
+  const totCell=isChk
+   ? `<td class="t ${Math.abs(tot||0)<0.005?'okchk':'badchk'}">${Math.abs(tot||0)<0.005?'✓ khớp':fmt(tot,2)}</td>`
+   : `<td class="t ${tot<0?'neg':''}">${tot===null?'—':fmt(tot,r.d===undefined?0:r.d)}</td>`;
+  return `<tr class="${r.cls||''}${r.sub?' sub2':''}"><td class="rl">${r.l}</td>${tds}${totCell}</tr>`;
+ }).join('');
+ if(RTAB==='seg'&&SEG===BUDEF[BU].shared)
+   return `<div class="plwrap">${tabs}<div class="rfoot" style="padding:18px">
+     Đang ở tầng <b>${CHLABEL[SEG]}</b> — tầng này không có P&L kênh. Chọn một kênh ở panel trái, hoặc xem tab P&L ${BU==='BU12'?'SBH':'FinanOne'}.</div></div>`;
+ const foot=RTAB==='pl'
+  ?`<div class="rfoot">Phần trên cộng <b>theo dòng P&L</b> — cùng loại dòng như cấp segment. Phần dưới cộng <b>theo segment</b>. Hai cách phải ra cùng Σ Channel CM. Cloud · 6.1 · 6.3 · 6.4 trừ một lần ở tầng BU, không phân bổ về kênh.</div>`
+  :(RTAB==='seg'?`<div class="rfoot">Kênh <b>${CHLABEL[SEG]}</b> dừng ở <b>Channel CM</b>. Nền tảng dùng chung và back office nằm ở tầng ${BU==='BU12'?'SBH':'FinanOne'} — xem tab kế bên.</div>`
+  :(RTAB==='co'?`<div class="rfoot">Phần trên cộng <b>theo dòng P&L</b> qua cả 8 kênh của hai BU. Phần dưới cộng <b>theo BU</b>. Ba dòng chênh lệch kiểm: hai cách cộng khớp nhau, xuống OP trước phân bổ, và xuống OP sau phân bổ.</div>`
+  :`<div class="rfoot">Base dùng chung toàn SBH. Cột <b>Tổng</b>: dòng tồn lấy tháng cuối, dòng tỷ lệ lấy bình quân, dòng dòng chảy thì cộng.</div>`));
+ return `<div class="plwrap">${tabs}<div class="plscroll"><table class="pl">
+  <thead><tr><th class="rl">${RTAB==='pl'?'Dòng':'Chỉ tiêu'}</th>${th}<th class="t">Tổng</th></tr></thead>
+  <tbody>${body}</tbody></table></div>${foot}</div>`;
+}
+
+/* ================= LƯU TRỮ =================
+   3 lớp:  autosave localStorage  ·  JSON máy đọc (có version + hash)  ·  CSV người đọc
+   SHAPE_VERSION bump mỗi khi đổi hình dạng dữ liệu → bản lưu cũ không nạp đè bừa. */
+const APP_ID="sbh_bu12_mach_van_hanh";
+const SHAPE_VERSION=8;
+const STORAGE_KEY=APP_ID+'_v'+SHAPE_VERSION;
+function hashOf(s){let h=5381;for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))>>>0;return h.toString(16).padStart(8,'0');}
+function payload(){
+ const data={IN:IN,AQ:AQ,ACCS:ACCS,PACC:PACC,PIPE:PIPE,CSSL:CSSL};
+ return {app:APP_ID, appVersion:APP_VERSION, shapeVersion:SHAPE_VERSION,
+   savedAt:new Date().toISOString(), hash:hashOf(JSON.stringify(data)),
+   data:data, ui:{EDITM:EDITM, SHOW:SHOW, RTAB:RTAB, SEG:SEG, BU:BU,
+     panelw:document.documentElement.style.getPropertyValue('--panelw')||DEFW.panel,
+     midw:document.documentElement.style.getPropertyValue('--midw')||DEFW.mid}};
+}
+/* Nạp có kiểm: chỉ nhận khoá còn tồn tại, báo rõ cái gì bị bỏ. */
+function applyPayload(p,label){
+ if(!p||p.app!==APP_ID)return {ok:false,msg:'File không thuộc công cụ này'};
+ const d=p.data||{}; let dropped=[],taken=0;
+ if(d.IN)Object.keys(d.IN).forEach(k=>{
+   if(!DEF[k]){dropped.push('IN.'+k);return;}
+   const v=d.IN[k]; if(!Array.isArray(v)||v.length!==nF){dropped.push('IN.'+k+' (sai độ dài)');return;}
+   IN[k]=v.map(x=>Number(x)||0);taken++;});
+ if(d.AQ)Object.keys(d.AQ).forEach(k=>{
+   if(!AQDEF[k]){dropped.push('AQ.'+k);return;}
+   const v=d.AQ[k]; if(!Array.isArray(v)||v.length!==nA){dropped.push('AQ.'+k+' (sai độ dài)');return;}
+   AQ[k]=v.map(x=>(x===null||x===''||isNaN(x))?null:Number(x));taken++;});
+ const missing=Object.keys(DEF).filter(k=>!d.IN||!d.IN[k]).concat(Object.keys(AQDEF).filter(k=>!d.AQ||!d.AQ[k]));
+ if(d.ACCS&&Array.isArray(d.ACCS)&&d.ACCS.length===ACCS.length){
+   d.ACCS.forEach((a,ai)=>{['name','type','ev','com','contrib'].forEach(f=>{if(a[f]!==undefined)ACCS[ai][f]=a[f];});
+     ['qty','price'].forEach(f=>{if(Array.isArray(a[f])&&a[f].length===nF)ACCS[ai][f]=a[f].map(x=>Number(x)||0);});});
+   taken++;}
+ else if(d.ACCS)dropped.push('ACCS (số dòng khác)');
+ if(Array.isArray(d.PACC)&&d.PACC.length===PACC.length)PACC=d.PACC;
+ if(Array.isArray(d.PIPE))PIPE=d.PIPE;
+ if(Array.isArray(d.CSSL)&&d.CSSL.length===CSSL.length)CSSL=d.CSSL;
+ if(p.ui){ if(p.ui.BU&&BUDEF[p.ui.BU])BU=p.ui.BU; if(p.ui.SEG&&ZN[p.ui.SEG])SEG=p.ui.SEG; if(p.ui.EDITM)EDITM=p.ui.EDITM; if(p.ui.SHOW){ALLM.forEach(m=>SHOW[m]=!!p.ui.SHOW[m]);}
+  if(p.ui.RTAB)RTAB=p.ui.RTAB;
+  if(p.ui.panelw)setW('--panelw',p.ui.panelw); if(p.ui.midw)setW('--midw',p.ui.midw);}
+ const verMsg=(p.shapeVersion!==SHAPE_VERSION)?(' · bản lưu shape v'+p.shapeVersion+', công cụ v'+SHAPE_VERSION):'';
+ return {ok:true,taken:taken,dropped:dropped,missing:missing,
+   msg:label+': nhận '+taken+' trường'+(dropped.length?', bỏ '+dropped.length:'')+(missing.length?', thiếu '+missing.length+' (giữ mặc định)':'')+verMsg};
+}
+let saveT;
+function scheduleSave(){clearTimeout(saveT);saveT=setTimeout(saveLocal,600);}
+function saveLocal(){
+ try{localStorage.setItem(STORAGE_KEY,JSON.stringify(payload()));
+   setSaveInfo('Đã lưu · '+new Date().toLocaleTimeString('vi-VN'));}
+ catch(e){status('Không lưu được: '+e.message,'warn');}
+}
+function loadLocal(){
+ let raw=null; try{raw=localStorage.getItem(STORAGE_KEY);}catch(e){}
+ if(!raw){ /* thử bản lưu shape cũ để không mất công người dùng */
+   for(let v=SHAPE_VERSION-1;v>=1;v--){try{const r=localStorage.getItem(APP_ID+'_v'+v);
+     if(r){const p=JSON.parse(r);const res=applyPayload(p,'Bản lưu shape v'+v);
+       return {found:true,msg:res.msg,old:true};}}catch(e){}}
+   return {found:false};}
+ try{const p=JSON.parse(raw);const res=applyPayload(p,'Bản lưu cục bộ');return {found:true,msg:res.msg,at:p.savedAt};}
+ catch(e){return {found:false,msg:'Bản lưu hỏng, bỏ qua'};}
+}
+function clearLocal(){
+ if(!confirm('Xoá bản lưu trong trình duyệt?\n\nMất: bản lưu tự động.\nGiữ: số đang hiện trên màn hình (chưa mất cho tới khi bạn tải lại trang).'))return;
+ try{for(let v=1;v<=SHAPE_VERSION;v++)localStorage.removeItem(APP_ID+'_v'+v);}catch(e){}
+ setSaveInfo('Đã xoá bản lưu');status('Đã xoá bản lưu cục bộ','warn');
+}
+function download(name,text,mime){
+ const b=new Blob([text],{type:mime||'application/json;charset=utf-8'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;
+ document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},0);
+}
+function stamp(){const d=new Date();const p=n=>String(n).padStart(2,'0');
+ return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes());}
+function exportJSON(){const p=payload();
+ download('SBH_Own_mach_van_hanh_'+stamp()+'.json',JSON.stringify(p,null,1));
+ status('Đã xuất JSON · hash '+p.hash);}
+function importJSON(file){
+ const r=new FileReader();
+ r.onload=()=>{let p;try{p=JSON.parse(r.result);}catch(e){status('File không phải JSON hợp lệ','warn');return;}
+  if(!confirm('Nhập file này?\n\nGhi đè: toàn bộ số plan và số lượng actual đang có.\nGiữ: lịch sử undo.\n\nTrường lạ sẽ bị bỏ, trường thiếu giữ mặc định.'))return;
+  pushUndo();
+  const res=applyPayload(p,'File nhập');
+  if(!res.ok){status(res.msg,'warn');return;}
+  paint();scheduleSave();status(res.msg);
+  if(res.dropped.length)console.warn('Trường bị bỏ:',res.dropped);};
+ r.readAsText(file);
+}
+/* CSV người đọc — đúng bảng đang hiển thị bên phải */
+function exportCSV(){
+ const ms=showList(); if(!ms.length){status('Chưa chọn tháng nào','warn');return;}
+ const D=ms.map(m=>({m:m,a:isActM(m),d:RTAB==='co'?dataCo(m):dataFor(m)}));
+ const rows=(RTAB==='pl')?plRows():(RTAB==='co'?COROWS:CUSTROWS);
+ const val=(d,r)=>pick(d,r);
+ const esc=s=>'"'+String(s).replace(/"/g,'""')+'"';
+ const out=[];
+ out.push(esc('SBH BU12 — '+(RTAB==='pl'?'P&L hợp nhất':'Customer performance')));
+ out.push(esc('Xuất '+new Date().toLocaleString('vi-VN')+' · '+APP_VERSION+' · đơn vị: triệu VND / user'));
+ out.push('');
+ out.push([esc(RTAB==='pl'?'Dòng':'Chỉ tiêu')].concat(D.map(c=>esc(c.m+(c.a?' (actual)':' (plan)')))).join(','));
+ rows.forEach(r=>{
+  if(r.g){out.push(esc(r.g));return;}
+  const cells=D.map(c=>{const v=val(c.d,r);return (v===null||v===undefined)?'':String(Math.round(v*10000)/10000);});
+  out.push([esc(r.l)].concat(cells).join(','));});
+ download('SBH_Own_'+(RTAB==='pl'?'PL':'Customer')+'_'+stamp()+'.csv','\ufeff'+out.join('\n'),'text/csv;charset=utf-8');
+ status('Đã xuất CSV — '+(RTAB==='pl'?'P&L':'Customer performance'));
+}
+function setSaveInfo(t){const e=document.getElementById('saveInfo');if(e)e.textContent=t;}
+
+/* ===== paint + sự kiện ===== */
+function paint(){
+ document.getElementById('panel').innerHTML=renderPanel();
+ document.getElementById('mid').innerHTML=renderMid();
+ document.getElementById('right').innerHTML=renderRight();
+ document.querySelectorAll('[data-show]').forEach(el=>el.onchange=()=>{SHOW[el.dataset.show]=el.checked;paint();scheduleSave();});
+ document.querySelectorAll('[data-edit]').forEach(el=>el.onchange=()=>{
+   if(el.checked)EDITM[el.dataset.edit]=true;else delete EDITM[el.dataset.edit];paint();scheduleSave();});
+ const bulk=(attr,tgt)=>document.querySelectorAll('['+attr+']').forEach(b=>b.onclick=()=>{const s=b.dataset[tgt];
+   ALLM.forEach(m=>{const on=(s==='all')||(s==='act'&&isActM(m))||(s==='plan'&&!isActM(m));
+     if(tgt==='sel')SHOW[m]=on; else {if(on)EDITM[m]=true;else delete EDITM[m];}});paint();scheduleSave();});
+ bulk('data-sel','sel'); bulk('data-esel','esel');
+ document.querySelectorAll('[data-seg]').forEach(b=>b.onclick=()=>{SEG=b.dataset.seg;paint();scheduleSave();});
+ document.querySelectorAll('[data-bu]').forEach(b=>b.onclick=()=>{BU=b.dataset.bu;SEG=BUDEF[BU].ch[0];paint();scheduleSave();});
+ document.querySelectorAll('[data-pacc]').forEach(el=>el.onchange=()=>{pushUndo();
+   const a=PACC[+el.dataset.pacc],f=el.dataset.f;
+   if(f==='qty'||f==='price')a[f][+el.dataset.mi]=parseFloat(el.value)||0;
+   else if(f==='ev'||f==='com'||f==='share')a[f]=parseFloat(el.value)||0; else a[f]=el.value;
+   paint();scheduleSave();status('Cập nhật deal · '+(a.name||''));});
+ document.querySelectorAll('[data-pipe]').forEach(el=>el.onchange=()=>{pushUndo();
+   const p=PIPE[+el.dataset.pipe],f=el.dataset.f;
+   if(f==='val')p.val[+el.dataset.mi]=parseFloat(el.value)||0;
+   else if(f==='share')p.share=parseFloat(el.value)||0; else p.name=el.value;
+   paint();scheduleSave();status('Cập nhật pipeline');});
+ document.querySelectorAll('[data-css]').forEach(el=>el.onchange=()=>{pushUndo();
+   const x=CSSL[+el.dataset.css],f=el.dataset.f;
+   if(f==='g')x.g[+el.dataset.mi]=parseFloat(el.value)||0; else x[f]=parseFloat(el.value)||0;
+   paint();scheduleSave();status('Cập nhật CSS · '+x.l);});
+ const pa=document.getElementById('pipeAdd');
+ if(pa)pa.onclick=()=>{pushUndo();PIPE.push({name:'Đối tác mới',share:50,val:a5(0),contrib:'none'});paint();scheduleSave();};
+ document.querySelectorAll('[data-acc]').forEach(el=>{
+  const h=()=>{pushUndo();const a=ACCS[+el.dataset.acc],f=el.dataset.f;
+   if(f==='qty'||f==='price')a[f][+el.dataset.mi]=parseFloat(el.value)||0;
+   else if(f==='ev'||f==='com')a[f]=parseFloat(el.value)||0;
+   else a[f]=el.value;
+   paint();scheduleSave();status('Cập nhật đối tác · '+(a.name||''));};
+  el.onchange=h;});
+ document.querySelectorAll('[data-rtab]').forEach(b=>b.onclick=()=>{RTAB=b.dataset.rtab;paint();scheduleSave();});
+ document.querySelectorAll('[data-in]').forEach(el=>el.onchange=()=>{
+  pushUndo();IN[el.dataset.in][+el.dataset.mi]=parseFloat(el.value)||0;paint();scheduleSave();
+  status('Cập nhật '+el.dataset.in+' · '+FM[+el.dataset.mi]);});
+ document.querySelectorAll('[data-aq]').forEach(el=>el.onchange=()=>{
+  pushUndo();const v=el.value===''?null:parseFloat(el.value);
+  AQ[el.dataset.aq][+el.dataset.mi]=(v===null||isNaN(v))?null:v;paint();scheduleSave();
+  status('Cập nhật số lượng · '+AM[+el.dataset.mi]);});
+ const B=(id,fn)=>{const e=document.getElementById(id);if(e)e.onclick=fn;};
+ B('btnSave',()=>{saveLocal();status('Đã lưu vào trình duyệt');});
+ B('btnExport',exportJSON); B('btnCSV',exportCSV); B('btnClear',clearLocal);
+ B('btnImport',()=>document.getElementById('fileIn').click());
+ const f=document.getElementById('fileIn');
+ if(f)f.onchange=e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value='';};
+}
+const UNDO=[];
+const snapshot=()=>JSON.stringify({IN:IN,AQ:AQ,ACCS:ACCS,PACC:PACC,PIPE:PIPE,CSSL:CSSL});
+function pushUndo(){UNDO.push(snapshot());if(UNDO.length>60)UNDO.shift();syncUndo();}
+function syncUndo(){const b=document.getElementById('undoBtn');b.textContent='↩ Undo ('+UNDO.length+')';b.disabled=!UNDO.length;}
+document.getElementById('undoBtn').onclick=()=>{if(!UNDO.length)return;
+ const s=JSON.parse(UNDO.pop());IN=s.IN;AQ=s.AQ;if(s.ACCS)ACCS=s.ACCS;if(s.PACC)PACC=s.PACC;if(s.PIPE)PIPE=s.PIPE;if(s.CSSL)CSSL=s.CSSL;syncUndo();paint();scheduleSave();status('Đã hoàn tác','warn');};
+document.getElementById('resetBtn').onclick=()=>{
+ if(!confirm('Đưa mọi ô về mốc ban đầu?\n\nMất: số plan đã sửa VÀ số lượng đã điền cho tháng actual.\nGiữ: lịch sử undo, lựa chọn tháng, bản lưu sẽ được ghi đè sau 0.6s.'))return;
+ pushUndo();Object.keys(DEF).forEach(k=>IN[k]=DEF[k].v.slice());
+ Object.keys(AQDEF).forEach(k=>AQ[k]=a7(null));ACCS=PTN_ACC0.map(a=>({name:a.name,type:a.type,unit:a.unit,ev:a.ev,com:a.com,qty:a.qty.slice(),price:a.price.slice(),contrib:(a.unit==='user'?'stock':'none')}));paint();scheduleSave();status('Đã về mốc ban đầu','warn');};
+let stT;
+function status(msg,kind='ok'){const p=document.getElementById('statusPill');
+ p.className='pill-st on '+kind;p.textContent=msg;clearTimeout(stT);stT=setTimeout(()=>p.classList.remove('on'),4000);}
+document.getElementById('tgPanel').onclick=()=>document.getElementById('shell').classList.toggle('collapsed');
+/* ===== Kéo giãn ranh giới =====
+   Trước v0.9.3: gripR ghi thẳng style.gridTemplateColumns nên đè lên --panelw,
+   khiến gripL mất tác dụng sau lần kéo đầu. Nay mỗi tay nắm ghi một biến riêng.
+   Dải kéo cũng chỉ 6px và nằm sát thanh cuộn panel nên gần như không bấm trúng. */
+const DEFW={panel:'20%',mid:'1fr'};
+function setW(v,val){document.documentElement.style.setProperty(v,val);}
+function shellBox(){return document.getElementById('shell').getBoundingClientRect();}
+function panelW(){return document.getElementById('panel').offsetWidth;}
+function drag(g,move){
+ const start=e=>{
+  e.preventDefault();
+  g.classList.add('dragging');document.body.classList.add('resizing');
+  const mv=ev=>move(ev.clientX);
+  const up=()=>{g.classList.remove('dragging');document.body.classList.remove('resizing');
+   document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);
+   document.removeEventListener('touchmove',tm);document.removeEventListener('touchend',up);
+   scheduleSave();};
+  const tm=ev=>{if(ev.touches&&ev.touches[0])move(ev.touches[0].clientX);};
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+  document.addEventListener('touchmove',tm,{passive:false});document.addEventListener('touchend',up);
+ };
+ g.onmousedown=start;
+ g.ontouchstart=start;
+ g.onkeydown=e=>{                      /* bàn phím: mũi tên trái/phải */
+  if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+  e.preventDefault();
+  const box=shellBox(),d=(e.key==='ArrowLeft'?-24:24);
+  move((g.id==='gripL'?panelW():panelW()+12+document.getElementById('mid').offsetWidth)+box.left+d);
+ };
+}
+drag(document.getElementById('gripL'),x=>{
+ const box=shellBox();
+ const w=Math.max(160,Math.min(x-box.left,box.width*0.5));
+ setW('--panelw',w+'px');
+});
+drag(document.getElementById('gripR'),x=>{
+ const box=shellBox(),pw=panelW();
+ const maxMid=Math.max(240,box.width-pw-24-260);
+ const mw=Math.max(240,Math.min(x-box.left-pw-12,maxMid));
+ setW('--midw',mw+'px');
+});
+document.getElementById('gripL').ondblclick=()=>{setW('--panelw',DEFW.panel);scheduleSave();status('Về bề rộng mặc định');};
+document.getElementById('gripR').ondblclick=()=>{setW('--midw',DEFW.mid);scheduleSave();status('Về bề rộng mặc định');};
+
+/* ===== khởi động ===== */
+const boot=loadLocal();
+paint();syncUndo();
+if(boot.found){setSaveInfo(boot.at?('Đã lưu · '+new Date(boot.at).toLocaleString('vi-VN')):'Đã nạp bản lưu');
+ status(boot.msg,boot.old?'warn':'ok');}
+else{setSaveInfo('Chưa có bản lưu');
+ status('Chọn nhiều tháng nhập để đặt actual cạnh plan làm baseline','warn');}
+</script></body></html>
