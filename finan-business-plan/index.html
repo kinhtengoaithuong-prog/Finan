@@ -35,8 +35,31 @@ h1{font-family:'Noto Serif Display',Georgia,serif;font-size:16px;font-weight:700
 
 /* ===== 20 | 40 | 40 ===== */
 #shell{flex:1 1 auto;display:grid;grid-template-columns:var(--panelw) 12px var(--midw) 12px 1fr;min-height:0}
-#shell.collapsed{grid-template-columns:0 0 var(--midw) 12px 1fr}
+/* LỖI trước: khi ẩn bớt cột bằng display:none, các phần tử còn lại bị grid
+   TỰ ĐỘNG xếp lại từ cột 1 — mà cột 1 đang khai 0px. #mid và #right rơi vào
+   track rộng 0 nên màn hình trắng. Cách chữa: khai lại đúng số track còn dùng,
+   và chỉ định grid-column tường minh cho phần tử còn hiện. */
+#shell.collapsed{grid-template-columns:var(--midw) 12px 1fr}
 #shell.collapsed #gripL{display:none}
+#shell.collapsed #mid{grid-column:1}
+#shell.collapsed #gripR{grid-column:2}
+#shell.collapsed #right{grid-column:3}
+/* Chế độ P&L toàn màn hình — ẩn panel trái và vùng nhập giữa */
+#shell.focus{grid-template-columns:1fr}
+#shell.focus #panel,#shell.focus #mid,#shell.focus .grip{display:none}
+#shell.focus #right{grid-column:1}
+#shell.focus #right{padding:12px 18px}
+#shell.focus .plscroll{max-height:calc(100vh - 128px)}
+/* Ẩn RIÊNG vùng nhập, giữ panel trái */
+#shell.nomid{grid-template-columns:var(--panelw) 12px 1fr}
+#shell.nomid #mid,#shell.nomid #gripR{display:none}
+#shell.nomid #panel{grid-column:1}
+#shell.nomid #gripL{grid-column:2}
+#shell.nomid #right{grid-column:3}
+#shell.nomid.collapsed{grid-template-columns:1fr}
+#shell.nomid.collapsed #right{grid-column:1}
+.btn.focuson{background:var(--own);border-color:var(--own);color:#fff}
+.focus-hint{font-size:11px;color:var(--muted);margin-left:auto;font-style:italic}
 .pane{min-height:0;overflow:auto;padding:12px}
 #panel{background:var(--card);border-right:1px solid var(--line)}
 #shell.collapsed #panel{display:none}
@@ -55,6 +78,7 @@ body.resizing *{cursor:col-resize!important}
 
 .dbanner{border-radius:9px;padding:9px 11px;margin-bottom:12px;font-size:11.5px;line-height:1.45}
 .dbanner.ok{background:var(--soft);border-left:3px solid var(--own);color:#2b4a3f}
+.dbanner.warnsrc{background:#fff9e8;border-left:3px solid var(--warn);color:#5c4410}
 .dbanner.empty{background:var(--warnbg);border-left:3px solid var(--warn);color:#5c4410}
 .dbanner .dv{display:block;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;margin-top:3px}
 .dbanner .btn{margin-top:7px}
@@ -121,7 +145,13 @@ input.num.empty{background:#fbfbfa;border-style:dashed}
 .rtab:hover{color:var(--own)}
 .rtab.on{background:var(--own);color:#fff}
 .rtab:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(11,93,75,.25)}
+.tabsub{display:block;font-size:9.5px;font-weight:400;opacity:.75;margin-top:1px}
+.rtab{line-height:1.25}
 .rmeta{margin-left:auto;font-size:11px;color:var(--muted)}
+.filekinds{font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.filekinds b{color:var(--ink);display:block;margin-bottom:3px}
+.filekinds div{margin-top:3px}
+.fk{display:inline-block;font-weight:800;color:var(--own);background:var(--soft);border-radius:5px;padding:0 5px;margin-right:4px}
 .saveinfo{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);padding:6px 0 0}
 .dbtns{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
 .dbtns .btn{font-size:11px;padding:4px 6px;text-align:center}
@@ -139,6 +169,7 @@ table.acc td.rev{text-align:right;font-family:'DM Mono',monospace;font-weight:80
 table.acc input.txt{width:118px;font-size:11px;padding:3px 5px;border:1px solid var(--line);border-radius:5px}
 table.acc input.num.sm{width:62px;font-size:11px;padding:3px 4px}
 table.acc select{font-size:10.5px;padding:2px 4px;border:1px solid var(--line);border-radius:5px;background:#fff}
+table.acc td.warncell{background:var(--warnbg)}
 table.acc tr.badrow td{background:#fbeeeb}
 table.acc td.okchk{color:var(--own);font-weight:800;text-align:center}
 table.acc td.badchk{color:var(--neg);font-weight:800;text-align:center}
@@ -147,9 +178,20 @@ table.acc td.rl small{display:block;font-size:9.5px;color:var(--muted);font-styl
 .zrow.chkrow .val.okchk{color:var(--own);font-weight:800}
 .zrow.chkrow .val.badchk{color:var(--neg);font-weight:800}
 table.pl td.okchk{color:var(--own);font-weight:800}
+table.pl td.t.badchk{font-size:10px;white-space:normal;line-height:1.3}
 table.pl td.badchk{color:var(--neg);font-weight:800;background:#fbeeeb}
 table.pl tr.chk td{background:#f7faf8;font-size:10.5px;color:var(--muted);border-top:1px dashed var(--line)}
 table.pl tr.chk td.rl{background:#f7faf8;font-style:italic}
+.segbar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:7px 12px;background:#f7faf8;border-bottom:1px solid var(--line)}
+.sblab{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-right:3px}
+.sbsp{flex:1}
+.chip{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:3px 11px;
+ font-size:11.5px;font-weight:800;cursor:pointer}
+.chip:hover{border-color:var(--own);color:var(--own)}
+.chip:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(11,93,75,.25)}
+.chip.on{background:var(--own);border-color:var(--own);color:#fff}
+.chip i{font-style:normal;font-size:9px;opacity:.7;margin-left:4px}
+.chip.q{border-style:dashed;font-weight:600}
 .rfoot{padding:8px 12px;font-size:11px;color:var(--muted);border-top:1px solid var(--line);background:#fbfcfb}
 .plwrap{background:var(--card);border:1.5px solid var(--own);border-radius:11px;overflow:hidden}
 .plh{padding:9px 13px;background:var(--soft);border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:9px}
@@ -165,6 +207,16 @@ table.pl .rl{text-align:left;font-family:'Outfit',sans-serif;position:sticky;lef
 table.pl th.rl{background:var(--ink);z-index:4}
 table.pl td.a{background:#f7f8f7;color:#5f6a63}
 table.pl td.t{background:var(--soft);font-weight:800}
+table.pl tr.g.grpx td{background:#eaf1eb}
+table.pl tr.g.grpx td.rl{background:#eaf1eb;cursor:default}
+table.pl tr.g.grpx td{font-family:'DM Mono',monospace;font-weight:800;color:var(--own);font-size:11px;text-transform:none}
+.xdel{font-size:11px;padding:1px 6px;color:var(--neg)}
+.xdel:hover{border-color:var(--neg);color:var(--neg)}
+.gtog{border:1px solid var(--line);background:#fff;color:var(--own);border-radius:5px;font-size:10px;
+ width:18px;height:18px;line-height:1;cursor:pointer;margin-right:7px;padding:0}
+.gtog:hover{border-color:var(--own);background:var(--soft)}
+.gtog:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(11,93,75,.25)}
+.gn{font-weight:400;color:var(--muted);font-size:10px;margin-left:7px;font-family:'Outfit',sans-serif;text-transform:none}
 table.pl tr.g td{background:#f1f5f2;font-weight:800;color:var(--own);font-size:10px;text-transform:uppercase}
 table.pl tr.g td.rl{background:#f1f5f2}
 table.pl tr.cm td{background:var(--soft);font-weight:800}
@@ -190,6 +242,23 @@ table.pl td.neg, table.pl tr.cm td.neg, table.pl tr.op td.neg,
 table.pl tr.aft td.neg, table.pl tr.sub2 td.neg, table.pl td.a.neg, table.pl td.t.neg{color:var(--neg)!important}
 .val.neg, .cell .val.neg, .cell .val.imp.neg, .lad-row.after .lcell .val.neg{color:var(--neg)!important}
 table.acc td.rev.neg{color:var(--neg)!important}
+
+/* ===== Dải màu cho vùng RECONCILE — tách khỏi P&L chính =====
+   P&L chính dùng xanh lá; reconcile dùng tím để mắt biết ngay đây là
+   phần đối chiếu, không phải dòng P&L mới. */
+table.pl tr.recrow td{background:#f5f3fb!important;border-left:none}
+table.pl tr.recrow td.rl{background:#f5f3fb!important;box-shadow:inset 3px 0 0 #b9b0e0}
+table.pl tr.recrow td.a{background:#f1eff8!important}
+table.pl tr.g.recrow td{background:#e9e4f6!important;color:#4a3f8f!important;font-family:'Outfit',sans-serif;
+ font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+table.pl tr.g.recrow td.rl{background:#e9e4f6!important;box-shadow:inset 3px 0 0 #7c6fc0}
+table.pl tr.recrow.cm td{background:#ece8f8!important;font-weight:800;color:#4a3f8f}
+table.pl tr.recrow.cm td.rl{background:#ece8f8!important}
+table.pl tr.recrow.chk td{background:#faf9fd!important;color:#8b84ab}
+table.pl tr.recrow.chk td.rl{background:#faf9fd!important}
+table.pl tr.recrow td.neg{color:var(--neg)!important}
+table.pl tr.recrow td.okchk{color:var(--own)!important}
+table.pl tr.recrow td.badchk{color:var(--neg)!important;background:#fbeeeb!important}
 </style>
 </head>
 <body>
@@ -199,6 +268,8 @@ table.acc td.rev.neg{color:var(--neg)!important}
   <span class="badge" id="verBadge"></span>
   <span class="stamp" id="relStamp"></span>
   <span class="sp"></span>
+  <button class="btn" id="tgMid" title="Ẩn/hiện vùng nhập liệu ở giữa">▥ Vùng nhập</button>
+  <button class="btn" id="tgFocus" title="Ẩn panel và vùng nhập để xem P&amp;L toàn màn hình · Esc để thoát">⛶ P&amp;L toàn màn hình</button>
   <button class="btn" id="undoBtn" disabled>↩ Undo (0)</button>
   <button class="btn" id="btnSave">💾 Lưu</button>
   <button class="btn" id="resetBtn">Về mốc ban đầu</button>
@@ -213,8 +284,8 @@ table.acc td.rev.neg{color:var(--neg)!important}
   <div class="pane" id="right"></div>
 </div>
 <script>
-const APP_VERSION='v1.0';
-const BUILD_STAMP='30/08/2026 · KHUNG RỖNG — dữ liệu nạp từ finan_data_2026.json';
+const APP_VERSION='v3.4';
+const BUILD_STAMP='03/09/2026 · khối phân bổ 7.x không còn biến mất khi tắt bớt kênh';
 document.getElementById('verBadge').textContent=APP_VERSION;
 document.getElementById('relStamp').textContent=BUILD_STAMP;
 document.getElementById('docTitle').textContent='SBH — mạch vận hành BU12 '+APP_VERSION;
@@ -225,7 +296,7 @@ document.getElementById('docTitle').textContent='SBH — mạch vận hành BU12
                     (3) người dùng bấm "Nạp dữ liệu" chọn file
    Chưa nạp gì thì mọi ô = 0, bảng vẫn dựng được để xem cấu trúc. */
 const DATA_URL='./finan_data_2026.json';
-let ACTS={}, ACTS3={}, PTN_ACC0=[], PPN_ACC0=[], DATA_META=null;
+let ACTS={}, ACTS3={}, PTN_ACC0=[], PPN_ACC0=[], DATA_META=null, DATA_SRC=null;
 const __unused_PTN_ACC0=[{"name": "VNPT", "type": "SAAS", "unit": "user", "ev": 50, "com": 25, "qty": [500, 500, 500, 500, 500], "price": [0.72, 0.72, 0.72, 0.72, 0.72]}, {"name": "HD Bank", "type": "SAAS", "unit": "user", "ev": 50, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.45, 0.45, 0.45, 0.45, 0.45]}, {"name": "TP Bank", "type": "SAAS", "unit": "user", "ev": 0, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.1, 0.1, 0.1, 0.1, 0.1]}, {"name": "FE", "type": "SAAS", "unit": "user", "ev": 0, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0.54, 0.54, 0.54, 0.54, 0.54]}, {"name": "Shinhan", "type": "SAAS", "unit": "user", "ev": 100, "com": 0, "qty": [700, 700, 500, 500, 500], "price": [0.5, 0.5, 0.5, 0.5, 0.5]}, {"name": "Shinhan brand", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 1, 0, 0], "price": [1000, 1000, 600, 0, 0]}, {"name": "HLB brand", "type": "Tech service", "unit": "account", "ev": 0, "com": 0, "qty": [1, 0, 0, 0, 0], "price": [550, 0, 0, 0, 0]}, {"name": "Unilever Pilot", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 1, 0, 0], "price": [54, 54, 54, 500, 500]}, {"name": "Shinhan", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [1, 1, 1, 1, 1], "price": [132, 132, 132, 132, 132]}, {"name": "HLB", "type": "Tech service", "unit": "package", "ev": 0, "com": 0, "qty": [1, 1, 0, 0, 0], "price": [2, 2, 0, 0, 0]}, {"name": "Galaxy", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0, 0, 0, 0, 0]}, {"name": "HDbank", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 0, 0, 0], "price": [0, 0, 0, 0, 0]}, {"name": "Placeholder", "type": "Tech service", "unit": "package", "ev": 100, "com": 0, "qty": [0, 0, 1, 1, 1], "price": [0, 0, 2000, 2000, 2000]}];
 
 const AM=['T1','T2','T3','T4','T5','T6','T7'], FM=['T8','T9','T10','T11','T12'];
@@ -254,7 +325,6 @@ const DEF={
  o_aovSelf:{v:a5(0),u:'tr',src:'seed',ch:'OWN'}, o_aovTele:{v:a5(0),u:'tr',src:'seed',ch:'OWN'},
  o_aovDirect:{v:a5(0),u:'tr',src:'seed',ch:'OWN'}, o_aovBD:{v:a5(0),u:'tr',src:'seed',ch:'OWN'},
  o_aovRenew:{v:a5(0),u:'tr',src:'none',ch:'OWN'}, o_aovReact:{v:a5(0),u:'tr',src:'none',ch:'OWN'},
- o_shareRenew:{v:a5(0),u:'%',src:'none',ch:'OWN'},
  o_attachHw:{v:a5(0),u:'%',src:'split',ch:'OWN'}, o_priceHw:{v:a5(0),u:'tr',src:'split',ch:'OWN'},
  o_attachSvc:{v:a5(0),u:'%',src:'split',ch:'OWN'}, o_feeSvc:{v:a5(0),u:'tr/th',src:'split',ch:'OWN'},
  o_acctCust:{v:a5(0),u:'khách',src:'seed',ch:'OWN'}, o_acctFee:{v:a5(0),u:'tr',src:'seed',ch:'OWN'},
@@ -317,9 +387,10 @@ function engOwn(i,sh){                      /* kênh Own — cỗ máy lead */
  o.l8Direct=g('o_hcDirect',i)*g('o_prodDirect',i); o.l8BD=g('o_hcBD',i)*g('o_prodBD',i);
  o.newUsers=o.l8Self+o.l8Tele+o.l8Direct+o.l8BD;
  o.crTotal=o.L1?(o.l8Self+o.l8Tele)/o.L1*100:0;
- /* tái tục & re-activated thuộc tầng chung, kênh Own nhận phần được chia */
- o.renewed=(sh.renewed||0)*g('o_shareRenew',i)/100;
- o.react=(sh.react||0)*g('o_shareRenew',i)/100;
+ /* Tái tục và re-activated ghi TOÀN BỘ về kênh Own — Own là nơi chịu trách nhiệm
+    giữ và tái tục khách, bất kể ban đầu khách đến từ nguồn nào. Không có hệ số chia. */
+ o.renewed=sh.renewed||0;
+ o.react=sh.react||0;
  o.revSelf=o.l8Self*g('o_aovSelf',i); o.revTele=o.l8Tele*g('o_aovTele',i);
  o.revDirect=o.l8Direct*g('o_aovDirect',i); o.revBD=o.l8BD*g('o_aovBD',i);
  o.revNew=o.revSelf+o.revTele+o.revDirect+o.revBD;
@@ -383,10 +454,19 @@ function calcAll(){
   const pre={OWN:engOwn(i,{baseAvg:0,renewed:sh.renewed,react:sh.react}),PTN:engPtn(i,sh),HLB:engHlb(i,sh)};
   sh.newUsers=CH.reduce((a,c)=>a+(pre[c].newUsers||0),0);
   sh.stockUsers=CH.reduce((a,c)=>a+(pre[c].stockUsers||0),0);
-  sh.baseEnd=sh.baseStart+sh.newUsers-sh.churned+sh.react;
-  sh.baseTotal=sh.baseEnd+sh.stockUsers;          /* base dùng chung, gồm user từ đối tác */
-  sh.baseAvg=(sh.baseStart+sh.stockUsers+sh.baseTotal)/2;
-  sh.paying=sh.newUsers+sh.react+sh.renewed;
+  sh.baseEnd=sh.baseStart+sh.newUsers-sh.churned+sh.react;   /* riêng kênh trực tiếp */
+  sh.baseTotal=sh.baseEnd+sh.stockUsers;                      /* gồm user từ đối tác */
+  /* ===== Biến động phải khép ở MỨC TỔNG =====
+     Lỗi trước: opening lấy base kênh trực tiếp, closing lấy base tổng → hụt đúng
+     phần user đối tác, tháng sau mở lại thấp hơn tháng trước đóng.
+     Nay openTotal = closing tổng tháng trước, thay đổi stock đối tác là MỘT DÒNG CHẢY. */
+  sh.stockPrev=(i===0)?sh.stockUsers:out[i-1].sh.stockUsers;
+  sh.dStock=sh.stockUsers-sh.stockPrev;
+  sh.openTotal=(i===0)?(sh.baseStart+sh.stockUsers):out[i-1].sh.baseTotal;
+  sh.baseAvg=(sh.openTotal+sh.baseTotal)/2;
+  sh.payingPartner=sh.stockUsers;   /* user đối tác dạng stock trả phí hàng tháng */
+  sh.payingDirect=sh.newUsers+sh.react+sh.renewed;
+  sh.paying=sh.payingDirect+sh.payingPartner;
   /* vòng 2: chạy lại kênh với baseAvg thật (chỉ Own dùng base cho service attach) */
   const ch={OWN:chAgg(engOwn(i,sh)),PTN:chAgg(engPtn(i,sh)),HLB:chAgg(engHlb(i,sh))};
   sh.cloud=-sh.baseAvg*g('s_cloudPerUser',i)/1000;
@@ -441,8 +521,12 @@ function actShared(i){
  sh.baseEnd=(sh.baseStart!==null&&sh.newUsers!==null&&sh.churned!==null)
    ?sh.baseStart+sh.newUsers+(sh.react||0)-sh.churned:null;
  sh.baseTotal=(sh.baseEnd!==null)?sh.baseEnd+(sh.ptnUsers||0):null;
- sh.baseAvg=(sh.baseStart!==null&&sh.baseTotal!==null)?(sh.baseStart+(sh.ptnUsers||0)+sh.baseTotal)/2:null;
- sh.paying=(sh.newUsers!==null&&sh.renewed!==null)?sh.newUsers+(sh.react||0)+sh.renewed:null;
+ sh.stockUsers=sh.ptnUsers; sh.stockPrev=null; sh.dStock=null;
+ sh.openTotal=(sh.baseStart!==null)?sh.baseStart+(sh.ptnUsers||0):null;
+ sh.baseAvg=(sh.openTotal!==null&&sh.baseTotal!==null)?(sh.openTotal+sh.baseTotal)/2:null;
+ sh.payingPartner=sh.ptnUsers;
+ sh.payingDirect=(sh.newUsers!==null&&sh.renewed!==null)?sh.newUsers+(sh.react||0)+sh.renewed:null;
+ sh.paying=(sh.payingDirect!==null)?sh.payingDirect+(sh.ptnUsers||0):null;
  sh.L1=qv('L1'); sh.h5=qv('h5');
  sh.crTotal=(sh.L1&&qv('l8Self')!==null&&qv('l8Tele')!==null)?(qv('l8Self')+qv('l8Tele'))/sh.L1*100:null;
  sh.impCPL=(sh.L1)?-AL('OWN','5.3 Performance Marketing',i)*1000/sh.L1:null;
@@ -468,82 +552,97 @@ const ZN={
    {l:'Ngân sách ads',k:'o_ads'},{l:'CPL',k:'o_cpl'},
    {l:'L1 — lead thu về',o:'L1',d:0,f:'ngân sách ÷ CPL',aq:'L1',ai:'impCPL',al:'CPL suy ra',au:'K VND'},
    {l:'CR self-serve',k:'o_crSelf'},{l:'CR telesale',k:'o_crTele'},
-   {l:'L8 mới · self-serve',o:'l8Self',d:0,aq:'l8Self'},{l:'L8 mới · telesale',o:'l8Tele',d:0,aq:'l8Tele'}]},
+   {l:'L8 mới · self-serve',o:'l8Self',d:0,aq:'l8Self',f:'L1 × CR self-serve %'},{l:'L8 mới · telesale',o:'l8Tele',d:0,aq:'l8Tele',f:'L1 × CR telesale %'}]},
   {n:'2',t:'Kênh có người bán',s:'Người × năng suất, không qua pool lead.',r:[
    {l:'Direct — số nhân viên',k:'o_hcDirect'},{l:'Direct — năng suất',k:'o_prodDirect'},
-   {l:'L8 mới · direct',o:'l8Direct',d:0,aq:'l8Direct'},
+   {l:'L8 mới · direct',o:'l8Direct',d:0,aq:'l8Direct',f:'số nhân viên × năng suất mỗi người'},
    {l:'BD — số nhân viên',k:'o_hcBD'},{l:'BD — năng suất',k:'o_prodBD'},
-   {l:'L8 mới · BD',o:'l8BD',d:0,aq:'l8BD'},
-   {l:'KHÁCH MỚI — tổng',o:'newUsers',d:0,big:1}]},
-  {n:'3',t:'Doanh thu tiền mặt',s:'Tái tục và re-activated lấy từ tầng chung theo % chia cho kênh.',r:[
+   {l:'L8 mới · BD',o:'l8BD',d:0,aq:'l8BD',f:'số nhân viên × năng suất mỗi người'},
+   {l:'KHÁCH MỚI — tổng',o:'newUsers',d:0,big:1,f:'self-serve + telesale + direct + BD'}]},
+  {n:'3',t:'Doanh thu tiền mặt',s:'Khách mới theo kênh. Tái tục và re-activated ghi 100% về Own, bất kể nguồn ban đầu.',r:[
    {l:'AOV self-serve',k:'o_aovSelf'},{l:'AOV telesale',k:'o_aovTele'},
    {l:'AOV direct',k:'o_aovDirect'},{l:'AOV BD',k:'o_aovBD'},
-   {l:'% tái tục thuộc kênh Own',k:'o_shareRenew'},
+   {l:'L8 đến hạn — từ tầng Chung SBH',sh:'due',d:0,f:'chỉ xem · sửa ở tab Chung SBH'},
+   {l:'Renewal rate — từ tầng Chung SBH',sh:'renewalPct',d:1,f:'chỉ xem · sửa ở tab Chung SBH — ĐÂY mới là thứ quyết định số tái tục và rời bỏ'},
+   {l:'Số tái tục toàn SBH',sh:'renewed',d:0,f:'L8 đến hạn × renewal rate'},
+   {l:'Số rời bỏ toàn SBH',sh:'churned',d:0,f:'L8 đến hạn − số tái tục'},
    {l:'AOV tái tục',k:'o_aovRenew'},{l:'AOV re-activated',k:'o_aovReact'},
-   {l:'Doanh thu khách mới',o:'revNew',d:1},{l:'Doanh thu tái tục',o:'revRenew',d:1},
-   {l:'1.1 Cash revenue — phần mềm',o:'1.1',d:1,big:1}]},
+   {l:'Doanh thu khách mới',o:'revNew',d:1,f:'Σ (L8 mới từng kênh × AOV kênh đó)'},{l:'Doanh thu tái tục',o:'revRenew',d:1,f:'số tái tục toàn SBH × AOV tái tục — ghi 100% về kênh Own, nơi chịu trách nhiệm giữ khách'},
+   {l:'1.1 Cash revenue — phần mềm',o:'1.1',d:1,big:1,f:'khách mới + tái tục + re-activated'}]},
   {n:'4',t:'Bán kèm',s:'Thiết bị trên khách mới · dịch vụ trên base dùng chung (G2).',r:[
    {l:'Attach hardware',k:'o_attachHw'},{l:'Giá thiết bị',k:'o_priceHw'},
-   {l:'1.2 Revenue_Hardware',o:'1.2',d:1,aq:'unitsHw'},
+   {l:'1.2 Revenue_Hardware',o:'1.2',d:1,aq:'unitsHw',f:'L8 mới × attach% × giá thiết bị'},
    {l:'Attach dịch vụ',k:'o_attachSvc'},{l:'Phí dịch vụ/khách',k:'o_feeSvc'},
-   {l:'1.3 Revenue_Service',o:'1.3',d:1,aq:'usersSvc'},
+   {l:'1.3 Revenue_Service',o:'1.3',d:1,aq:'usersSvc',f:'base tổng bình quân × attach% × phí/khách/tháng'},
    {l:'Khách dịch vụ kế toán',k:'o_acctCust',aq:'acctCust'},{l:'Phí kế toán',k:'o_acctFee'},
-   {l:'1.4 Revenue_Accounting Svc',o:'1.4',d:1},{l:'2.2 Sale promotion',k:'o_promo'}]},
+   {l:'1.4 Revenue_Accounting Svc',o:'1.4',d:1,f:'số khách kế toán × phí/khách'},{l:'2.2 Sale promotion',k:'o_promo'}]},
   {n:'5',t:'Chi phí trực tiếp của kênh',s:'Cloud KHÔNG ở đây — đã lên tầng chung vì base dùng chung.',r:[
-   {l:'COGS hardware %',k:'o_cogsHwPct'},{l:'3.2 COGS_Hardware',o:'3.2',d:1},
-   {l:'COGS kế toán %',k:'o_cogsAcctPct'},{l:'3.4 COGS_Accounting Svc',o:'3.4',d:1},
+   {l:'COGS hardware %',k:'o_cogsHwPct'},{l:'3.2 COGS_Hardware',o:'3.2',d:1,f:'−(1.2 Revenue_Hardware × COGS hardware %)'},
+   {l:'COGS kế toán %',k:'o_cogsAcctPct'},{l:'3.4 COGS_Accounting Svc',o:'3.4',d:1,f:'−(1.4 Revenue_Accounting × COGS kế toán %)'},
    {l:'Hoa hồng · self-serve',k:'o_commSelf'},{l:'Hoa hồng · telesale',k:'o_commTele'},
    {l:'Hoa hồng · direct & BD',k:'o_commDirect'},{l:'Hoa hồng · tái tục',k:'o_commRenew'},
    {l:'Hoa hồng · re-activated',k:'o_commReact'},
-   {l:'4.2 In-house commission',o:'4.2',d:1,big:1},
+   {l:'4.2 In-house commission',o:'4.2',d:1,big:1,f:'−[(DT self×%self)+(DT telesale×%tele)+((DT direct+BD)×%direct)+(DT tái tục×%renew)+(DT re-act×%react)]'},
    {l:'4.1 Lương đội bán',k:'o_salesSalary'},{l:'5.1 Brand / Comms',k:'o_brand'},
    {l:'6.5 Staff - Marketing',k:'o_payMkt'},
-   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1,f:'doanh thu − chiết khấu − chi phí trực tiếp của kênh (chưa trừ nền tảng và back office)'}]}],
  PTN:[
   {n:'1',t:'Danh mục đối tác',s:'rev = số lượng × đơn giá × ev%. type SAAS → 1.1, còn lại → 1.3.',acc:1,r:[]},
   {n:'2',t:'Chi phí trực tiếp',s:'Hoa hồng in-house trên tổng doanh thu; hoa hồng đối tác theo từng dòng.',r:[
-   {l:'1.1 Revenue_Software',o:'1.1',d:1},{l:'1.3 Revenue_Service',o:'1.3',d:1,big:1},
-   {l:'Hoa hồng in-house %',k:'p_inhouseRate'},{l:'4.2 In-house commission',o:'4.2',d:1},
+   {l:'1.1 Revenue_Software',o:'1.1',d:1,f:'Σ (số lượng × đơn giá × ev%) các dòng type SAAS'},{l:'1.3 Revenue_Service',o:'1.3',d:1,big:1,f:'Σ (số lượng × đơn giá × ev%) các dòng type khác'},
+   {l:'Hoa hồng in-house %',k:'p_inhouseRate'},{l:'4.2 In-house commission',o:'4.2',d:1,f:'−[(1.1 + 1.3) × hoa hồng in-house %]'},
    {l:'4.3 Partner commission',o:'4.3',d:1,f:'Σ rev × com% từng đối tác'},
-   {l:'COGS phần mềm đối tác',k:'p_cogsSoftware'},{l:'3.1 COGS đối tác',o:'3.1x',d:1},
+   {l:'COGS phần mềm đối tác',k:'p_cogsSoftware'},{l:'3.1 COGS đối tác',o:'3.1x',d:1,f:'−COGS phần mềm riêng của đối tác (nhập tay)'},
    {l:'5.3 Performance Marketing',k:'p_perfMkt'},{l:'6.2 Staff - BD & Partnership',k:'p_payBD'},
-   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1,f:'doanh thu − chiết khấu − chi phí trực tiếp của kênh (chưa trừ nền tảng và back office)'}]}],
  HLB:[
   {n:'1',t:'Kích hoạt H5',s:'H5 = l8 tiếp cận × tỷ lệ chuyển đổi.',r:[
    {l:'L8 tiếp cận',k:'h_l8'},{l:'Tỷ lệ chuyển đổi',k:'h_conv'},
-   {l:'H5 kích hoạt',o:'h5',d:0,big:1,aq:'h5'}]},
+   {l:'H5 kích hoạt',o:'h5',d:0,big:1,aq:'h5',f:'L8 tiếp cận × tỷ lệ chuyển đổi %'}]},
   {n:'2',t:'Các lớp thưởng',s:'Bốn lớp: promotion, commission, referral, affiliate.',r:[
-   {l:'Promotion / H5',k:'h_promoH5'},{l:'2.1 Sale discount',o:'2.1',d:1},
+   {l:'Promotion / H5',k:'h_promoH5'},{l:'2.1 Sale discount',o:'2.1',d:1,f:'−(H5 × promotion mỗi H5)'},
    {l:'Commission / H5',k:'h_commH5'},{l:'Referral — số lượt',k:'h_referral'},
-   {l:'Referral bonus',k:'h_refBonus'},{l:'4.2 In-house commission',o:'4.2',d:1},
+   {l:'Referral bonus',k:'h_refBonus'},{l:'4.2 In-house commission',o:'4.2',d:1,f:'−[(1.1 + 1.3) × hoa hồng in-house %]'},
    {l:'Affiliate — số lượt',k:'h_affiliate'},{l:'Affiliate commission',k:'h_affComm'},
-   {l:'5.5 Partnership Marketing',o:'5.5',d:1}]},
+   {l:'5.5 Partnership Marketing',o:'5.5',d:1,f:'−(số lượt affiliate × affiliate commission)'}]},
   {n:'3',t:'Doanh thu & brand',s:'Segment này gần như không có doanh thu — 4 tr/tháng.',r:[
    {l:'1.2 Revenue_Hardware',k:'h_revHw'},{l:'5.1 Brand / Comms',k:'h_brand'},
-   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1,f:'doanh thu − chiết khấu − chi phí trực tiếp của kênh (chưa trừ nền tảng và back office)'}]}],
  SHARED:[
   {n:'1',t:'Customer base — DÙNG CHUNG toàn SBH',s:'opening + new (cả 3 kênh) + re-activated − churned.',r:[
    {l:'Base đầu kỳ',k:'s_baseStart',aq:'baseStart',f:'chỉ nhập T8 — các tháng sau nối từ base cuối tháng trước'},
    {l:'Khách mới — cộng 3 kênh',sh:'newUsers',d:0,f:'Own + Partnership + HLB'},
-   {l:'L8 đến hạn',k:'s_due',aq:'due'},{l:'Renewal rate',k:'s_renewal',aq:null,ai:'renewalPct'},
-   {l:'Tái tục',sh:'renewed',d:0,aq:'renewed'},
+   {l:'L8 đến hạn',k:'s_due',aq:'due'},{l:'Renewal rate',k:'s_renewal',aq:null,ai:'renewalPct',f:'quyết định CẢ số tái tục lẫn số rời bỏ của toàn SBH'},
+   {l:'Tái tục',sh:'renewed',d:0,aq:'renewed',f:'L8 đến hạn × renewal rate'},
    {l:'Re-activated',k:'s_react',aq:'react'},
-   {l:'Rời bỏ',sh:'churned',d:0,f:'đến hạn − tái tục'},
-   {l:'Base cuối kỳ — kênh trực tiếp',sh:'baseEnd',d:0},
+   {l:'Rời bỏ',sh:'churned',d:0,f:'L8 đến hạn − số tái tục'},
+   {l:'Base cuối kỳ — kênh trực tiếp',sh:'baseEnd',d:0,f:'đầu kỳ + khách mới + re-activated − rời bỏ (chưa gồm user đối tác dạng stock)'},
    {l:'User đang có từ đối tác',sh:'stockUsers',d:0,aq:'ptnUsers',f:'các dòng đối tác khai contrib = stock'},
-   {l:'BASE TỔNG — toàn SBH',sh:'baseTotal',d:0,big:1},
+   {l:'BASE TỔNG — toàn SBH',sh:'baseTotal',d:0,big:1,f:'mở tổng + khách mới (cả 3 kênh) + re-activated − rời bỏ ± thay đổi user đối tác'},
    {l:'Kỳ hạn trung bình',k:'s_avgTerm',aq:'avgTerm'}]},
   {n:'2',t:'Nền tảng dùng chung',s:'Chi phí phục vụ cả ba kênh — không thuộc kênh nào.',r:[
    {l:'Cloud / active user',k:'s_cloudPerUser',ai:'impCloud'},
-   {l:'3.1 COGS_Software — cloud',sh:'cloud',d:1,f:'base tổng bq × đơn giá',big:1},
+   {l:'3.1 COGS_Software — cloud',sh:'cloud',d:1,big:1,f:'−(base tổng bình quân × cloud/active user), base bq = (mở tổng + đóng tổng) ÷ 2'},
    {l:'6.1 Staff - Customer Operation',k:'s_payCS'},
    {l:'6.3 Staff - Product Development',k:'s_payProduct'},
    {l:'6.4 Staff - Technology',k:'s_payTech'},
-   {l:'Cộng nền tảng',sh:'platform',d:1,big:1,cm:1}]},
+   {l:'Cộng nền tảng',sh:'platform',d:1,big:1,cm:1,f:'cloud + 6.1 + 6.3 + 6.4 — trừ một lần ở tầng BU'}]},
   {n:'3',t:'Back office',s:'Nhận phân bổ từ CSS — ngoài trách nhiệm plan (NL-2).',r:[
    {l:'7.x nhận phân bổ',sh:'alloc',d:1,f:'nối từ tab CSS — sửa ở đó, không nhập ở đây'}]}]
 };
 let SEG='OWN';
+/* Đa chọn kênh cho tab P&L segment level — để tắt bớt mảng rủi ro và xem BU còn lại bao nhiêu */
+let SEGSEL={};
+function selKeys(){return curCH().concat([BUDEF[BU].shared]);}   /* kênh + tầng chung */
+/* LỖI trước: tập rỗng bị coi là "chưa khởi tạo" nên tự chọn lại hết,
+   khiến nút "Bỏ hết" không có tác dụng. Nay dùng cờ __init riêng. */
+function selInit(){
+ if(!SEGSEL[BU])SEGSEL[BU]={};
+ if(!SEGSEL[BU].__init){SEGSEL[BU].__init=1;selKeys().forEach(c=>SEGSEL[BU][c]=true);}
+ return SEGSEL[BU];
+}
+function selCh(){const s=selInit();return curCH().filter(c=>s[c]);}
+function selShared(){const s=selInit();return !!s[BUDEF[BU].shared];}
 let EDITM={T9:true};
 let SHOW={}; ALLM.forEach(m=>SHOW[m]=true);
 let RTAB='seg';
@@ -565,7 +664,7 @@ const BUDEF={
 };
 /* pipeline outsource — nguồn của 1.3 Revenue_Service (câu D).
    Cùng hình dạng bảng đối tác: tên · tháng · giá trị · % chia sẻ cho đối tác. */
-let PIPE=[];
+let PIPE=[];   /* giữ để nạp file cũ, nội dung được dồn vào PACC khi nạp */
 let PACC=[];
 
 Object.assign(DEF,{
@@ -590,7 +689,8 @@ Object.assign(DEF,{
  l_creditPct:{v:a5(0),u:'%',src:'seed',ch:'LEN'},
  l_feePct:{v:a5(0),u:'%',src:'seed',ch:'LEN'},
  /* --- EF VPB --- */
- v_cards:{v:a5(0),u:'thẻ',src:'none',ch:'VPB'},
+ v_cardsOpen:{v:[0,0,0,0,0],u:'thẻ',src:'none',ch:'VPB',chain:1,chainSrc:'vpbCards'},
+ v_cards:{v:a5(0),u:'thẻ/tháng',src:'none',ch:'VPB'},
  v_activePct:{v:a5(0),u:'%',src:'seed',ch:'VPB'},
  v_gtvPerSME:{v:a5(0),u:'tr',src:'seed',ch:'VPB'},
  v_interchangePct:{v:a5(0),u:'%',src:'seed',ch:'VPB'},
@@ -619,20 +719,19 @@ function engDir(i,sh){
  o.newUsers=o.newAdds; o.churnOut=o.churned;
  o['1.1']=sh.custAvg*g('d_blendedARPA',i);
  o['1.5']=sh.custAvg*g('d_arpuToken',i);
- o.pipeGross=PIPE.reduce((a,p)=>a+(Number(p.val[i])||0),0);
- o.pipeShare=-PIPE.reduce((a,p)=>a+(Number(p.val[i])||0)*(Number(p.share)||0)/100,0);
- o['1.3']=o.pipeGross;
- o['4.4']=o.pipeShare;
  o['3.5']=-o['1.5']*g('d_cogsTokenPct',i)/100;
  o['4.2']=-(o['1.1']+o['1.5'])*g('d_commissionPct',i)/100;
- o['5.3']=-g('d_perfMkt',i); o['5.5']=-g('d_ptnMkt',i);
- o['6.2']=-g('d_payBD',i); o['6.5']=-g('d_payMkt',i);
+ o['5.3']=-g('d_perfMkt',i); o['6.5']=-g('d_payMkt',i);
  return o;
 }
 function engPpn(i,sh){
  const o={ch:'PPN'};
+ /* Gồm cả deal theo gói lẫn pipeline outsource — cùng một loại: giá trị × % chia sẻ */
  o['1.3']=PACC.reduce((a,x)=>a+accRev(x,i),0);
  o['4.4']=-PACC.reduce((a,x)=>a+accRev(x,i)*((Number(x.share)||0)/100),0);
+ /* 5.5 và 6.2 phục vụ kênh đối tác nên thuộc segment này, không thuộc Direct */
+ o['5.5']=-g('d_ptnMkt',i);
+ o['6.2']=-g('d_payBD',i);
  o.newUsers=PACC.reduce((a,x)=>a+(x.contrib==='flow'?(Number(x.qty[i])||0):0),0);
  o.stockUsers=PACC.reduce((a,x)=>a+(x.contrib==='stock'?(Number(x.qty[i])||0):0),0);
  return o;
@@ -649,8 +748,15 @@ function engLen(i,sh){
  return o;
 }
 function engVpb(i,sh){
+ /* Thẻ phát hành là DÒNG CHẢY → phải luỹ kế thành tồn thẻ.
+    Lỗi trước: lấy thẳng số phát hành trong tháng làm tồn, nên 100 thẻ/tháng
+    mãi chỉ ra 40 thẻ hoạt động thay vì tăng dần. */
  const o={ch:'VPB'};
- o.activeCards=g('v_cards',i)*g('v_activePct',i)/100;
+ o.cardsOpen=(sh&&sh.vpbOpen!==undefined)?sh.vpbOpen:g('v_cardsOpen',i);
+ o.issued=g('v_cards',i);
+ o.cardsEnd=o.cardsOpen+o.issued;
+ o.cardsAvg=(o.cardsOpen+o.cardsEnd)/2;
+ o.activeCards=o.cardsAvg*g('v_activePct',i)/100;
  o.gtv=o.activeCards*g('v_gtvPerSME',i);
  o['1.7']=o.gtv*g('v_interchangePct',i)/100;
  o.newUsers=0;o.stockUsers=0;
@@ -683,6 +789,7 @@ const CSS_LINES=[
  {k:'7.10', l:'7.10 Vận chuyển',                   g:[0,0,0,0,0],      own:0,  bu3:0,
     note:'Chi phí admin cấp công ty — không phân bổ (Đ12)'}
 ];
+let CSSREV=[];   /* doanh thu phát sinh tại CSS — khai từ dữ liệu, mặc định rỗng */
 let CSSL=CSS_LINES.map(x=>({k:x.k,l:x.l,g:x.g.slice(),own:x.own,bu3:x.bu3,note:x.note||''}));
 CHLABEL.CSS='CSS — Corporate Shared Service';
 BUDEF.CSS={label:'CSS',ch:['CSSC'],shared:'CSSC',acts:null};
@@ -695,33 +802,58 @@ function calcCSS(){
     const o=gr*(Number(x.own)||0)/100, b=gr*(Number(x.bu3)||0)/100;
     return {k:x.k,l:x.l,gross:gr,to12:o,to3:b,keep:gr-o-b};});
   const S=f=>per.reduce((a,x)=>a+x[f],0);
+  const rev=CSSREV.reduce((a,r)=>a+(Number(r.val[i])||0),0);
+  /* OP tại CSS TRƯỚC khi đẩy chi phí đi = doanh thu − chi phí gross */
+  const opGross=rev-S('gross');
+  /* OP CÒN LẠI ở CSS sau khi phân bổ chi phí về hai BU */
+  const opKeep=rev-S('keep');
   const sh={gross:-S('gross'), to12:S('to12'), to3:S('to3'), keep:-S('keep'),
-    platform:0, alloc:0, per:per};
-  sh.channelCM=0;
-  const ch={CSSC:{ch:'CSSC',rev:0,disc:0,direct:-S('gross')+S('to12')+S('to3'),
-    channelCM:-S('keep'), gross:-S('gross'), to12:S('to12'), to3:S('to3'), keep:-S('keep')}};
-  out.push({sh:sh,ch:ch,bu:{channelCM:-S('keep'),platform:0,opBefore:-S('keep'),
-    alloc:0,opAfter:-S('keep'),rev:0,disc:0,direct:-S('keep')}});
+    rev:rev, opGross:opGross, opKeep:opKeep, platform:0, alloc:0, per:per, revper:CSSREV.map((r,ri)=>({i:ri,name:r.name,v:Number(r.val[i])||0}))};
+  sh.channelCM=opKeep;
+  const ch={CSSC:{ch:'CSSC',rev:rev,disc:0,direct:-S('keep'),
+    channelCM:opKeep, gross:-S('gross'), to12:S('to12'), to3:S('to3'), keep:-S('keep'),
+    opGross:opGross, opKeep:opKeep}};
+  out.push({sh:sh,ch:ch,bu:{channelCM:opKeep,platform:0,opBefore:opKeep,
+    alloc:0,opAfter:opKeep,rev:rev,disc:0,direct:-S('keep')}});
  }
  return out;
 }
 /* Số phân bổ mà BU12 / BU3 nhận — LẤY TỪ CSS, không còn gõ tay */
 function allocFromCSS(i,which){const c=calcCSS()[i];return -(which==='12'?c.sh.to12:c.sh.to3);}
 
-/* Actual CSS — lấy từ sổ, dòng 7.x của cả ba nguồn */
+/* Actual CSS — dùng SỔ THẬT của CSS, không suy ngược.
+   gross  : 7.x của CSS khi TẮT phân bổ  (chi phí phát sinh tại CSS)
+   keep   : 7.x của CSS khi BẬT phân bổ  (phần CSS còn giữ)
+   to12/3 : 7.x mà hai BU đã NHẬN, lấy từ sổ của chính hai BU
+   Ba nguồn độc lập → dòng kiểm là phép đối chiếu thật, không phải phép cộng vòng. */
 function actCSS(i){
- const per=CSSL.map(x=>({k:x.k,l:x.l,gross:null,to12:null,to3:null,keep:null}));
+ const A=(ACTS.__CSS||{});
+ const gL=A.gross||{}, kL=A.keep||{}, rL=A.rev||{};
+ const S=o=>Object.keys(o).length?Object.keys(o).reduce((a,k)=>a+((o[k]&&o[k][i])||0),0):null;
+ const gross=S(gL), keep=S(kL), rev=S(rL);
+ const per=CSSL.map(x=>{
+   const key=Object.keys(gL).filter(k=>k.indexOf(x.k+' ')===0||k===x.l)[0];
+   const g=key?(gL[key][i]||0):null;
+   return {k:x.k,l:x.l,gross:(g===null?null:-g),to12:null,to3:null,keep:null};});
  const g12=CH.reduce((a,c)=>a+Object.keys(ACTS[c]||{}).filter(k=>k.indexOf('7.')===0)
    .reduce((t,k)=>t+((ACTS[c][k]&&ACTS[c][k][i])||0),0),0);
  const g3=CH3.reduce((a,c)=>a+Object.keys(ACTS3[c]||{}).filter(k=>k.indexOf('7.')===0)
    .reduce((t,k)=>t+((ACTS3[c][k]&&ACTS3[c][k][i])||0),0),0);
- const sh={gross:null,to12:-g12,to3:-g3,keep:null,platform:0,alloc:0,per:per};
- const ch={CSSC:{ch:'CSSC',rev:0,disc:0,direct:null,channelCM:null,gross:null,to12:-g12,to3:-g3,keep:null}};
- return {sh:sh,ch:ch,bu:{channelCM:null,platform:0,opBefore:null,alloc:0,opAfter:null,
-   rev:0,disc:0,direct:null}};
+ const sh={gross:gross, to12:-g12, to3:-g3, keep:keep, rev:rev,
+   opGross:(rev===null||gross===null)?null:rev+gross,
+   opKeep:(rev===null||keep===null)?null:rev+keep,
+   platform:0, alloc:0, per:per,
+   revper:Object.keys(rL).map((k,ri)=>({i:ri,name:k,v:rL[k][i]||0}))};
+ const ch={CSSC:{ch:'CSSC',rev:rev,disc:0,direct:keep,channelCM:sh.opKeep,
+   gross:gross,to12:-g12,to3:-g3,keep:keep,opGross:sh.opGross,opKeep:sh.opKeep}};
+ return {sh:sh,ch:ch,bu:{channelCM:sh.opKeep,platform:0,opBefore:sh.opKeep,
+   alloc:0,opAfter:sh.opKeep,rev:rev,disc:0,direct:keep}};
 }
 /* Khu vực nhập của CSS */
-ZN.CSSC=[{n:'1',t:'Chi phí gross & luật phân bổ',css:1,
+ZN.CSSC=[
+ {n:'1',t:'Doanh thu phát sinh tại CSS',cssrev:1,
+  s:'Phí dịch vụ nội bộ, cho thuê, thu khác… Khai từ dữ liệu, có thể để trống.',r:[]},
+ {n:'2',t:'Chi phí gross & luật phân bổ',css:1,
   s:'Mỗi dòng khai % về BU12 và BU3. Phần còn lại ở lại CSS.',r:[]}];
 
 REVK.push('1.5','1.6','1.7'); DIRK.push('3.5','3.6','3.7','4.4');
@@ -730,15 +862,21 @@ function calcBU3(){
  for(let i=0;i<nF;i++){
   const sh={};
   sh.baseStart=(i===0)?g('d_custBaseline',i):out[i-1].sh.baseEnd;
-  const pre={}; CH3.forEach(c=>pre[c]=ENG3[c](i,{baseStart:sh.baseStart,custAvg:0}));
+  sh.vpbOpen=(i===0)?g('v_cardsOpen',i):out[i-1].ch.VPB.cardsEnd;   /* tồn thẻ nối chuỗi */
+  const pre={}; CH3.forEach(c=>pre[c]=ENG3[c](i,{baseStart:sh.baseStart,custAvg:0,vpbOpen:sh.vpbOpen}));
   sh.newUsers=CH3.reduce((a,c)=>a+(pre[c].newUsers||0),0);
   sh.churned=pre.DIR.churnOut||0;
   sh.baseEnd=sh.baseStart+sh.newUsers-sh.churned;
   sh.stockUsers=CH3.reduce((a,c)=>a+(pre[c].stockUsers||0),0);
   sh.baseTotal=sh.baseEnd+sh.stockUsers;
-  sh.custAvg=(sh.baseStart+sh.baseEnd)/2;
-  sh.baseAvg=sh.custAvg;
-  sh.paying=sh.baseEnd;
+  sh.stockPrev=(i===0)?sh.stockUsers:out[i-1].sh.stockUsers;
+  sh.dStock=sh.stockUsers-sh.stockPrev;
+  sh.openTotal=(i===0)?(sh.baseStart+sh.stockUsers):out[i-1].sh.baseTotal;
+  sh.custAvg=(sh.openTotal+sh.baseTotal)/2;
+  sh.baseAvg=sh.custAvg; sh.react=0; sh.renewed=0;
+  sh.payingPartner=sh.stockUsers;
+  sh.payingDirect=sh.baseEnd;
+  sh.paying=sh.baseEnd+sh.stockUsers;
   const ch={}; CH3.forEach(c=>ch[c]=chAgg(ENG3[c](i,sh)));
   sh.cloud=-g('s3_platform',i); sh.payCS=-g('s3_payCS',i);
   sh.payProduct=-g('s3_payProduct',i); sh.payTech=-g('s3_payTech',i);
@@ -781,6 +919,7 @@ function actBU3(i){
    direct:CH3.reduce((a,c)=>a+ch[c].direct,0)}};
 }
 let BU='BU12';
+const BULBL=()=>({BU12:'SBH',BU3:'FinanOne',CSS:'CSS'})[BU]||BU;
 const curCalc=()=>BU==='BU3'?calcBU3():(BU==='CSS'?calcCSS():calcAll());
 const curCH=()=>BUDEF[BU].ch;
 function dataFor(m){
@@ -804,70 +943,73 @@ Object.assign(ZN,{
    {l:'Khách đầu kỳ',k:'d_custBaseline',f:'chỉ nhập T8 — các tháng sau nối từ khách cuối tháng trước'},
    {l:'Khách mới trong tháng',k:'d_grossNewAdds'},
    {l:'Churn %/tháng',k:'d_churnPct'},
-   {l:'Rời bỏ',o:'churned',d:1,f:'đầu kỳ × churn%'},
-   {l:'Khách cuối kỳ',o:'custEnd',d:0,big:1},
+   {l:'Rời bỏ',o:'churned',d:1,f:'khách đầu kỳ × churn %/tháng'},
+   {l:'Khách cuối kỳ',o:'custEnd',d:0,big:1,f:'đầu kỳ + khách mới − rời bỏ'},
    {l:'Khách bình quân',o:'custAvg',d:0,f:'(đầu + cuối) ÷ 2 — cơ sở tính doanh thu'}]},
   {n:'2',t:'Doanh thu thuê bao',s:'Khách bình quân × đơn giá. Đây là chỗ khác Own channel nhất.',r:[
    {l:'Blended ARPA',k:'d_blendedARPA'},
-   {l:'1.1 Revenue_Software',o:'1.1',d:1,big:1,f:'khách bq × ARPA'},
+   {l:'1.1 Revenue_Software',o:'1.1',d:1,big:1,f:'khách bình quân toàn BU3 × blended ARPA (thu theo tháng, không phải gói)'},
    {l:'ARPU AI token',k:'d_arpuToken'},
-   {l:'1.5 Revenue_AI Token',o:'1.5',d:1,f:'khách bq × ARPU token'},
-   {l:'COGS token %',k:'d_cogsTokenPct'},{l:'3.5 COGS_AI Token',o:'3.5',d:1}]},
-  {n:'3',t:'Pipeline outsource',s:'Nguồn của 1.3 Revenue_Service. Mỗi dòng là một đối tác outsource, chia sẻ % doanh thu.',pipe:1,r:[]},
-  {n:'4',t:'Chi phí trực tiếp của kênh',s:'Nền tảng và 6.1/6.3/6.4 đã lên tầng chung FinanOne.',r:[
-   {l:'1.3 Revenue_Service',o:'1.3',d:1},{l:'4.4 Direct cost — chia sẻ đối tác',o:'4.4',d:1},
-   {l:'Hoa hồng in-house %',k:'d_commissionPct'},{l:'4.2 In-house commission',o:'4.2',d:1},
-   {l:'5.3 Performance Marketing',k:'d_perfMkt'},{l:'5.5 Partnership Marketing',k:'d_ptnMkt'},
-   {l:'6.2 Staff - BD & Partnership',k:'d_payBD'},{l:'6.5 Staff - Marketing',k:'d_payMkt'},
-   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+   {l:'1.5 Revenue_AI Token',o:'1.5',d:1,f:'khách bình quân × ARPU AI token'},
+   {l:'COGS token %',k:'d_cogsTokenPct'},{l:'3.5 COGS_AI Token',o:'3.5',d:1,f:'−(1.5 Revenue_AI Token × COGS token %)'}]},
+  {n:'3',t:'Chi phí trực tiếp của kênh',s:'Nền tảng và 6.1/6.3/6.4 đã lên tầng chung FinanOne. Pipeline outsource đã chuyển sang Partnership BU3.',r:[
+   {l:'Hoa hồng in-house %',k:'d_commissionPct'},{l:'4.2 In-house commission',o:'4.2',d:1,f:'−[(1.1 Revenue_Software + 1.5 Revenue_AI Token) × hoa hồng in-house %] — KHÔNG tính trên 1.3 pipeline'},
+   {l:'5.3 Performance Marketing',k:'d_perfMkt'},{l:'6.5 Staff - Marketing',k:'d_payMkt'},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1,f:'doanh thu − chiết khấu − chi phí trực tiếp của kênh (chưa trừ nền tảng và back office)'}]}],
  PPN:[
-  {n:'1',t:'Danh mục deal theo gói',s:'Mastercard · HLB MY · TAF · Partner mới. Lởm chởm theo tháng (Đ10).',acc3:1,r:[]},
-  {n:'2',t:'Kết quả kênh',s:'Chi phí trực tiếp là phần chia sẻ cho đối tác.',r:[
-   {l:'1.3 Revenue_Service',o:'1.3',d:1,big:1},
-   {l:'4.4 Direct cost — chia sẻ',o:'4.4',d:1},
-   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+  {n:'1',t:'Danh mục deal & pipeline outsource',s:'Deal theo gói và pipeline outsource — cùng một dạng: giá trị × % chia sẻ. Thêm/xoá dòng được.',acc3:1,r:[]},
+  {n:'2',t:'Kết quả kênh',s:'Chi phí trực tiếp là phần chia sẻ cho đối tác cộng chi phí phục vụ kênh.',r:[
+   {l:'1.3 Revenue_Service',o:'1.3',d:1,big:1,f:'Σ (số lượng × đơn giá × ev%) của các deal'},
+   {l:'4.4 Direct cost — chia sẻ',o:'4.4',d:1,f:'−Σ (doanh thu deal × % chia sẻ của deal đó)'},
+   {l:'5.5 Partnership Marketing',k:'d_ptnMkt'},
+   {l:'6.2 Staff - BD & Partnership',k:'d_payBD'},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1,f:'doanh thu − chiết khấu − chi phí trực tiếp của kênh (chưa trừ nền tảng và back office)'}]}],
  LEN:[
   {n:'1',t:'Giải ngân',s:'Phí thu xếp khai theo chiều đàm phán được (Đ11), không phải giá vốn 98%.',r:[
    {l:'Số người vay mới',k:'l_newBorrowers'},{l:'Giải ngân / người',k:'l_disbPer'},
-   {l:'Tổng giải ngân',o:'disb',d:0,big:1},
+   {l:'Tổng giải ngân',o:'disb',d:0,big:1,f:'số người vay mới × giải ngân mỗi người'},
    {l:'Phí thu xếp %',k:'l_feePct'},
-   {l:'1.2 Revenue_Hardware (giải ngân)',o:'1.2',d:1},
+   {l:'1.2 Revenue_Hardware (giải ngân)',o:'1.2',d:1,f:'= tổng giải ngân, ghi nhận gross'},
    {l:'3.2 COGS_Hardware',o:'3.2',d:1,f:'−giải ngân × (100 − phí)%'}]},
   {n:'2',t:'Sổ cho vay',s:'Provision tính trên vintage giải ngân mới (Đ16).',r:[
    {l:'Dư nợ bình quân',k:'l_avgOutstanding'},
-   {l:'Lãi suất %/tháng',k:'l_interestPct'},{l:'1.6 Interest income',o:'1.6',d:1},
-   {l:'Funding cost %/tháng',k:'l_fundingPct'},{l:'3.6 COGS_Funding cost',o:'3.6',d:1},
-   {l:'Credit cost % trên giải ngân',k:'l_creditPct'},{l:'3.7 COGS_Provision',o:'3.7',d:1},
-   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+   {l:'Lãi suất %/tháng',k:'l_interestPct'},{l:'1.6 Interest income',o:'1.6',d:1,f:'dư nợ bình quân × lãi suất %/tháng'},
+   {l:'Funding cost %/tháng',k:'l_fundingPct'},{l:'3.6 COGS_Funding cost',o:'3.6',d:1,f:'−(dư nợ bình quân × funding cost %/tháng)'},
+   {l:'Credit cost % trên giải ngân',k:'l_creditPct'},{l:'3.7 COGS_Provision',o:'3.7',d:1,f:'−(tổng giải ngân MỚI × credit cost %) — trên vintage, không trên dư nợ'},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1,f:'doanh thu − chiết khấu − chi phí trực tiếp của kênh (chưa trừ nền tảng và back office)'}]}],
  VPB:[
-  {n:'1',t:'Interchange thẻ',s:'Số thẻ phát hành chưa có nguồn — engine gốc cũng không có.',r:[
-   {l:'Số thẻ phát hành',k:'v_cards'},{l:'% thẻ hoạt động',k:'v_activePct'},
-   {l:'Thẻ hoạt động',o:'activeCards',d:0},
-   {l:'GTV / SME / tháng',k:'v_gtvPerSME'},{l:'Tổng GTV',o:'gtv',d:1},
+  {n:'1',t:'Tồn thẻ — luỹ kế',s:'Thẻ phát hành là dòng chảy, cộng dồn qua các tháng thành tồn thẻ.',r:[
+   {l:'Tồn thẻ đầu kỳ',k:'v_cardsOpen',f:'chỉ nhập T8 — các tháng sau nối từ tồn cuối tháng trước'},
+   {l:'+ Thẻ phát hành trong tháng',k:'v_cards'},
+   {l:'= Tồn thẻ cuối kỳ',o:'cardsEnd',d:0,big:1,f:'tồn đầu kỳ + thẻ phát hành trong tháng'},
+   {l:'Tồn thẻ bình quân',o:'cardsAvg',d:0,f:'(đầu kỳ + cuối kỳ) ÷ 2 — cơ sở tính GTV trong tháng'}]},
+  {n:'2',t:'Interchange',s:'GTV sinh ra từ thẻ đang hoạt động, phí interchange tính trên GTV.',r:[
+   {l:'% thẻ hoạt động',k:'v_activePct'},
+   {l:'Thẻ hoạt động',o:'activeCards',d:0,f:'tồn thẻ bình quân × % thẻ hoạt động'},
+   {l:'GTV / SME / tháng',k:'v_gtvPerSME'},{l:'Tổng GTV',o:'gtv',d:1,f:'thẻ hoạt động × GTV mỗi SME/tháng'},
    {l:'Interchange %',k:'v_interchangePct'},
-   {l:'1.7 Revenue_Embedded Finance',o:'1.7',d:1,big:1},
-   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+   {l:'1.7 Revenue_Embedded Finance',o:'1.7',d:1,big:1,f:'tổng GTV × interchange %'},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1,f:'doanh thu − chiết khấu − chi phí trực tiếp của kênh (chưa trừ nền tảng và back office)'}]}],
  AFF:[
   {n:'1',t:'Giới thiệu khoản vay',s:'Hoa hồng trên giá trị khoản vay giới thiệu.',r:[
    {l:'Số khoản vay giới thiệu',k:'f_referralLoans'},{l:'Giá trị bình quân',k:'f_avgTicket'},
    {l:'Hoa hồng %',k:'f_commPct'},
-   {l:'1.7 Revenue_Embedded Finance',o:'1.7',d:1,big:1},
-   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1}]}],
+   {l:'1.7 Revenue_Embedded Finance',o:'1.7',d:1,big:1,f:'số khoản vay giới thiệu × giá trị bình quân × hoa hồng %'},
+   {l:'CHANNEL CONTRIBUTION MARGIN',o:'channelCM',d:1,big:1,cm:1,f:'doanh thu − chiết khấu − chi phí trực tiếp của kênh (chưa trừ nền tảng và back office)'}]}],
  SHARED3:[
   {n:'1',t:'Customer base — DÙNG CHUNG toàn FinanOne',s:'Khách mới cộng từ các kênh; churn tính trên base đầu kỳ.',r:[
    {l:'Base đầu kỳ',k:'d_custBaseline',f:'chỉ nhập T8 — các tháng sau nối từ base cuối tháng trước'},
-   {l:'Khách mới — cộng các kênh',sh:'newUsers',d:0},
-   {l:'Rời bỏ',sh:'churned',d:1},
-   {l:'BASE CUỐI KỲ',sh:'baseEnd',d:0,big:1},
+   {l:'Khách mới — cộng các kênh',sh:'newUsers',d:0,f:'Direct + các dòng đối tác khai contrib = user mới'},
+   {l:'Rời bỏ',sh:'churned',d:1,f:'base đầu kỳ × churn %'},
+   {l:'BASE CUỐI KỲ',sh:'baseEnd',d:0,big:1,f:'đầu kỳ + khách mới − rời bỏ'},
    {l:'Khách bình quân',sh:'custAvg',d:0,f:'cơ sở tính doanh thu thuê bao'}]},
   {n:'2',t:'Nền tảng dùng chung',s:'Chốt (a)(b): COGS nền tảng + 6.1 + 6.3 + 6.4 lên tầng BU3.',r:[
    {l:'COGS nền tảng',k:'s3_platform'},{l:'6.1 Staff - Customer Operation',k:'s3_payCS'},
    {l:'6.3 Staff - Product Development',k:'s3_payProduct'},{l:'6.4 Staff - Technology',k:'s3_payTech'},
-   {l:'Cộng nền tảng',sh:'platform',d:1,big:1,cm:1}]},
+   {l:'Cộng nền tảng',sh:'platform',d:1,big:1,cm:1,f:'COGS nền tảng + 6.1 + 6.3 + 6.4 — trừ một lần ở tầng BU3'}]},
   {n:'3',t:'Back office',s:'Nhận phân bổ từ CSS (NL-2).',r:[{l:'7.x nhận phân bổ',sh:'alloc',d:1,f:'nối từ tab CSS — sửa ở đó, không nhập ở đây'}]}]
 });
 
-/* ================= RENDER ================= */
 function renderPanel(){
  const chk=(m,t,grp)=>`<label class="mchk"><input type="checkbox" data-${grp}="${m}" ${(grp==='show'?SHOW[m]:!!EDITM[m])?'checked':''}>
    <span>${m}</span><span class="tag ${t}">${t==='a'?'actual':'plan'}</span></label>`;
@@ -886,9 +1028,15 @@ function renderPanel(){
  <div class="pbtns"><button class="btn" data-sel="all">Tất cả</button><button class="btn" data-sel="act">Actual</button>
  <button class="btn" data-sel="plan">Plan</button><button class="btn" data-sel="none">Bỏ hết</button></div>
  <div class="pt">Dữ liệu</div>
- <div class="dbtns"><button class="btn" id="btnExport">Xuất JSON</button><button class="btn" id="btnImport">Nhập JSON</button>
- <button class="btn wide" id="btnCSV">Xuất CSV bảng đang xem</button>
- <button class="btn wide" id="btnClear">Xoá bản lưu trình duyệt</button></div>
+ <div class="dbtns">
+  <button class="btn wide primary" id="btnOpen">📂 Mở file JSON…</button>
+  <button class="btn" id="btnExport">Xuất bản làm việc</button>
+  <button class="btn" id="btnExportData">Xuất bộ dữ liệu</button>
+  <button class="btn wide" id="btnCSV">Xuất CSV bảng đang xem</button>
+  <button class="btn wide" id="btnClear">Xoá bản lưu trình duyệt</button></div>
+ <div class="filekinds"><b>Hai loại file, một nút mở</b> — công cụ tự nhận dạng:
+  <div><span class="fk">bộ dữ liệu nền</span> số của kỳ kế hoạch: driver, actual, đối tác, pipeline, CSS. Đây là file đặt lên domain.</div>
+  <div><span class="fk">bản làm việc</span> số bạn đang chỉnh + trạng thái giao diện. Dùng để chuyển máy hoặc quay lại một phiên cũ.</div></div>
  <div class="saveinfo" id="saveInfo">—</div>
  <div class="infobox" style="margin-top:8px">Cloud, 6.1 CS, 6.3 Product, 6.4 Tech nằm ở <b>Chung SBH</b> — không thuộc kênh nào.
  Mỗi kênh chỉ tới <b>Channel CM</b>.</div>
@@ -912,8 +1060,9 @@ function cellFor(m,r){
  if(r.k){
   const ch=CHAIN(r.k)&&i>0;
   if(ch){ /* LỖI v0.7: gọi cứng calcAll() nên tab BU3 hiện base của BU12. Phải theo BU đang chọn. */
-   const prev=curCalc()[i-1].sh.baseEnd;
-   return `<div class="cell"><div class="val chained" title="Nối từ base cuối ${FM[i-1]} — không sửa được, đây là kết quả của tháng trước">${fmt(prev,0)}</div></div>`;}
+   const P=curCalc()[i-1];
+   const prev=(DEF[r.k]&&DEF[r.k].chainSrc==='vpbCards')?(P.ch.VPB?P.ch.VPB.cardsEnd:0):P.sh.baseEnd;
+   return `<div class="cell"><div class="val chained" title="Nối từ tháng ${FM[i-1]} — không sửa được, đây là kết quả của tháng trước">${fmt(prev,0)}</div></div>`;}
   return `<div class="cell"><input class="num" type="number" step="any" data-in="${r.k}" data-mi="${i}" value="${IN[r.k][i]}"></div>`;
  }
  const v=(r.sh)?D.sh[r.sh]:(node?node[r.o]:null);
@@ -921,28 +1070,34 @@ function cellFor(m,r){
 }
 function renderAccounts(ms,LIST,tag){
  LIST=LIST||ACCS; tag=tag||'acc';
+ const isP3=(tag==='pacc');                  /* BU3 dùng % chia sẻ · BU12 dùng % hoa hồng đối tác */
+ const shareF=isP3?'share':'com', shareL=isP3?'CHIA SẺ %':'COM %';
  const cols=ms.filter(m=>!isActM(m));
- if(!cols.length)return `<div class="warnbox">Danh mục đối tác chỉ nhập ở tháng plan. Tháng actual lấy số tổng từ sổ.</div>`;
- const head=`<tr><th class="rl">Đối tác</th><th>Loại</th><th>ev%</th><th>com%</th><th>Góp base</th>
-   ${cols.map(m=>`<th colspan="2">${m}</th>`).join('')}<th>Doanh thu</th></tr>`;
+ if(!cols.length)return `<div class="warnbox">Danh mục chỉ nhập ở tháng plan. Tháng actual lấy số tổng từ sổ.</div>`;
+ const head=`<tr><th class="rl">Dòng</th><th>Loại</th><th>ev%</th><th>${shareL}</th><th>Góp base</th>
+   ${cols.map(m=>`<th colspan="2">${m}</th>`).join('')}<th>Doanh thu</th><th></th></tr>`;
  const sub=`<tr class="sub"><td class="rl"></td><td></td><td></td><td></td><td></td>
-   ${cols.map(()=>'<td>SL</td><td>Đơn giá</td>').join('')}<td></td></tr>`;
+   ${cols.map(()=>'<td>SL</td><td>Đơn giá</td>').join('')}<td></td><td></td></tr>`;
  const rows=LIST.map((a,ai)=>{
   const rev=cols.reduce((t,m)=>t+accRev(a,idxOf(m)),0);
   return `<tr><td class="rl"><input class="txt" data-${tag}="${ai}" data-f="name" value="${a.name||''}"></td>
    <td><select data-${tag}="${ai}" data-f="type"><option${a.type==='SAAS'?' selected':''}>SAAS</option><option${a.type!=='SAAS'?' selected':''}>Tech service</option></select></td>
    <td><input class="num sm" type="number" data-${tag}="${ai}" data-f="ev" value="${a.ev}"></td>
-   <td><input class="num sm" type="number" data-${tag}="${ai}" data-f="com" value="${a.com}"></td>
-   <td><select data-${tag}="${ai}" data-f="contrib">
+   <td><input class="num sm" type="number" data-${tag}="${ai}" data-f="${shareF}" value="${a[shareF]||0}"></td>
+   <td class="${(a.unit==='user'&&a.contrib!=='flow')?'warncell':''}"><select data-${tag}="${ai}" data-f="contrib">
+     <option value="flow"${a.contrib==='flow'?' selected':''}>user MỚI — tích luỹ</option>
      <option value="stock"${a.contrib==='stock'?' selected':''}>user đang có</option>
-     <option value="flow"${a.contrib==='flow'?' selected':''}>user mới</option>
-     <option value="none"${a.contrib==='none'?' selected':''}>không góp</option></select></td>
+     <option value="none"${a.contrib==='none'?' selected':''}>không góp base</option></select></td>
    ${cols.map(m=>{const i=idxOf(m);return `<td><input class="num sm" type="number" step="any" data-${tag}="${ai}" data-f="qty" data-mi="${i}" value="${a.qty[i]}"></td>
      <td><input class="num sm" type="number" step="any" data-${tag}="${ai}" data-f="price" data-mi="${i}" value="${a.price[i]}"></td>`;}).join('')}
-   <td class="rev ${rev<0?'neg':''}">${fmt(rev,0)}</td></tr>`;}).join('');
- return `<div class="acctbl"><table class="acc"><thead>${head}${sub}</thead><tbody>${rows}</tbody></table></div>
- <div class="infobox">Cột <b>Góp base</b> quyết định user của đối tác có vào customer base chung không.
- Mặc định các dòng đơn vị <i>user</i> là <b>user đang có</b> (thu định kỳ) — nếu thực tế là user mới mỗi tháng thì đổi, base sẽ tăng theo.</div>`;
+   <td class="rev ${rev<0?'neg':''}">${fmt(rev,0)}</td>
+   <td><button class="btn xdel" data-${tag}del="${ai}" title="Xoá dòng">×</button></td></tr>`;}).join('');
+ return `<div class="acctbl"><table class="acc"><thead>${head}${sub}</thead>
+  <tbody>${rows||'<tr><td class="rl" colspan="'+(cols.length*2+7)+'" style="color:var(--muted)">Chưa có dòng nào.</td></tr>'}</tbody></table></div>
+ <div class="dbtns"><button class="btn wide" id="${tag}Add">+ Thêm dòng</button></div>
+ <div class="infobox">Doanh thu mỗi dòng = <b>SL × đơn giá × ev%</b>${isP3?' · chi phí trực tiếp = doanh thu × <b>chia sẻ %</b>':''}.
+  Cột <b>Góp base</b> quyết định user của dòng đó có vào customer base chung không.
+  ${LIST.some(a=>a.unit==='user'&&a.contrib!=='flow')?'<br><b style="color:var(--warn)">⚑ Có dòng đơn vị <i>user</i> đang KHÔNG ở chế độ tích luỹ</b> — customer base sẽ không tăng theo số user đối tác mang về.':''}</div>`;
 }
 function renderMid(){
  const ms=editList();
@@ -955,8 +1110,8 @@ function renderMid(){
    ?'Base dùng chung + nền tảng + back office. Ba kênh cùng dùng.'
    :'Chỉ chi phí trực tiếp của kênh → Channel Contribution Margin.'}</span></div></div>`
  +ZN[SEG].map(z=>{
-  if(z.acc||z.acc3||z.pipe||z.css)return `<div class="zone"><div class="zh"><span class="zn">KV ${z.n}</span><span class="zt">${z.t}</span>
-    <span class="zs">${z.s}</span></div><div class="zb">${z.css?renderCSS(ms):(z.pipe?renderPipe(ms):renderAccounts(ms,z.acc3?PACC:ACCS,z.acc3?'pacc':'acc'))}</div></div>`;
+  if(z.acc||z.acc3||z.css||z.cssrev)return `<div class="zone"><div class="zh"><span class="zn">KV ${z.n}</span><span class="zt">${z.t}</span>
+    <span class="zs">${z.s}</span></div><div class="zb">${z.cssrev?renderCSSRev(ms):(z.css?renderCSS(ms):renderAccounts(ms,z.acc3?PACC:ACCS,z.acc3?'pacc':'acc'))}</div></div>`;
   const rows=z.r.map(r=>{
    const flagged=r.k&&SRC(r.k)!=='seed';
    const isOut=!r.k;
@@ -968,19 +1123,7 @@ function renderMid(){
  }).join('');
 }
 
-function renderPipe(ms){
- const cols=ms.filter(m=>!isActM(m));
- if(!cols.length)return `<div class="warnbox">Pipeline chỉ nhập ở tháng plan.</div>`;
- const rows=PIPE.map((p,pi)=>`<tr><td class="rl"><input class="txt" data-pipe="${pi}" data-f="name" value="${p.name}"></td>
-  <td><input class="num sm" type="number" data-pipe="${pi}" data-f="share" value="${p.share}"></td>
-  ${cols.map(m=>`<td><input class="num sm" type="number" step="any" data-pipe="${pi}" data-f="val" data-mi="${idxOf(m)}" value="${p.val[idxOf(m)]}"></td>`).join('')}
-  ${(()=>{const s=cols.reduce((t,m)=>t+(Number(p.val[idxOf(m)])||0),0);return `<td class="rev ${s<0?'neg':''}">${fmt(s,0)}</td>`;})()}</tr>`).join('');
- return `<div class="acctbl"><table class="acc"><thead><tr><th class="rl">Đối tác outsource</th><th>Chia sẻ %</th>
-  ${cols.map(m=>`<th>${m}</th>`).join('')}<th>Tổng</th></tr></thead><tbody>${rows}</tbody></table></div>
-  <div class="dbtns"><button class="btn wide" id="pipeAdd">+ Thêm dòng pipeline</button></div>
-  <div class="infobox">Đây là nguồn của <b>1.3 Revenue_Service</b> — trước đây là một mảng gõ tay không nối vào đâu.
-  Chia sẻ % sinh ra dòng <b>4.4 Direct cost</b>.</div>`;
-}
+
 function renderCSS(ms){
  const cols=ms.filter(m=>!isActM(m));
  if(!cols.length)return `<div class="warnbox">Luật phân bổ chỉ nhập ở tháng plan.</div>`;
@@ -997,14 +1140,29 @@ function renderCSS(ms){
  return `<div class="acctbl"><table class="acc"><thead><tr>
   <th class="rl">Dòng chi phí</th><th>→BU12 %</th><th>→BU3 %</th><th>Giữ lại</th>
   ${cols.map(m=>`<th>${m}</th>`).join('')}<th>Gross</th></tr></thead><tbody>${rows}</tbody></table></div>
-  <div class="zrow out" style="grid-template-columns:1fr 110px"><div class="lb">Gross toàn công ty</div><div class="val">${fmt(tot('g'),0)}</div></div>
-  <div class="zrow out" style="grid-template-columns:1fr 110px"><div class="lb">→ phân bổ về BU12</div><div class="val">${fmt(tot('a'),0)}</div></div>
-  <div class="zrow out" style="grid-template-columns:1fr 110px"><div class="lb">→ phân bổ về BU3</div><div class="val">${fmt(tot('b'),0)}</div></div>
-  <div class="zrow cmrow" style="grid-template-columns:1fr 110px"><div class="lb">CSS giữ lại</div><div class="val">${fmt(tot('k'),0)}</div></div>
+  <div class="zrow out" style="grid-template-columns:1fr 110px"><div class="lb">Gross toàn công ty<small>Σ chi phí gross các dòng 7.x</small></div><div class="val">${fmt(tot('g'),0)}</div></div>
+  <div class="zrow out" style="grid-template-columns:1fr 110px"><div class="lb">→ phân bổ về BU12<small>Σ (gross từng dòng × →BU12 %)</small></div><div class="val">${fmt(tot('a'),0)}</div></div>
+  <div class="zrow out" style="grid-template-columns:1fr 110px"><div class="lb">→ phân bổ về BU3<small>Σ (gross từng dòng × →BU3 %)</small></div><div class="val">${fmt(tot('b'),0)}</div></div>
+  <div class="zrow cmrow" style="grid-template-columns:1fr 110px"><div class="lb">CSS giữ lại<small>gross − phân bổ về BU12 − phân bổ về BU3</small></div><div class="val">${fmt(tot('k'),0)}</div></div>
   <div class="zrow chkrow" style="grid-template-columns:1fr 110px"><div class="lb">Kiểm: gross − BU12 − BU3 − giữ lại</div>
    <div class="val ${Math.abs(tot('g')-tot('a')-tot('b')-tot('k'))<0.005?'okchk':'badchk'}">${Math.abs(tot('g')-tot('a')-tot('b')-tot('k'))<0.005?'✓ khớp':fmt(tot('g')-tot('a')-tot('b')-tot('k'),2)}</div></div>
   <div class="infobox">Số ở đây chảy thẳng vào dòng <b>7.x nhận phân bổ</b> của BU12 và BU3 — không còn gõ tay ở hai BU đó nữa.</div>`;
 }
+function renderCSSRev(ms){
+ const cols=ms.filter(m=>!isActM(m));
+ if(!cols.length)return `<div class="warnbox">Doanh thu CSS chỉ nhập ở tháng plan.</div>`;
+ const rows=CSSREV.map((r,ri)=>`<tr><td class="rl"><input class="txt" data-csr="${ri}" data-f="name" value="${r.name||''}"></td>
+  ${cols.map(m=>`<td><input class="num sm" type="number" step="any" data-csr="${ri}" data-f="val" data-mi="${idxOf(m)}" value="${r.val[idxOf(m)]}"></td>`).join('')}
+  <td class="rev">${fmt(cols.reduce((t,m)=>t+(Number(r.val[idxOf(m)])||0),0),0)}</td>
+  <td><button class="btn xdel" data-csrdel="${ri}" title="Xoá dòng">×</button></td></tr>`).join('');
+ return `<div class="acctbl"><table class="acc"><thead><tr><th class="rl">Dòng doanh thu</th>
+  ${cols.map(m=>`<th>${m}</th>`).join('')}<th>Tổng</th><th></th></tr></thead>
+  <tbody>${rows||'<tr><td class="rl" colspan="'+(cols.length+3)+'" style="color:var(--muted)">Chưa có dòng nào.</td></tr>'}</tbody></table></div>
+  <div class="dbtns"><button class="btn wide" id="csrAdd">+ Thêm dòng doanh thu CSS</button></div>
+  <div class="warnbox"><b>Chưa có nguồn.</b> Câu hỏi phí dịch vụ nội bộ ~1.250 tr/tháng của CSS là doanh thu ngoài hay
+  giao dịch nội bộ chưa loại trừ vẫn chưa đóng. Khai ở đây thì P&L CSS mới đủ hai vế.</div>`;
+}
+
 /* ================= P&L THEO TẦNG: kênh → BU → công ty ================= */
 const LINELBL={
  '1.1':'1.1 Revenue_Software','1.2':'1.2 Revenue_Hardware','1.3':'1.3 Revenue_Service',
@@ -1017,19 +1175,165 @@ const LINELBL={
  '5.3':'5.3 Performance Marketing','5.5':'5.5 Partnership Marketing',
  '6.2':'6.2 Staff - BD & Partnership','6.5':'6.5 Staff - Marketing'
 };
-/* Dựng dòng P&L của KÊNH đang chọn — chỉ hiện dòng có số ở các tháng đang xem */
-function segRows(seg,ms){
- const used=k=>ms.some(m=>{const D=dataFor(m),n=D.ch[seg];return n&&Math.abs(Number(n[k])||0)>0.004;});
- const grp=(title,keys)=>{const ks=keys.filter(used);
-   return ks.length?[{g:title}].concat(ks.map(k=>({l:LINELBL[k]||k,p:['ch',seg,k]}))):[];};
- return [].concat(
-  grp('Doanh thu',REVK),
-  [{l:'Tổng doanh thu',p:['ch',seg,'rev'],cls:'cm'}],
-  grp('Chiết khấu / promotion',DISCK),
-  grp('Chi phí trực tiếp của kênh',DIRK),
-  [{l:'Cộng chi phí trực tiếp',p:['ch',seg,'direct'],cls:'cm'},
-   {l:'CHANNEL CONTRIBUTION MARGIN',p:['ch',seg,'channelCM'],cls:'op'}]);
+/* ===== Sắp xếp & phân nhóm theo mã COA =====
+   Lỗi trước: DIRK được push thêm 3.5/3.6/3.7/4.4 ở cuối khi thêm BU3,
+   nên bốn dòng đó hiện sau 6.5. Nay thứ tự do mã quyết định, không do thứ tự khai. */
+function coaNum(k){const s=String(k).replace(/[^0-9.]/g,'').split('.');
+ return [parseInt(s[0]||'0',10), parseInt(s[1]||'0',10)];}
+function coaSort(a,b){const A=coaNum(a),B=coaNum(b);return A[0]-B[0]||A[1]-B[1];}
+const GRPDEF=[
+ {id:'g1',pre:1,t:'1 · Doanh thu'},
+ {id:'g2',pre:2,t:'2 · Chiết khấu / promotion'},
+ {id:'g3',pre:3,t:'3 · Giá vốn'},
+ {id:'g4',pre:4,t:'4 · Chi phí bán hàng'},
+ {id:'g5',pre:5,t:'5 · Marketing'},
+ {id:'g6',pre:6,t:'6 · Nhân sự trực tiếp của kênh'}
+];
+const ALLK=()=>REVK.concat(DISCK,DIRK).filter((v,i,a)=>a.indexOf(v)===i).sort(coaSort);
+let COLL={};                       /* nhóm nào đang thu gọn */
+function buildGroups(usedFn,mode){
+ /* mode 'seg' → lấy từ một kênh; 'line' → cộng ngang nhiều kênh */
+ const out=[];
+ GRPDEF.forEach(G=>{
+  const ks=ALLK().filter(k=>coaNum(k)[0]===G.pre&&usedFn(k));
+  if(!ks.length)return;
+  out.push({g:G.t,gid:G.id,keys:ks,mode:mode});
+  /* LỖI trước: hardcode ['line',k] nên dòng con cộng MỌI kênh, không theo tập đang chọn.
+     Tiêu đề nhóm dùng grpsum theo mode nên ra số khác → hai chỗ lệch nhau. */
+  if(!COLL[G.id])ks.forEach(k=>out.push({l:LINELBL[k]||k,p:[mode==='seg'?'chk_':mode,k],grp:G.id}));
+  if(G.pre===1)out.push({l:'Tổng doanh thu',p:[mode==='seg'?'chk_':mode,'rev'],cls:'cm'});
+ });
+ return out;
 }
+/* P&L của TẦNG CHUNG mỗi BU — trước đây tab này bỏ trống, nhưng các dòng chi phí
+   chung hoàn toàn hiện được. */
+function sharedRows(ms){
+ const L=[{k:'cloud',l:'3.1 COGS_Software — nền tảng / cloud'},
+          {k:'payCS',l:'6.1 Staff - Customer Operation'},
+          {k:'payProduct',l:'6.3 Staff - Product Development'},
+          {k:'payTech',l:'6.4 Staff - Technology'}];
+ const rows=[{g:'Chi phí dùng chung toàn '+BULBL()+' — theo dòng',gid:'gshb',keys:L.map(x=>x.k),mode:'shb'}];
+ if(!COLL.gshb)L.forEach(x=>rows.push({l:x.l,p:['shb',x.k],grp:'gshb'}));
+ rows.push({l:'Cộng chi phí dùng chung',p:['shb','platform'],cls:'op'},
+  {g:'Các dòng này đi đâu',rec:1},
+  {l:'Trừ một lần ở tầng '+BULBL()+', không phân bổ về kênh',p:['shb','platform'],sub:1,rec:1},
+  {l:'Σ Channel CM của '+BULBL(),p:['bu','channelCM'],sub:1,rec:1},
+  {l:'= OP TRƯỚC PHÂN BỔ — '+BULBL(),p:['bu','opBefore'],cls:'op',rec:1},
+  {l:'Chênh lệch (phải = 0)',p:['__gapBU'],d:2,cls:'chk',rec:1});
+ return rows;
+}
+/* P&L của CSS — doanh thu + chi phí gross, rồi đối chiếu phần đẩy đi và phần còn lại */
+function cssRows(ms){
+ /* Dòng doanh thu: gộp danh sách khai ở plan với tên dòng có trên sổ actual,
+    để tháng actual không bị mất 1.250/tháng chỉ vì plan chưa khai dòng nào. */
+ const names=[];
+ CSSREV.forEach(r=>{const n=r.name||('Doanh thu #'+(names.length+1));if(names.indexOf(n)<0)names.push(n);});
+ ms.filter(isActM).forEach(m=>{const rp=dataFor(m).sh.revper||[];
+   rp.forEach(x=>{if(x.name&&names.indexOf(x.name)<0)names.push(x.name);});});
+ const rows=[];
+ rows.push({g:'Doanh thu phát sinh tại CSS',gid:'gcr',keys:names,mode:'cssrevn'});
+ if(!COLL.gcr){
+  if(names.length)names.forEach(n=>rows.push({l:n,p:['cssrevn',n],grp:'gcr'}));
+  else rows.push({l:'Chưa khai dòng doanh thu nào',p:['sh','rev'],grp:'gcr'});
+ }
+ rows.push({l:'Tổng doanh thu CSS',p:['sh','rev'],cls:'cm'});
+ const per=CSSL.slice().sort((a,b)=>coaSort(a.k,b.k));
+ rows.push({g:'Chi phí gross 7.x — toàn công ty, theo dòng',gid:'gcc',keys:per.map(x=>x.k),mode:'css7'});
+ if(!COLL.gcc)per.forEach(x=>rows.push({l:x.l,p:['css7',x.k],grp:'gcc'}));
+ rows.push({l:'Cộng chi phí gross',p:['css7tot'],cls:'cm'},
+  {l:'= OP TẠI CSS TRƯỚC KHI PHÂN BỔ',p:['sh','opGross'],cls:'op'},
+  {g:'Reconcile — chi phí đẩy đi đâu, còn lại bao nhiêu',rec:1},
+  {l:'Đẩy về SBH (BU12)',p:['to12x'],sub:1,rec:1},
+  {l:'Đẩy về FinanOne (BU3)',p:['to3x'],sub:1,rec:1},
+  {l:'Giữ lại ở CSS',p:['keepx'],sub:1,rec:1},
+  {l:'= Cộng ba đường',p:['__sum7x'],cls:'cm',rec:1},
+  {l:'Chênh lệch với chi phí gross (phải = 0)',p:['__gap7xcss'],d:2,cls:'chk',rec:1},
+  {l:'= OP CÒN LẠI TRÊN CSS',p:['sh','opKeep'],cls:'op',rec:1},
+  {l:'Chênh lệch (phải = 0)',p:['__gapCSS'],d:2,cls:'chk',rec:1});
+ return rows;
+}
+function segRows(seg,ms){
+ /* Luôn bám theo kênh đang nhập ở panel trái — một segment, không đa chọn.
+    Đa chọn nằm ở tab P&L BU level, nơi việc gộp mới có nghĩa. */
+ SEGKEY=seg;
+ if(BU==='CSS')return cssRows(ms);
+ if(seg===BUDEF[BU].shared)return sharedRows(ms);
+ const used=k=>ms.some(m=>{const D=dataFor(m),n=D.ch[seg];return n&&Math.abs(Number(n[k])||0)>0.004;});
+ return buildGroups(used,'seg').concat([
+  {l:'Cộng chi phí trực tiếp',p:['chk_','direct']},
+  {l:'CHANNEL CONTRIBUTION MARGIN',p:['chk_','channelCM'],cls:'op',
+   f:'doanh thu − chiết khấu − chi phí trực tiếp của kênh (chưa trừ nền tảng và back office)'}]);
+}
+/* ===== P&L BU level — gộp đúng các khối được bật ngay trên bảng =====
+   NGUYÊN TẮC TRÌNH BÀY (chốt 31/08): khối reconcile phải nằm NGAY SÁT con số nó
+   đối soát, không được để dòng khác chen vào giữa. Chỉ khi hai cách dựng ra cùng
+   một con số nằm cạnh nhau thì mắt mới đối soát được.
+   Trước đây chi phí dùng chung chen giữa "Σ Channel CM" và phần reconcile của nó. */
+function buRows(ms){
+ if(BU==='CSS')return cssRows(ms);
+ const list=selCh(), withSh=selShared(), nm=BULBL();
+ if(!list.length&&!withSh)return [{g:'Chưa bật khối nào — bật ở thanh ngay trên bảng'}];
+ SEGLIST=list;
+ let rows=[];
+ if(list.length){
+  const used=k=>ms.some(m=>{const D=dataFor(m);
+    return list.some(c=>D.ch[c]&&Math.abs(Number(D.ch[c][k])||0)>0.004);});
+  rows=buildGroups(used,'sline').concat([
+   {l:'Cộng chi phí trực tiếp',p:['sline','direct']},
+   {l:'Σ CHANNEL CM — '+list.length+'/'+curCH().length+' kênh · cộng theo dòng',p:['sline','channelCM'],
+    cls:withSh?'cm':'op',f:'doanh thu − chiết khấu − chi phí trực tiếp của các kênh đang bật'}]);
+  /* ── reconcile NGAY SÁT Σ Channel CM ── */
+  if(list.length>1){
+   rows.push({g:'Reconcile — cùng con số đó, nhìn theo từng kênh',rec:1});
+   list.forEach(c=>rows.push({l:'CM · '+CHLABEL[c],p:['ch',c,'channelCM'],sub:1,rec:1}));
+   rows.push({l:'= Σ Channel CM — cộng theo kênh',p:['sline','channelCM'],cls:'cm',rec:1},
+    {l:'Chênh lệch với cách cộng theo dòng (phải = 0)',p:['__gapSel'],d:2,cls:'chk',rec:1});
+  }
+ }
+ /* ── chi phí dùng chung ĐẶT SAU khối reconcile ── */
+ if(withSh){
+  const L=[{k:'cloud',l:'3.1 COGS_Software — nền tảng / cloud'},
+           {k:'payCS',l:'6.1 Staff - Customer Operation'},
+           {k:'payProduct',l:'6.3 Staff - Product Development'},
+           {k:'payTech',l:'6.4 Staff - Technology'}];
+  rows.push({g:'Chi phí dùng chung toàn '+nm+' — theo dòng',gid:'gshb',keys:L.map(x=>x.k),mode:'shb'});
+  if(!COLL.gshb)L.forEach(x=>rows.push({l:x.l,p:['shb',x.k],grp:'gshb'}));
+  rows.push({l:'Cộng chi phí dùng chung',p:['shb','platform'],cls:list.length?'cm':'op',
+    f:'cloud + 6.1 + 6.3 + 6.4 — trừ một lần ở tầng '+nm});
+  if(list.length){
+   rows.push({l:'= OP TRƯỚC PHÂN BỔ — '+nm,p:['selOP'],cls:'op',
+     f:'Σ Channel CM các kênh đang bật + chi phí dùng chung'});
+   /* ── reconcile NGAY SÁT OP trước phân bổ ── */
+   if(list.length===curCH().length)
+    rows.push({g:'Reconcile — đối chiếu với OP trước phân bổ của cả '+nm,rec:1},
+     {l:'OP trước phân bổ — dựng từ engine của '+nm,p:['bu','opBefore'],sub:1,rec:1},
+     {l:'Chênh lệch (phải = 0)',p:['__gapSelFull'],d:2,cls:'chk',rec:1});
+  }
+ }
+ const full=(list.length===curCH().length)&&withSh;
+ /* LỖI trước: khối phân bổ 7.x chỉ hiện khi bật ĐỦ mọi kênh. Tắt một kênh là nó
+    biến mất, dù phân bổ từ CSS là khoản cấp BU, không phụ thuộc kênh nào đang xem.
+    Nay: hiện bất cứ khi nào bật chi phí chung; dòng kiểm chỉ thêm khi đủ kênh. */
+ if(withSh){
+  rows.push({g:'Xuống OP sau phân bổ',rec:1},
+   {l:'7.x nhận phân bổ từ CSS',p:['sh','alloc'],sub:1,rec:1,
+    f:'khoản cấp BU — không đổi theo số kênh đang bật'},
+   {l:'= OP SAU PHÂN BỔ'+(full?' — '+nm:' — '+list.length+'/'+curCH().length+' kênh'),
+    p:['selOPAfter'],cls:'aft',rec:1,f:'OP trước phân bổ đang xem + 7.x nhận phân bổ'});
+  if(full)rows.push({l:'Chênh lệch với OP sau phân bổ của cả '+nm+' (phải = 0)',p:['__gapAftSel'],d:2,cls:'chk',rec:1});
+  else rows.push({l:'OP sau phân bổ nếu bật lại tất cả',p:['bu','opAfter'],sub:1,rec:1});
+ }
+ const offCh=curCH().filter(c=>list.indexOf(c)<0);
+ if(offCh.length||!withSh){
+  rows.push({g:'Đang TẮT — '+offCh.map(c=>CHLABEL[c]).concat(withSh?[]:['chi phí chung '+nm]).join(' · '),rec:1});
+  offCh.forEach(c=>rows.push({l:'CM · '+CHLABEL[c]+' (không tính vào trên)',p:['ch',c,'channelCM'],sub:1,rec:1}));
+  if(!withSh)rows.push({l:'Chi phí dùng chung '+nm+' (không tính vào trên)',p:['shb','platform'],sub:1,rec:1});
+  rows.push({l:'OP trước phân bổ nếu bật lại tất cả',p:['bu','opBefore'],cls:'cm',rec:1});
+ }
+ return rows;
+}
+let SEGLIST=null;
+let SEGKEY=null;
 /* ===== P&L cấp trên: TRÌNH BÀY THEO LINE ITEM, rồi reconcile ngược về segment =====
    Hai mặt của cùng một con số:
      mặt 1 — cộng ngang theo từng dòng P&L (giống hệt cấp segment)
@@ -1043,24 +1347,18 @@ function nodesOf(D){
 function lineRows(ms,scope){
  const get=m=>(scope==='co')?dataCo(m):dataFor(m);
  const used=k=>ms.some(m=>nodesOf(get(m)).some(n=>n&&Math.abs(Number(n[k])||0)>0.004));
- const grp=(t,keys)=>{const ks=keys.filter(used);
-   return ks.length?[{g:t}].concat(ks.map(k=>({l:LINELBL[k]||k,p:['line',k]}))):[];};
- return [].concat(
-  grp('Doanh thu — theo dòng',REVK),
-  [{l:'Tổng doanh thu',p:['line','rev'],cls:'cm'}],
-  grp('Chiết khấu / promotion',DISCK),
-  grp('Chi phí trực tiếp của kênh — theo dòng',DIRK),
-  [{l:'Cộng chi phí trực tiếp',p:['line','direct']},
-   {l:'Σ CHANNEL CM — cộng theo dòng',p:['line','channelCM'],cls:'op'}]);
+ return buildGroups(used,'line').concat([
+  {l:'Cộng chi phí trực tiếp',p:['line','direct']},
+  {l:'Σ CHANNEL CM — cộng theo dòng',p:['line','channelCM'],cls:'op'}]);
 }
 /* Reconcile  — luôn kèm dòng chênh lệch phải bằng 0 */
 function recRowsBU(){
- const CHs=curCH(), nm=BU==='BU12'?'SBH':'FinanOne';
- return [{g:'Reconcile — cùng con số đó, nhìn theo segment'}]
-  .concat(CHs.map(c=>({l:'CM · '+CHLABEL[c],p:['ch',c,'channelCM'],sub:1})))
+ const CHs=curCH(), nm=BULBL();
+ return [{g:'Reconcile — cùng con số đó, nhìn theo segment',rec:1}]
+  .concat(CHs.map(c=>({l:'CM · '+CHLABEL[c],p:['ch',c,'channelCM'],sub:1,rec:1})))
   .concat([
-   {l:'= Σ Channel CM — cộng theo segment',p:['bu','channelCM'],cls:'cm'},
-   {l:'Chênh lệch với cách cộng theo dòng (phải = 0)',p:['__gapCMbu'],d:2,cls:'chk'},
+   {l:'= Σ Channel CM — cộng theo segment',p:['bu','channelCM'],cls:'cm',rec:1},
+   {l:'Chênh lệch với cách cộng theo dòng (phải = 0)',p:['__gapCMbu'],d:2,cls:'chk',rec:1},
    {g:'Trừ chi phí dùng chung toàn '+nm},
    {l:'Nền tảng / cloud',p:['sh','cloud'],sub:1},
    {l:'6.1 Customer Operation',p:['sh','payCS'],sub:1},
@@ -1068,45 +1366,97 @@ function recRowsBU(){
    {l:'6.4 Technology',p:['sh','payTech'],sub:1},
    {l:'Cộng chi phí dùng chung',p:['sh','platform'],cls:'cm'},
    {l:'= OP TRƯỚC PHÂN BỔ — '+nm,p:['bu','opBefore'],cls:'op'},
-   {l:'Chênh lệch (phải = 0)',p:['__gapBU'],d:2,cls:'chk'},
-   {g:'Xuống OP sau phân bổ'},
-   {l:'7.x nhận phân bổ từ CSS',p:['sh','alloc'],sub:1},
-   {l:'= OP SAU PHÂN BỔ',p:['bu','opAfter'],cls:'aft'},
-   {l:'Chênh lệch (phải = 0)',p:['__gapAft'],d:2,cls:'chk'}]);
+   {l:'Chênh lệch (phải = 0)',p:['__gapBU'],d:2,cls:'chk',rec:1},
+   {g:'Xuống OP sau phân bổ',rec:1},
+   {l:'7.x nhận phân bổ từ CSS',p:['sh','alloc'],sub:1,rec:1},
+   {l:'= OP SAU PHÂN BỔ',p:['bu','opAfter'],cls:'aft',rec:1},
+   {l:'Chênh lệch (phải = 0)',p:['__gapAft'],d:2,cls:'chk',rec:1}]);
 }
-const recRowsCo=()=>[
- {g:'Reconcile — cùng con số đó, nhìn theo BU'},
- {l:'Channel CM · SBH (BU12)',p:['__a','channelCM'],sub:1},
- {l:'Channel CM · FinanOne (BU3)',p:['__b','channelCM'],sub:1},
- {l:'= Σ Channel CM — cộng theo BU',p:['__abCM'],cls:'cm'},
- {l:'Chênh lệch với cách cộng theo dòng (phải = 0)',p:['__gapCMco'],d:2,cls:'chk'},
- {g:'Trừ chi phí dùng chung'},
- {l:'Nền tảng dùng chung · SBH',p:['__a','platform'],sub:1},
- {l:'Nền tảng dùng chung · FinanOne',p:['__b','platform'],sub:1},
- {l:'CSS giữ lại — phần không phân bổ',p:['__c','opBefore'],sub:1},
- {l:'= OP TRƯỚC PHÂN BỔ — công ty',p:['bu','opBefore'],cls:'op'},
- {l:'Chênh lệch (phải = 0)',p:['__gapCo'],d:2,cls:'chk'},
- {g:'Xuống OP sau phân bổ'},
- {l:'7.x nhận phân bổ từ CSS',p:['bu','alloc'],sub:1},
- {l:'= OP SAU PHÂN BỔ',p:['bu','opAfter'],cls:'aft'},
- {l:'Chênh lệch (phải = 0)',p:['__gapAft'],d:2,cls:'chk'}
+/* Nhóm chi phí dùng chung của HAI BU — cũng trình bày theo line item */
+const SHARED_LINES_CO=[
+ {k:'cloud',      l:'3.1 COGS_Software — nền tảng / cloud'},
+ {k:'payCS',      l:'6.1 Staff - Customer Operation'},
+ {k:'payProduct', l:'6.3 Staff - Product Development'},
+ {k:'payTech',    l:'6.4 Staff - Technology'}
 ];
+function recRowsCo(ms){
+ const per=(()=>{const m=(ms||[]).find(x=>!isActM(x));
+   if(!m)return CSSL.map(x=>({k:x.k,l:x.l})).sort((a,b)=>coaSort(a.k,b.k));
+   const c=dataCo(m).c; const arr=(c&&c.sh&&c.sh.per)?c.sh.per:CSSL.map(x=>({k:x.k,l:x.l}));
+   return arr.slice().sort((a,b)=>coaSort(a.k,b.k));})();
+ const rows=[
+  {g:'Reconcile — Σ Channel CM nhìn theo BU',rec:1},
+  {l:'Channel CM · SBH (BU12)',p:['__a','channelCM'],sub:1,rec:1},
+  {l:'Channel CM · FinanOne (BU3)',p:['__b','channelCM'],sub:1,rec:1},
+  {l:'= Σ Channel CM — cộng theo BU',p:['__abCM'],cls:'cm',rec:1},
+  {l:'Chênh lệch với cách cộng theo dòng (phải = 0)',p:['__gapCMco'],d:2,cls:'chk',rec:1},
+  {g:'Chi phí dùng chung của hai BU — theo dòng',gid:'gsh',keys:SHARED_LINES_CO.map(x=>x.k),mode:'shline'}
+ ];
+ if(!COLL.gsh)SHARED_LINES_CO.forEach(x=>rows.push({l:x.l,p:['shline',x.k],grp:'gsh'}));
+ rows.push(
+  {l:'Cộng chi phí dùng chung',p:['shline','platform'],cls:'cm'},
+  {l:'= OP TRƯỚC PHÂN BỔ — cộng hai BU',p:['opBU'],cls:'op'},
+  {g:'Reconcile — OP trước phân bổ nhìn theo BU',rec:1},
+  {l:'OP trước phân bổ · SBH (BU12)',p:['__a','opBefore'],sub:1,rec:1},
+  {l:'OP trước phân bổ · FinanOne (BU3)',p:['__b','opBefore'],sub:1,rec:1},
+  {l:'= OP TRƯỚC PHÂN BỔ — cộng theo BU',p:['opBU'],cls:'cm',rec:1},
+  {l:'Chênh lệch với cách cộng theo dòng (phải = 0)',p:['__gapOpBU'],d:2,cls:'chk',rec:1},
+  {g:'CSS — phát sinh tại tầng công ty',rec:0},
+  {l:'Doanh thu phát sinh tại CSS',p:['cssRevCo']},
+  {g:'7.x toàn công ty — theo dòng',gid:'g7',keys:per.map(x=>x.k),mode:'css7'});
+ if(!COLL.g7)per.forEach(x=>rows.push({l:x.l,p:['css7',x.k],grp:'g7'}));
+ rows.push(
+  {l:'Cộng 7.x gross toàn công ty',p:['css7tot'],cls:'cm'},
+  {g:'Reconcile — 7.x đi về đâu',rec:1},
+  {l:'Phân bổ về SBH (BU12)',p:['to12'],sub:1,rec:1},
+  {l:'Phân bổ về FinanOne (BU3)',p:['to3'],sub:1,rec:1},
+  {l:'Giữ lại ở CSS — không phân bổ',p:['keep'],sub:1,rec:1},
+  {l:'= Cộng ba đường đi',p:['__sum7x'],cls:'cm',rec:1},
+  {l:'Chênh lệch với tổng 7.x theo dòng (phải = 0)',p:['__gap7x'],d:2,cls:'chk',rec:1},
+  {l:'= OP SAU PHÂN BỔ — công ty',p:['opAfterCo'],cls:'op'},
+  {g:'Reconcile — OP sau phân bổ nhìn theo BU',rec:1},
+  {l:'OP sau phân bổ · SBH (BU12)',p:['__a','opAfter'],sub:1,rec:1},
+  {l:'OP sau phân bổ · FinanOne (BU3)',p:['__b','opAfter'],sub:1,rec:1},
+  {l:'CSS — phần giữ lại, không phân bổ',p:['__c','opAfter'],sub:1,rec:1},
+  {l:'= OP SAU PHÂN BỔ — cộng theo BU',p:['__sumAfter'],cls:'cm',rec:1},
+  {l:'Chênh lệch với cách cộng theo dòng (phải = 0)',p:['__gapAftBU'],d:2,cls:'chk',rec:1});
+ return rows;
+}
 
 /* ================= PHẢI — P&L hợp nhất BU12 / Customer / theo kênh ================= */
-function plRows(ms){return lineRows(ms,'bu');}
+function plRows(ms){return buRows(ms);}
+function segBar(){
+ if(BU==='CSS')return '';
+ const chip=(k,lbl,extra)=>`<button class="chip${(SEGSEL[BU]&&SEGSEL[BU][k])?' on':''}" data-segsel="${k}">${lbl}${extra||''}</button>`;
+ return `<div class="segbar"><span class="sblab">Gộp vào P&L:</span>
+   ${curCH().map(c=>chip(c,CHLABEL[c])).join('')}
+   ${chip(BUDEF[BU].shared,'Chi phí chung','<i>chung</i>')}
+   <span class="sbsp"></span>
+   <button class="chip q" data-ssel="all">Tất cả</button>
+   <button class="chip q" data-ssel="ch">Chỉ kênh</button>
+   <button class="chip q" data-ssel="none">Bỏ hết</button></div>`;
+}
 const coRows=(ms)=>[{g:'Hợp nhất công ty — BU12 + BU3 + CSS'}].concat(lineRows(ms,'co'));
 const CUSTROWS=[
- {g:'A · Biến động customer base'},
- {l:'Opening',p:['sh','baseStart'],d:0},
- {l:'+ New (cộng các kênh)',p:['sh','newUsers'],d:0,sub:1},
+ {g:'A · Biến động customer base — mức TỔNG'},
+ {l:'Opening — base tổng',p:['sh','openTotal'],d:0,f:1},
+ {l:'+ New từ kênh trực tiếp',p:['sh','newUsers'],d:0,sub:1},
  {l:'+ Re-activated',p:['sh','react'],d:0,sub:1},
- {l:'− Churned',p:['sh','churned'],d:0,sub:1,inv:1},
- {l:'= Base kênh trực tiếp',p:['sh','baseEnd'],d:0},
- {l:'+ User đang có từ đối tác',p:['sh','stockUsers'],d:0,sub:1},
- {l:'= BASE TỔNG',p:['sh','baseTotal'],d:0,cls:'op'},
+ {l:'− Churned (kênh trực tiếp)',p:['sh','churned'],d:0,sub:1,inv:1},
+ {l:'± Thay đổi user từ đối tác',p:['sh','dStock'],d:0,sub:1},
+ {l:'= Closing — BASE TỔNG',p:['sh','baseTotal'],d:0,cls:'op'},
+ {l:'Chênh lệch roll-forward (phải = 0)',p:['__gapBase'],d:2,cls:'chk',rec:1},
+ {g:'A′ · Tách theo nguồn',rec:1},
+ {l:'Base kênh trực tiếp',p:['sh','baseEnd'],d:0,sub:1,rec:1},
+ {l:'User đang có từ đối tác',p:['sh','stockUsers'],d:0,sub:1,rec:1},
+ {l:'= BASE TỔNG',p:['sh','baseTotal'],d:0,cls:'cm',rec:1},
+ {l:'Chênh lệch (phải = 0)',p:['__gapBaseSrc'],d:2,cls:'chk',rec:1},
  {g:'B · Khách trả phí trong tháng'},
  {l:'New',p:['sh','newUsers'],d:0},{l:'Re-activated',p:['sh','react'],d:0},
- {l:'Renewed',p:['sh','renewed'],d:0},{l:'Tổng khách trả phí',p:['sh','paying'],d:0,cls:'cm'},
+ {l:'Renewed',p:['sh','renewed'],d:0},
+ {l:'Cộng kênh trực tiếp',p:['sh','payingDirect'],d:0},
+ {l:'Từ đối tác — trả phí hàng tháng',p:['sh','payingPartner'],d:0},
+ {l:'Tổng khách trả phí',p:['sh','paying'],d:0,cls:'cm'},
  {g:'C · Tỷ lệ & đơn giá'},
  {l:'L1 — lead (Own)',p:['ch','OWN','L1'],d:0},
  {l:'CR tổng từ lead',p:['ch','OWN','crTotal'],d:2,avg:1},
@@ -1116,11 +1466,85 @@ const CUSTROWS=[
  {l:'Kỳ hạn trung bình',p:['sh','avgTerm'],d:1,last:1},
  {l:'H5 kích hoạt (HLB)',p:['ch','HLB','h5'],d:0},
  {g:'D · Kiểm chéo'},
+ {l:'Base bình quân (dùng tính cloud)',p:['sh','baseAvg'],d:0},
  {l:'Cloud / active user (K VND)',p:['__cloudpu'],d:1,avg:1},
+ {l:'Doanh thu / khách trả phí (tr)',p:['__revpp'],d:3,avg:1},
  {l:'Base cuối / base đầu',p:['__ratio'],d:3,avg:1}
 ];
+const fin=x=>(typeof x==='number'&&isFinite(x))?x:null;   /* undefined / NaN → null */
 function pick(D,r){
  const p=r.p;
+  if(p[0]==='shb'){const v=D.sh?D.sh[p[1]]:null;return (v===undefined)?null:v;}
+ if(p[0]==='cssrevn'){const rp=D.sh&&D.sh.revper?D.sh.revper:null;if(!rp)return null;
+   const r=rp.filter(x=>x.name===p[1])[0];return r?r.v:null;}
+ if(p[0]==='cssrev'){const rp=D.sh&&D.sh.revper?D.sh.revper:null;if(!rp)return null;
+   const r=rp.filter(x=>x.i===p[1])[0];return r?r.v:null;}
+ if(p[0]==='to12x')return (D.sh&&D.sh.to12!==null&&D.sh.to12!==undefined)?-D.sh.to12:null;
+ if(p[0]==='to3x') return (D.sh&&D.sh.to3 !==null&&D.sh.to3 !==undefined)?-D.sh.to3 :null;
+ if(p[0]==='keepx')return (D.sh&&D.sh.keep!==null&&D.sh.keep!==undefined)?D.sh.keep:null;
+ if(p[0]==='__gap7xcss'){const g=pick(D,{p:['css7tot']}),a=pick(D,{p:['to12x']}),b=pick(D,{p:['to3x']}),k=pick(D,{p:['keepx']});
+   return (g===null||a===null||b===null||k===null)?null:g-(a+b+k);}
+ if(p[0]==='__gapCSS'){const r=D.sh?D.sh.rev:null,k=pick(D,{p:['keepx']}),o=D.sh?D.sh.opKeep:null;
+   return (r===null||k===null||o===null||o===undefined)?null:o-(r+k);}
+ if(p[0]==='shline'){const a=D.a?D.a.sh[p[1]]:null,b=D.b?D.b.sh[p[1]]:null;
+   if((a===null||a===undefined)&&(b===null||b===undefined))return null;
+   return (Number(a)||0)+(Number(b)||0);}
+ if(p[0]==='opBU'){if(!D.a||!D.b)return null;return D.a.bu.opBefore+D.b.bu.opBefore;}
+ if(p[0]==='css7'){const per=(D.c&&D.c.sh)?D.c.sh.per:(D.sh&&D.sh.per?D.sh.per:null);if(!per)return null;
+   const r=per.filter(x=>x.k===p[1])[0];return (r&&r.gross!==null&&r.gross!==undefined)?-r.gross:null;}
+ if(p[0]==='css7tot'){const s=(D.c&&D.c.sh)?D.c.sh:(D.sh||null);return (s&&s.gross!==null&&s.gross!==undefined)?s.gross:null;}
+ if(p[0]==='to12')return (D.c&&D.c.sh&&D.c.sh.to12!==null&&D.c.sh.to12!==undefined)?-D.c.sh.to12:null;
+ if(p[0]==='to3') return (D.c&&D.c.sh&&D.c.sh.to3 !==null&&D.c.sh.to3 !==undefined)?-D.c.sh.to3 :null;
+ if(p[0]==='keep')return (D.c&&D.c.sh&&D.c.sh.keep!==null&&D.c.sh.keep!==undefined)?D.c.sh.keep:null;
+ if(p[0]==='cssRevCo'){const s=(D.c&&D.c.sh)?D.c.sh.rev:null;return (s===null||s===undefined)?null:s;}
+ if(p[0]==='opAfterCo'){/* LỖI trước: chỉ cộng chi phí 7.x, quên doanh thu phát sinh tại CSS.
+   OP sau phân bổ công ty = OP trước pb hai BU + doanh thu CSS − chi phí 7.x gross. */
+   const o=pick(D,{p:['opBU']}),g=pick(D,{p:['css7tot']}),r=pick(D,{p:['cssRevCo']});
+   return (o===null||g===null)?null:o+g+(r||0);}
+ if(p[0]==='__gapOpBU'){/* kiểm THẬT: OP trước pb cộng theo BU phải bằng
+   (Σ Channel CM cộng theo dòng) + (chi phí dùng chung cộng theo dòng) */
+   const byBU=pick(D,{p:['opBU']});
+   const cm=pick(D,{p:['line','channelCM']});
+   const sh=pick(D,{p:['shline','platform']});
+   return (byBU===null||cm===null||sh===null)?null:byBU-(cm+sh);}
+ if(p[0]==='__sum7x'){const inCSS=!D.c;
+   const a=pick(D,{p:[inCSS?'to12x':'to12']}),b=pick(D,{p:[inCSS?'to3x':'to3']}),k=pick(D,{p:[inCSS?'keepx':'keep']});
+   return (a===null||b===null||k===null)?null:a+b+k;}
+ if(p[0]==='__sumAfter'){if(!D.a||!D.b||!D.c)return null;
+   const c=D.c.bu.opAfter; if(c===null||c===undefined)return null;
+   return D.a.bu.opAfter+D.b.bu.opAfter+c;}
+ if(p[0]==='__gapAftBU'){const s=pick(D,{p:['__sumAfter']}),x=pick(D,{p:['opAfterCo']});
+   return (s===null||x===null)?null:s-x;}
+ if(p[0]==='__gap7x'){const g=pick(D,{p:['css7tot']}),a=pick(D,{p:['to12']}),b=pick(D,{p:['to3']}),k=pick(D,{p:['keep']});
+   return (g===null||a===null||b===null||k===null)?null:g-(a+b+k);}
+ if(p[0]==='__gapAftCo'){const x=pick(D,{p:['opAfterCo']});
+   return (x===null||!D.bu)?null:x-D.bu.opAfter;}
+  if(p[0]==='sline'){const L=SEGLIST||selCh();let t=0,any=false;
+   L.forEach(c=>{const n=D.ch[c];const v=n?n[p[1]]:undefined;
+     if(v!==undefined&&v!==null&&!isNaN(v)){t+=v;any=true;}});
+   return any?t:null;}
+ if(p[0]==='selOP'){const cm=pick(D,{p:['sline','channelCM']}),sh=pick(D,{p:['shb','platform']});
+   return (cm===null&&sh===null)?null:((cm||0)+(sh||0));}
+ if(p[0]==='selOPAfter'){const o=pick(D,{p:['selOP']}),a=D.sh?D.sh.alloc:null;
+   if(o===null&&(a===null||a===undefined))return null;
+   return (o||0)+(Number(a)||0);}
+ if(p[0]==='__gapAftSel'){const s=pick(D,{p:['selOPAfter']});
+   return (s===null||!D.bu)?null:s-D.bu.opAfter;}
+ if(p[0]==='__gapSelFull'){const s=pick(D,{p:['selOP']});
+   return (s===null||!D.bu)?null:s-D.bu.opBefore;}
+ if(p[0]==='__gapSel'){const L=SEGLIST||selCh();let t=0;
+   L.forEach(c=>{t+=Number((D.ch[c]||{}).channelCM)||0;});
+   const s=pick(D,{p:['sline','channelCM']});return (s===null)?null:t-s;}
+ if(p[0]==='chk_'){const n=D.ch[SEGKEY];const v=n?n[p[1]]:undefined;return (v===undefined)?null:v;}
+ if(p[0]==='grpsum'){let t=0,any=false;
+   (p[2]||[]).forEach(k=>{
+     if(p[1]==='shline'||p[1]==='css7'||p[1]==='shb'||p[1]==='cssrev'||p[1]==='cssrevn'||p[1]==='sline'){const v=pick(D,{p:[p[1],k]});
+       if(v!==null&&v!==undefined){t+=v;any=true;}return;}
+     const v=(p[1]==='seg')?((D.ch[SEGKEY]||{})[k]):null;
+     if(p[1]==='line'){let s=0,ok=false;nodesOf(D).forEach(n=>{const x=n?n[k]:undefined;if(x!==undefined&&x!==null&&!isNaN(x)){s+=x;ok=true;}});
+       if(ok){t+=s;any=true;}}
+     else if(v!==undefined&&v!==null&&!isNaN(v)){t+=v;any=true;}});
+   return any?t:null;}
  if(p[0]==='line'){let t=0,any=false;
    nodesOf(D).forEach(n=>{const v=n?n[p[1]]:undefined;if(v!==undefined&&v!==null&&!isNaN(v)){t+=v;any=true;}});
    return any?t:null;}
@@ -1133,7 +1557,16 @@ function pick(D,r){
  if(p[0]==='__gapAft')return D.bu.opAfter-(D.bu.opBefore+(D.sh&&D.sh.alloc!==undefined&&D.ch?D.sh.alloc:D.bu.alloc));
  if(p[0]==='__gapCo')return D.bu.opBefore-((D.a?D.a.bu.opBefore:0)+(D.b?D.b.bu.opBefore:0)+(D.c?D.c.bu.opBefore:0));
  if(p[0]==='__cloudpu')return D.sh.baseAvg?-D.sh.cloud*1000/D.sh.baseAvg:null;
- if(p[0]==='__ratio')return (D.sh.baseStart&&D.sh.baseTotal)?D.sh.baseTotal/D.sh.baseStart:null;
+ if(p[0]==='__revpp'){const r=D.bu?D.bu.rev:null;return (r&&D.sh.paying)?r/D.sh.paying:null;}
+ if(p[0]==='__gapBase'){const s=D.sh;
+   const o=fin(s.openTotal),b=fin(s.baseTotal),n=fin(s.newUsers),c=fin(s.churned);
+   if(o===null||b===null||n===null||c===null)return null;
+   return b-(o+n+(fin(s.react)||0)-c+(fin(s.dStock)||0));}
+ if(p[0]==='__gapBaseSrc'){const s=D.sh;
+   const b=fin(s.baseTotal),e=fin(s.baseEnd);
+   if(b===null||e===null)return null;
+   return b-(e+(fin(s.stockUsers)||0));}
+ if(p[0]==='__ratio')return (D.sh.openTotal&&D.sh.baseTotal)?D.sh.baseTotal/D.sh.openTotal:null;
  let v;
  if(p[0]==='__a')v=D.a?D.a.bu[p[1]]:null;
  else if(p[0]==='__b')v=D.b?D.b.bu[p[1]]:null;
@@ -1147,47 +1580,69 @@ function pick(D,r){
 function renderRight(){
  const ms=showList();
  const tabs=`<div class="rtabs">
-   <button class="rtab${RTAB==='seg'?' on':''}" data-rtab="seg">P&L · ${CHLABEL[SEG]}</button>
-   <button class="rtab${RTAB==='pl'?' on':''}" data-rtab="pl">P&L ${BU==='BU12'?'SBH':'FinanOne'}</button>
-   <button class="rtab${RTAB==='co'?' on':''}" data-rtab="co">Hợp nhất công ty</button>
+   <button class="rtab${RTAB==='seg'?' on':''}" data-rtab="seg">P&L segment level<span class="tabsub">${(BU==='CSS'||SEG===BUDEF[BU].shared)?CHLABEL[SEG]:CHLABEL[SEG]}</span></button>
+   <button class="rtab${RTAB==='pl'?' on':''}" data-rtab="pl">P&L BU level<span class="tabsub">${BULBL()}${BU==='CSS'?'':' · '+(selCh().length+(selShared()?1:0))+'/'+selKeys().length+' khối'}</span></button>
+   <button class="rtab${RTAB==='co'?' on':''}" data-rtab="co">P&L Company level</button>
    <button class="rtab${RTAB==='cust'?' on':''}" data-rtab="cust">Customer performance</button>
    <span class="rmeta">${ms.length} tháng · actual nền xám</span></div>`;
  if(!ms.length)return `<div class="plwrap">${tabs}<div style="padding:20px;color:var(--muted)">Chưa chọn tháng nào.</div></div>`;
  const D=ms.map(m=>({m:m,a:isActM(m),d:RTAB==='co'?dataCo(m):dataFor(m)}));
  const th=D.map(c=>`<th class="${c.a?'a':''}">${c.m}</th>`).join('');
   let ROWS;
- if(RTAB==='seg'){const seg=(SEG===BUDEF[BU].shared)?curCH()[0]:SEG;ROWS=segRows(seg,ms);}
- else if(RTAB==='pl')ROWS=plRows(ms).concat(recRowsBU());
- else if(RTAB==='co')ROWS=coRows(ms).concat(recRowsCo());
+ if(RTAB==='seg'){ROWS=segRows(SEG,ms);}
+ else if(RTAB==='pl')ROWS=plRows(ms);
+ else if(RTAB==='co')ROWS=coRows(ms).concat(recRowsCo(ms));
  else ROWS=CUSTROWS;
  const body=ROWS.map(r=>{
-  if(r.g)return `<tr class="g"><td class="rl">${r.g}</td>${D.map(()=>'<td></td>').join('')}<td></td></tr>`;
+  if(r.g){
+   if(!r.gid)return `<tr class="g${r.rec?' recrow':''}"><td class="rl">${r.g}</td>${D.map(()=>'<td></td>').join('')}<td></td></tr>`;
+   const gv=D.map(c=>pick(c.d,{p:['grpsum',r.mode,r.keys]}));
+   const gok=gv.filter(v=>v!==null&&v!==undefined);
+   const gtot=gok.length?gok.reduce((a,b)=>a+b,0):null;
+   const cells=D.map((c,j)=>{const v=gv[j];
+     return `<td class="${c.a?'a ':''}${(v===null||v===undefined)?'na':(v<0?'neg':'')}">${(v===null||v===undefined)?'—':fmt(v,0)}</td>`;}).join('');
+   return `<tr class="g grpx${r.rec?' recrow':''}"><td class="rl"><button class="gtog" data-grp="${r.gid}">${COLL[r.gid]?'▸':'▾'}</button>${r.g}
+     <span class="gn">${r.keys.length} dòng</span></td>${cells}
+     <td class="t ${gtot<0?'neg':''}">${gtot===null?'—':fmt(gtot,0)}</td></tr>`;}
   const vs=D.map(c=>pick(c.d,r));
-  const ok=vs.filter(v=>v!==null&&v!==undefined);
+  const ok=vs.filter(v=>typeof v==='number'&&isFinite(v));
   const isChk=(r.cls==='chk');
   const tds=D.map((c,j)=>{const v=vs[j];
-   if(v===null||v===undefined)return `<td class="${c.a?'a ':''}na">—</td>`;
-   if(isChk)return `<td class="${c.a?'a ':''}${Math.abs(v)<0.005?'okchk':'badchk'}">${Math.abs(v)<0.005?'✓':fmt(v,2)}</td>`;
+   if(v===null||v===undefined||(typeof v==='number'&&!isFinite(v)))return `<td class="${c.a?'a ':''}na">—</td>`;
+   if(isChk){const f=fin(v);
+     if(f===null)return `<td class="${c.a?'a ':''}na">—</td>`;
+     return `<td class="${c.a?'a ':''}${Math.abs(f)<0.005?'okchk':'badchk'}">${Math.abs(f)<0.005?'✓':fmt(f,2)}</td>`;}
    return `<td class="${c.a?'a ':''}${v<0?'neg':''}">${fmt(v,r.d===undefined?0:r.d)}</td>`;}).join('');
   let tot=null;
   if(ok.length){ tot = r.last?ok[ok.length-1]
     : (r.avg?ok.reduce((a,b)=>a+b,0)/ok.length
-    : (r.p[0]==='sh'&&['baseStart','baseTotal','baseEnd','stockUsers'].indexOf(r.p[1])>=0?ok[ok.length-1]
+    : (r.p[0]==='sh'&&['baseStart','openTotal','baseTotal','baseEnd','stockUsers','payingPartner','baseAvg'].indexOf(r.p[1])>=0?ok[ok.length-1]
     : ok.reduce((a,b)=>a+b,0)));}
-  const totCell=isChk
-   ? `<td class="t ${Math.abs(tot||0)<0.005?'okchk':'badchk'}">${Math.abs(tot||0)<0.005?'✓ khớp':fmt(tot,2)}</td>`
-   : `<td class="t ${tot<0?'neg':''}">${tot===null?'—':fmt(tot,r.d===undefined?0:r.d)}</td>`;
-  return `<tr class="${r.cls||''}${r.sub?' sub2':''}"><td class="rl">${r.l}</td>${tds}${totCell}</tr>`;
+  /* LỖI trước: cột Tổng của dòng kiểm phán quyết bằng TỔNG các tháng.
+     Nếu chênh lệch các tháng triệt tiêu nhau (+131 và −131) thì Tổng vẫn hiện ✓
+     trong khi từng tháng đều sai. Nay phán quyết theo TỪNG THÁNG. */
+  let totCell;
+  if(isChk){
+   const fv=vs.map(fin);
+   const bad=fv.map((v,j)=>({m:D[j].m,v:v})).filter(x=>x.v!==null&&Math.abs(x.v)>0.005);
+   const miss=fv.filter(v=>v===null).length;
+   if(bad.length){
+    const worst=bad.reduce((a,b)=>Math.abs(b.v)>Math.abs(a.v)?b:a);
+    totCell=`<td class="t badchk" title="Lệch ở: ${bad.map(x=>x.m+' '+fmt(x.v,2)).join(' · ')}">✗ ${bad.length}/${vs.length} tháng · lớn nhất ${worst.m} ${fmt(worst.v,0)}</td>`;
+   }else if(miss===fv.length){totCell=`<td class="t na">—</td>`;}
+   else if(miss){totCell=`<td class="t badchk" title="${miss} tháng thiếu dữ liệu nên không đối chiếu được">⚠ thiếu ${miss}/${fv.length} tháng</td>`;}
+   else totCell=`<td class="t okchk">✓ khớp ${fv.length}/${fv.length}</td>`;
+  }else{
+   totCell=`<td class="t ${tot<0?'neg':''}">${tot===null?'—':fmt(tot,r.d===undefined?0:r.d)}</td>`;
+  }
+  return `<tr class="${r.cls||''}${r.sub?' sub2':''}${r.rec?' recrow':''}"><td class="rl">${r.l}</td>${tds}${totCell}</tr>`;
  }).join('');
- if(RTAB==='seg'&&SEG===BUDEF[BU].shared)
-   return `<div class="plwrap">${tabs}<div class="rfoot" style="padding:18px">
-     Đang ở tầng <b>${CHLABEL[SEG]}</b> — tầng này không có P&L kênh. Chọn một kênh ở panel trái, hoặc xem tab P&L ${BU==='BU12'?'SBH':'FinanOne'}.</div></div>`;
  const foot=RTAB==='pl'
-  ?`<div class="rfoot">Phần trên cộng <b>theo dòng P&L</b> — cùng loại dòng như cấp segment. Phần dưới cộng <b>theo segment</b>. Hai cách phải ra cùng Σ Channel CM. Cloud · 6.1 · 6.3 · 6.4 trừ một lần ở tầng BU, không phân bổ về kênh.</div>`
-  :(RTAB==='seg'?`<div class="rfoot">Kênh <b>${CHLABEL[SEG]}</b> dừng ở <b>Channel CM</b>. Nền tảng dùng chung và back office nằm ở tầng ${BU==='BU12'?'SBH':'FinanOne'} — xem tab kế bên.</div>`
-  :(RTAB==='co'?`<div class="rfoot">Phần trên cộng <b>theo dòng P&L</b> qua cả 8 kênh của hai BU. Phần dưới cộng <b>theo BU</b>. Ba dòng chênh lệch kiểm: hai cách cộng khớp nhau, xuống OP trước phân bổ, và xuống OP sau phân bổ.</div>`
-  :`<div class="rfoot">Base dùng chung toàn SBH. Cột <b>Tổng</b>: dòng tồn lấy tháng cuối, dòng tỷ lệ lấy bình quân, dòng dòng chảy thì cộng.</div>`));
- return `<div class="plwrap">${tabs}<div class="plscroll"><table class="pl">
+  ?`<div class="rfoot">Bật/tắt khối ngay trên bảng để xem tác động. Phần trên cộng <b>theo dòng P&L</b> — cùng loại dòng như cấp segment. Phần dưới cộng <b>theo segment</b>. Hai cách phải ra cùng Σ Channel CM. Cloud · 6.1 · 6.3 · 6.4 trừ một lần ở tầng BU, không phân bổ về kênh.</div>`
+  :(RTAB==='seg'?`<div class="rfoot">Kênh <b>${CHLABEL[SEG]}</b> dừng ở <b>Channel CM</b>. Nền tảng dùng chung và back office nằm ở tầng ${BULBL()} — xem tab kế bên.</div>`
+  :(RTAB==='co'?`<div class="rfoot">Phần trên cộng <b>theo dòng P&L</b> qua cả 8 kênh của hai BU. Phần dưới cộng <b>theo BU</b>. Chi phí dùng chung và 7.x cũng trình bày theo dòng. Ba dòng chênh lệch kiểm: hai cách cộng Σ Channel CM, OP trước phân bổ theo BU, và 7.x đi về đâu.</div>`
+  :`<div class="rfoot">Base dùng chung. User từ kênh đối tác là một <b>dòng chảy riêng</b> trong biến động và <b>có trả phí hàng tháng</b> nên được đếm vào khách trả phí. Cột <b>Tổng</b>: dòng tồn lấy tháng cuối, dòng tỷ lệ lấy bình quân, dòng dòng chảy thì cộng.</div>`));
+ return `<div class="plwrap">${tabs}${RTAB==='pl'?segBar():''}<div class="plscroll"><table class="pl">
   <thead><tr><th class="rl">${RTAB==='pl'?'Dòng':'Chỉ tiêu'}</th>${th}<th class="t">Tổng</th></tr></thead>
   <tbody>${body}</tbody></table></div>${foot}</div>`;
 }
@@ -1196,7 +1651,8 @@ function renderRight(){
 function applyData(D,label){
  if(!D||D.app!=='finan_mach_van_hanh')return {ok:false,msg:'File không phải bộ dữ liệu của công cụ này'};
  const rep=[];let taken=0,dropped=[];
- if(D.actuals){ACTS=D.actuals.BU12||{};ACTS3=D.actuals.BU3||{};taken++;}
+ if(D.actuals){ACTS=D.actuals.BU12||{};ACTS3=D.actuals.BU3||{};
+   if(D.actuals.CSS)ACTS.__CSS=D.actuals.CSS;taken++;}
  if(D.drivers)Object.keys(D.drivers).forEach(k=>{
    if(!DEF[k]){dropped.push('driver '+k);return;}
    const v=D.drivers[k];
@@ -1205,7 +1661,13 @@ function applyData(D,label){
  const T=D.tables||{};
  if(Array.isArray(T.ACCS)){ACCS=T.ACCS.map(a=>Object.assign({},a,{qty:(a.qty||a5(0)).slice(),price:(a.price||a5(0)).slice()}));taken++;}
  if(Array.isArray(T.PACC)){PACC=T.PACC.map(a=>Object.assign({},a,{qty:(a.qty||a5(0)).slice(),price:(a.price||a5(0)).slice()}));taken++;}
- if(Array.isArray(T.PIPE)){PIPE=T.PIPE.map(p=>Object.assign({},p,{val:(p.val||a5(0)).slice()}));taken++;}
+ /* Pipeline outsource nay là deal trong danh mục Partnership BU3.
+    File cũ còn tách riêng thì dồn vào PACC: qty = 1, đơn giá = giá trị, ev = 100%. */
+ if(Array.isArray(T.PIPE)&&T.PIPE.length){
+   T.PIPE.forEach(p=>PACC.push({name:p.name||'Pipeline outsource',type:'Tech service',unit:'package',
+     ev:100,com:0,share:Number(p.share)||0,qty:a5(1),price:(p.val||a5(0)).slice(),contrib:'none'}));
+   PIPE=[];taken++;}
+ if(Array.isArray(T.CSSREV)){CSSREV=T.CSSREV.map(r=>Object.assign({},r,{val:(r.val||a5(0)).slice()}));taken++;}
  if(Array.isArray(T.CSSL)&&T.CSSL.length){CSSL=T.CSSL.map(x=>Object.assign({},x,{g:(x.g||a5(0)).slice()}));taken++;}
  const missing=Object.keys(DEF).filter(k=>!D.drivers||!D.drivers[k]);
  DATA_META={label:D.label||label,dataVersion:D.dataVersion||'—',shapeVersion:D.shapeVersion,
@@ -1216,20 +1678,65 @@ function applyData(D,label){
    msg:label+': nhận '+taken+' khối'+(dropped.length?', bỏ '+dropped.length:'')
       +(missing.length?', thiếu '+missing.length+' driver (giữ 0)':'')+verMsg};
 }
-function hasData(){return !!DATA_META;}
+/* hasData phải phản ánh SỰ THẬT trên màn hình, không chỉ dựa vào DATA_META.
+   Lỗi v1.0: dữ liệu vào qua bản lưu localStorage thì META rỗng → banner báo "khung rỗng"
+   trong khi P&L đã có số. */
+function dataFootprint(){
+ let n=0;
+ Object.keys(IN).forEach(k=>{if(IN[k].some(x=>Number(x)!==0))n++;});
+ n+=ACCS.length+PACC.length+PIPE.length;
+ CSSL.forEach(x=>{if(x.g.some(v=>Number(v)!==0)||Number(x.own)||Number(x.bu3))n++;});
+ n+=Object.keys(ACTS).length+Object.keys(ACTS3).length;
+ return n;
+}
+function hasData(){return dataFootprint()>0;}
+/* Bộ dữ liệu trên máy chủ có thể mới hơn bản lưu trong trình duyệt.
+   Trước đây bản lưu luôn thắng và im lặng → người dùng chạy số cũ mà không biết. */
+let FETCHED=null;
+function staleInfo(){
+ if(!FETCHED||!DATA_META)return null;
+ const a=String(FETCHED.dataVersion||''), b=String(DATA_META.dataVersion||'');
+ return (a&&b&&a!==b)?{server:a,local:b}:null;
+}
+function useServerData(){
+ if(!FETCHED)return;
+ if(!confirm('Nạp bộ dữ liệu trên máy chủ ('+FETCHED.dataVersion+')?\n\n'
+  +'Ghi đè: driver, actual, danh mục đối tác, chi phí CSS.\n'
+  +'Giữ: lịch sử undo, lựa chọn hiển thị.\n\nBản đang dùng: '+DATA_META.dataVersion))return;
+ pushUndo();
+ const res=applyData(FETCHED,'máy chủ');
+ DATA_SRC={kind:'fetch',label:DATA_URL};
+ paint();scheduleSave();status(res.msg);
+}
 function dataBanner(){
- if(hasData())return `<div class="dbanner ok"><b>Dữ liệu:</b> ${DATA_META.label}
-   <span class="dv">${DATA_META.dataVersion}</span>
-   <button class="btn" id="btnData">Đổi bộ dữ liệu</button></div>`;
+ const fp=dataFootprint();
+ if(fp>0){
+  const src=DATA_SRC||{kind:'?',label:'không rõ nguồn'};
+  const stale=(src.kind==='local'&&!DATA_META);
+  const st=staleInfo();
+  if(st)return `<div class="dbanner warnsrc"><b>Đang chạy bộ dữ liệu cũ.</b>
+   <span class="dv">bản lưu trình duyệt: ${st.local} · trên máy chủ: <b>${st.server}</b></span>
+   <div class="dv" style="color:#8a5a12">Số bạn đang xem lấy từ bản lưu, không phải file dữ liệu mới nhất.</div>
+   <button class="btn primary" id="btnUseServer">Nạp bộ dữ liệu mới (${st.server})</button>
+   <button class="btn" id="btnData">📂 Mở file JSON…</button>
+   <button class="btn" id="btnWipe">Về khung rỗng</button></div>`;
+  return `<div class="dbanner ${stale?'warnsrc':'ok'}">
+   <b>Dữ liệu từ:</b> ${DATA_META?DATA_META.label:src.label}
+   <span class="dv">${DATA_META?('bộ '+DATA_META.dataVersion+' · '+({fetch:'tải từ máy chủ',file:'file bạn chọn',local:'bản lưu trình duyệt'}[src.kind]||'')):'bản lưu trình duyệt — không kèm nhãn bộ dữ liệu'}
+   · ${fp} khối có số</span>
+   ${stale?'<div class="dv" style="color:#8a5a12">Số này đến từ bản lưu cũ trong trình duyệt, không phải từ file dữ liệu. Muốn khung sạch thì bấm “Về khung rỗng”.</div>':''}
+   <button class="btn" id="btnData">📂 Mở file JSON…</button>
+   <button class="btn" id="btnWipe">Về khung rỗng</button></div>`;}
  return `<div class="dbanner empty"><b>Khung rỗng — chưa nạp dữ liệu.</b>
    Mọi ô đang bằng 0. Cấu trúc mạch, công thức và phép kiểm vẫn chạy được.
-   <button class="btn primary" id="btnData">Nạp file dữ liệu</button>
+   <button class="btn primary" id="btnData">📂 Mở file JSON…</button>
    <span class="dv">hoặc đặt <code>finan_data_2026.json</code> cạnh file này trên domain</span></div>`;
 }
 function loadDataFile(file){
  const r=new FileReader();
  r.onload=()=>{let D;try{D=JSON.parse(r.result);}catch(e){status('File không phải JSON hợp lệ','warn');return;}
   const res=applyData(D,file.name);
+  if(res.ok)DATA_SRC={kind:'file',label:file.name};
   if(!res.ok){status(res.msg,'warn');return;}
   paint();scheduleSave();status(res.msg);
   if(res.dropped.length)console.warn('Bỏ:',res.dropped);};
@@ -1238,28 +1745,87 @@ function loadDataFile(file){
 function tryFetchData(cb){
  if(typeof fetch!=='function'){cb(false);return;}
  fetch(DATA_URL,{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(r.status))
-  .then(D=>{const res=applyData(D,DATA_URL);cb(res.ok,res.msg);})
+  .then(D=>{FETCHED=D;const res=applyData(D,DATA_URL);if(res.ok)DATA_SRC={kind:'fetch',label:DATA_URL};cb(res.ok,res.msg);})
   .catch(()=>cb(false));
+}
+
+/* ================= MỘT CỬA MỞ FILE =================
+   Trước đây có hai nút cùng nhận .json nhưng hai lược đồ khác nhau và từ chối lẫn nhau:
+     · "Nhập JSON"       → bản làm việc  (app = finan_mach_van_hanh_shell)
+     · "Đổi bộ dữ liệu"  → bộ dữ liệu nền (app = finan_mach_van_hanh)
+   Nay một nút, tự nhận dạng theo trường `app`, và nói rõ vừa mở loại nào. */
+const KIND={
+ data :{app:'finan_mach_van_hanh',       t:'bộ dữ liệu nền',
+        note:'Ghi đè toàn bộ số nền: driver, actual, danh mục đối tác, pipeline, chi phí CSS.'},
+ work :{app:'finan_mach_van_hanh_shell', t:'bản làm việc',
+        note:'Ghi đè số bạn đang chỉnh và trạng thái giao diện. Giữ lịch sử undo.\nFile xuất từ bản cũ vẫn nhận được — trường không còn dùng sẽ bị bỏ.'}
+};
+function sniff(D){
+ if(!D||typeof D!=='object')return null;
+ if(D.app===KIND.data.app)return 'data';
+ if(D.app===KIND.work.app||LEGACY_APP.indexOf(D.app)>=0)return 'work';
+ if(D.data&&D.data.IN)return 'work';        /* bản làm việc cũ chưa có app đúng */
+ if(D.drivers&&D.actuals)return 'data';
+ return null;
+}
+function openJSON(file){
+ const r=new FileReader();
+ r.onload=()=>{
+  let D;try{D=JSON.parse(r.result);}catch(e){status('File không phải JSON hợp lệ','warn');return;}
+  const k=sniff(D);
+  if(!k){status('Không nhận ra loại file. Cần bộ dữ liệu nền hoặc bản làm việc của công cụ này.','warn');return;}
+  const K=KIND[k];
+  if(!confirm('Mở "'+file.name+'" — nhận ra là '+K.t.toUpperCase()+'.\n\n'+K.note
+    +'\n\nGiữ: cấu trúc mạch, phép kiểm.\n\nTiếp tục?'))return;
+  pushUndo();
+  const res=(k==='data')?applyData(D,file.name):applyPayload(D,file.name);
+  if(!res.ok){status(res.msg,'warn');return;}
+  if(k==='data')DATA_SRC={kind:'file',label:file.name};
+  paint();scheduleSave();status('Đã mở '+K.t+' · '+res.msg);
+  if(res.dropped&&res.dropped.length)console.warn('Bỏ:',res.dropped);
+ };
+ r.readAsText(file);
+}
+/* Xuất BỘ DỮ LIỆU NỀN — đúng lược đồ để đặt lên domain cạnh file khung */
+function exportDataSet(){
+ const D={app:KIND.data.app, dataVersion:new Date().toISOString().slice(0,10),
+  shapeVersion:SHAPE_VERSION,
+  label:(DATA_META&&DATA_META.label)?DATA_META.label:'Bộ dữ liệu xuất từ công cụ',
+  months:{actual:AM,plan:FM},
+  actuals:{BU12:ACTS,BU3:ACTS3,CSS:(ACTS.__CSS||null)}, drivers:IN,
+  tables:{ACCS:ACCS,PACC:PACC,PIPE:[],CSSL:CSSL,CSSREV:CSSREV}};
+ download('finan_data_'+stamp()+'.json',JSON.stringify(D,null,1));
+ status('Đã xuất bộ dữ liệu nền — đặt cạnh file khung trên domain');
 }
 
 /* ================= LƯU TRỮ =================
    3 lớp:  autosave localStorage  ·  JSON máy đọc (có version + hash)  ·  CSV người đọc
    SHAPE_VERSION bump mỗi khi đổi hình dạng dữ liệu → bản lưu cũ không nạp đè bừa. */
-const APP_ID="sbh_bu12_mach_van_hanh";
-const SHAPE_VERSION=8;
+const APP_ID="finan_mach_van_hanh_shell";
+/* Tên cũ của bản làm việc — vẫn nhận để không bỏ rơi file người dùng đã xuất */
+const LEGACY_APP=["sbh_bu12_mach_van_hanh","sbh_own_mach_van_hanh"];
+const SHAPE_VERSION=12;
 const STORAGE_KEY=APP_ID+'_v'+SHAPE_VERSION;
 function hashOf(s){let h=5381;for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))>>>0;return h.toString(16).padStart(8,'0');}
 function payload(){
- const data={IN:IN,AQ:AQ,ACCS:ACCS,PACC:PACC,PIPE:PIPE,CSSL:CSSL,ACTS:ACTS,ACTS3:ACTS3,META:DATA_META};
+ const data={IN:IN,AQ:AQ,ACCS:ACCS,PACC:PACC,PIPE:PIPE,CSSL:CSSL,CSSREV:CSSREV,ACTS:ACTS,ACTS3:ACTS3,META:DATA_META};
  return {app:APP_ID, appVersion:APP_VERSION, shapeVersion:SHAPE_VERSION,
    savedAt:new Date().toISOString(), hash:hashOf(JSON.stringify(data)),
-   data:data, ui:{EDITM:EDITM, SHOW:SHOW, RTAB:RTAB, SEG:SEG, BU:BU,
+   data:data, ui:{EDITM:EDITM, SHOW:SHOW, RTAB:RTAB, SEG:SEG, BU:BU, COLL:COLL, SEGSEL:SEGSEL,
+     focus:document.getElementById('shell').classList.contains('focus'),
+     collapsed:document.getElementById('shell').classList.contains('collapsed'),
+     nomid:document.getElementById('shell').classList.contains('nomid'),
      panelw:document.documentElement.style.getPropertyValue('--panelw')||DEFW.panel,
      midw:document.documentElement.style.getPropertyValue('--midw')||DEFW.mid}};
 }
 /* Nạp có kiểm: chỉ nhận khoá còn tồn tại, báo rõ cái gì bị bỏ. */
 function applyPayload(p,label){
- if(!p||p.app!==APP_ID)return {ok:false,msg:'File không thuộc công cụ này'};
+ /* LỖI trước: sniff() nhận file bản làm việc cũ (app = sbh_bu12_mach_van_hanh, tên
+    dùng ở v1.0) nhưng applyPayload lại chặn vì app khác APP_ID hiện tại.
+    Hai cổng kiểm không thống nhất → người dùng thấy "File không thuộc công cụ này"
+    với chính file do công cụ này xuất ra. */
+ const okApp=p&&(p.app===APP_ID||LEGACY_APP.indexOf(p.app)>=0||(p.data&&p.data.IN));
+ if(!okApp)return {ok:false,msg:'File không thuộc công cụ này'};
  const d=p.data||{}; let dropped=[],taken=0;
  if(d.IN)Object.keys(d.IN).forEach(k=>{
    if(!DEF[k]){dropped.push('IN.'+k);return;}
@@ -1278,10 +1844,14 @@ function applyPayload(p,label){
  if(Array.isArray(d.PACC))PACC=d.PACC;
  if(Array.isArray(d.PIPE))PIPE=d.PIPE;
  if(Array.isArray(d.CSSL)&&d.CSSL.length)CSSL=d.CSSL;
+ if(Array.isArray(d.CSSREV))CSSREV=d.CSSREV;
  if(d.ACTS)ACTS=d.ACTS; if(d.ACTS3)ACTS3=d.ACTS3; if(d.META)DATA_META=d.META;
- if(p.ui){ if(p.ui.BU&&BUDEF[p.ui.BU])BU=p.ui.BU; if(p.ui.SEG&&ZN[p.ui.SEG])SEG=p.ui.SEG; if(p.ui.EDITM)EDITM=p.ui.EDITM; if(p.ui.SHOW){ALLM.forEach(m=>SHOW[m]=!!p.ui.SHOW[m]);}
+ if(p.ui){ if(p.ui.COLL)COLL=p.ui.COLL; if(p.ui.SEGSEL)SEGSEL=p.ui.SEGSEL; if(p.ui.BU&&BUDEF[p.ui.BU])BU=p.ui.BU; if(p.ui.SEG&&ZN[p.ui.SEG])SEG=p.ui.SEG; if(p.ui.EDITM)EDITM=p.ui.EDITM; if(p.ui.SHOW){ALLM.forEach(m=>SHOW[m]=!!p.ui.SHOW[m]);}
   if(p.ui.RTAB)RTAB=p.ui.RTAB;
-  if(p.ui.panelw)setW('--panelw',p.ui.panelw); if(p.ui.midw)setW('--midw',p.ui.midw);}
+  if(p.ui.panelw)setW('--panelw',p.ui.panelw); if(p.ui.midw)setW('--midw',p.ui.midw);
+ if(typeof p.ui.collapsed==='boolean')document.getElementById('shell').classList.toggle('collapsed',p.ui.collapsed);
+ if(typeof p.ui.nomid==='boolean')setNoMid(p.ui.nomid);
+ if(typeof p.ui.focus==='boolean')setFocus(p.ui.focus);}
  const verMsg=(p.shapeVersion!==SHAPE_VERSION)?(' · bản lưu shape v'+p.shapeVersion+', công cụ v'+SHAPE_VERSION):'';
  return {ok:true,taken:taken,dropped:dropped,missing:missing,
    msg:label+': nhận '+taken+' trường'+(dropped.length?', bỏ '+dropped.length:'')+(missing.length?', thiếu '+missing.length+' (giữ mặc định)':'')+verMsg};
@@ -1295,13 +1865,22 @@ function saveLocal(){
 }
 function loadLocal(){
  let raw=null; try{raw=localStorage.getItem(STORAGE_KEY);}catch(e){}
- if(!raw){ /* thử bản lưu shape cũ để không mất công người dùng */
-   for(let v=SHAPE_VERSION-1;v>=1;v--){try{const r=localStorage.getItem(APP_ID+'_v'+v);
-     if(r){const p=JSON.parse(r);const res=applyPayload(p,'Bản lưu shape v'+v);
-       return {found:true,msg:res.msg,old:true};}}catch(e){}}
-   return {found:false};}
- try{const p=JSON.parse(raw);const res=applyPayload(p,'Bản lưu cục bộ');return {found:true,msg:res.msg,at:p.savedAt};}
+ if(!raw)return {found:false};
+ try{const p=JSON.parse(raw);const res=applyPayload(p,'Bản lưu cục bộ');
+   if(!DATA_SRC&&(res.taken||0)>0)DATA_SRC={kind:'local',label:'Bản lưu trong trình duyệt',at:p.savedAt};
+   return {found:true,msg:res.msg,at:p.savedAt};}
  catch(e){return {found:false,msg:'Bản lưu hỏng, bỏ qua'};}
+}
+/* Về khung rỗng thật: xoá cả số đang chạy lẫn bản lưu. Khác clearLocal — cái đó chỉ xoá bản lưu. */
+function wipeAll(){
+ if(!confirm('Về khung rỗng?\n\nMất: toàn bộ số đang hiển thị VÀ bản lưu trong trình duyệt.\nGiữ: cấu trúc mạch, khu vực nhập, phép kiểm.\n\nMuốn có số lại thì nạp file dữ liệu.'))return;
+ pushUndo();
+ Object.keys(DEF).forEach(k=>IN[k]=DEF[k].v.slice());
+ Object.keys(AQDEF).forEach(k=>AQ[k]=a7(null));
+ ACCS=[];PACC=[];PIPE=[];CSSREV=[];CSSL=CSS_LINES.map(x=>({k:x.k,l:x.l,g:a5(0),own:0,bu3:0,note:x.note||''}));
+ ACTS={};ACTS3={};DATA_META=null;DATA_SRC=null;
+ try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+ paint();setSaveInfo('Khung rỗng · chưa có bản lưu');status('Đã về khung rỗng','warn');
 }
 function clearLocal(){
  if(!confirm('Xoá bản lưu trong trình duyệt?\n\nMất: bản lưu tự động.\nGiữ: số đang hiện trên màn hình (chưa mất cho tới khi bạn tải lại trang).'))return;
@@ -1362,6 +1941,17 @@ function paint(){
    ALLM.forEach(m=>{const on=(s==='all')||(s==='act'&&isActM(m))||(s==='plan'&&!isActM(m));
      if(tgt==='sel')SHOW[m]=on; else {if(on)EDITM[m]=true;else delete EDITM[m];}});paint();scheduleSave();});
  bulk('data-sel','sel'); bulk('data-esel','esel');
+ document.querySelectorAll('[data-segsel]').forEach(el=>el.onclick=()=>{
+   selInit();const k=el.dataset.segsel;
+   if(SEGSEL[BU][k])delete SEGSEL[BU][k];else SEGSEL[BU][k]=true;
+   paint();scheduleSave();});
+ document.querySelectorAll('[data-ssel]').forEach(b=>b.onclick=()=>{
+   SEGSEL[BU]={__init:1};
+   const s=b.dataset.ssel;
+   if(s==='all')selKeys().forEach(c=>SEGSEL[BU][c]=true);
+   else if(s==='ch')curCH().forEach(c=>SEGSEL[BU][c]=true);
+   else if(s==='one')SEGSEL[BU][SEG]=true;
+   paint();scheduleSave();});
  document.querySelectorAll('[data-seg]').forEach(b=>b.onclick=()=>{SEG=b.dataset.seg;paint();scheduleSave();});
  document.querySelectorAll('[data-bu]').forEach(b=>b.onclick=()=>{BU=b.dataset.bu;SEG=BUDEF[BU].ch[0];paint();scheduleSave();});
  document.querySelectorAll('[data-pacc]').forEach(el=>el.onchange=()=>{pushUndo();
@@ -1378,8 +1968,33 @@ function paint(){
    const x=CSSL[+el.dataset.css],f=el.dataset.f;
    if(f==='g')x.g[+el.dataset.mi]=parseFloat(el.value)||0; else x[f]=parseFloat(el.value)||0;
    paint();scheduleSave();status('Cập nhật CSS · '+x.l);});
+ document.querySelectorAll('[data-csr]').forEach(el=>el.onchange=()=>{pushUndo();
+   const r=CSSREV[+el.dataset.csr];
+   if(el.dataset.f==='val')r.val[+el.dataset.mi]=parseFloat(el.value)||0; else r.name=el.value;
+   paint();scheduleSave();status('Cập nhật doanh thu CSS');});
+ document.querySelectorAll('[data-csrdel]').forEach(b=>b.onclick=()=>{pushUndo();
+   CSSREV.splice(+b.dataset.csrdel,1);paint();scheduleSave();});
+ const ca=document.getElementById('csrAdd');
+ if(ca)ca.onclick=()=>{pushUndo();CSSREV.push({name:'Dòng doanh thu mới',val:a5(0)});paint();scheduleSave();};
  const pa=document.getElementById('pipeAdd');
  if(pa)pa.onclick=()=>{pushUndo();PIPE.push({name:'Đối tác mới',share:50,val:a5(0),contrib:'none'});paint();scheduleSave();};
+ const mkRow=()=>({name:'Dòng mới',type:'Tech service',unit:'package',ev:100,com:0,share:0,
+   qty:a5(1),price:a5(0),contrib:'none'});
+ const bindTbl=(tag,LIST)=>{
+  document.querySelectorAll('[data-'+tag+']').forEach(el=>{
+   el.onchange=()=>{pushUndo();const a=LIST[+el.dataset[tag]],f=el.dataset.f;
+    if(f==='qty'||f==='price')a[f][+el.dataset.mi]=parseFloat(el.value)||0;
+    else if(f==='ev'||f==='com'||f==='share')a[f]=parseFloat(el.value)||0;
+    else a[f]=el.value;
+    paint();scheduleSave();status('Cập nhật · '+(a.name||''));};});
+  document.querySelectorAll('[data-'+tag+'del]').forEach(b=>b.onclick=()=>{
+   const a=LIST[+b.dataset[tag+'del']];
+   if(!confirm('Xoá dòng "'+(a.name||'')+'"?\n\nMất: toàn bộ số của dòng này.\nHoàn tác được bằng Undo.'))return;
+   pushUndo();LIST.splice(+b.dataset[tag+'del'],1);paint();scheduleSave();status('Đã xoá dòng');});
+  const add=document.getElementById(tag+'Add');
+  if(add)add.onclick=()=>{pushUndo();LIST.push(mkRow());paint();scheduleSave();status('Đã thêm dòng');};
+ };
+ bindTbl('acc',ACCS); bindTbl('pacc',PACC);
  document.querySelectorAll('[data-acc]').forEach(el=>{
   const h=()=>{pushUndo();const a=ACCS[+el.dataset.acc],f=el.dataset.f;
    if(f==='qty'||f==='price')a[f][+el.dataset.mi]=parseFloat(el.value)||0;
@@ -1387,6 +2002,8 @@ function paint(){
    else a[f]=el.value;
    paint();scheduleSave();status('Cập nhật đối tác · '+(a.name||''));};
   el.onchange=h;});
+ document.querySelectorAll('[data-grp]').forEach(b=>b.onclick=()=>{
+   COLL[b.dataset.grp]=!COLL[b.dataset.grp];paint();scheduleSave();});
  document.querySelectorAll('[data-rtab]').forEach(b=>b.onclick=()=>{RTAB=b.dataset.rtab;paint();scheduleSave();});
  document.querySelectorAll('[data-in]').forEach(el=>el.onchange=()=>{
   pushUndo();IN[el.dataset.in][+el.dataset.mi]=parseFloat(el.value)||0;paint();scheduleSave();
@@ -1397,28 +2014,58 @@ function paint(){
   status('Cập nhật số lượng · '+AM[+el.dataset.mi]);});
  const B=(id,fn)=>{const e=document.getElementById(id);if(e)e.onclick=fn;};
  B('btnSave',()=>{saveLocal();status('Đã lưu vào trình duyệt');});
- B('btnExport',exportJSON); B('btnCSV',exportCSV); B('btnClear',clearLocal);
- B('btnImport',()=>{document.getElementById('fileIn').dataset.mode='plan';document.getElementById('fileIn').click();});
- B('btnData',()=>{document.getElementById('fileIn').dataset.mode='data';document.getElementById('fileIn').click();});
+ B('btnExport',exportJSON); B('btnCSV',exportCSV); B('btnClear',clearLocal); B('btnWipe',wipeAll);
+ const openPick=()=>document.getElementById('fileIn').click();
+ B('btnOpen',openPick); B('btnData',openPick); B('btnExportData',exportDataSet);
+ B('btnUseServer',useServerData);
  const f=document.getElementById('fileIn');
- if(f)f.onchange=e=>{const file=e.target.files[0];
-  if(file){ if(f.dataset.mode==='data')loadDataFile(file); else importJSON(file); }
-  e.target.value='';};
+ if(f)f.onchange=e=>{const file=e.target.files[0];if(file)openJSON(file);e.target.value='';};
 }
 const UNDO=[];
-const snapshot=()=>JSON.stringify({IN:IN,AQ:AQ,ACCS:ACCS,PACC:PACC,PIPE:PIPE,CSSL:CSSL});
+const snapshot=()=>JSON.stringify({IN:IN,AQ:AQ,ACCS:ACCS,PACC:PACC,PIPE:PIPE,CSSL:CSSL,CSSREV:CSSREV});
 function pushUndo(){UNDO.push(snapshot());if(UNDO.length>60)UNDO.shift();syncUndo();}
 function syncUndo(){const b=document.getElementById('undoBtn');b.textContent='↩ Undo ('+UNDO.length+')';b.disabled=!UNDO.length;}
 document.getElementById('undoBtn').onclick=()=>{if(!UNDO.length)return;
- const s=JSON.parse(UNDO.pop());IN=s.IN;AQ=s.AQ;if(s.ACCS)ACCS=s.ACCS;if(s.PACC)PACC=s.PACC;if(s.PIPE)PIPE=s.PIPE;if(s.CSSL)CSSL=s.CSSL;syncUndo();paint();scheduleSave();status('Đã hoàn tác','warn');};
+ const s=JSON.parse(UNDO.pop());IN=s.IN;AQ=s.AQ;if(s.ACCS)ACCS=s.ACCS;if(s.PACC)PACC=s.PACC;if(s.PIPE)PIPE=s.PIPE;if(s.CSSL)CSSL=s.CSSL;if(s.CSSREV)CSSREV=s.CSSREV;syncUndo();paint();scheduleSave();status('Đã hoàn tác','warn');};
 document.getElementById('resetBtn').onclick=()=>{
  if(!confirm('Đưa mọi ô về mốc ban đầu?\n\nMất: số plan đã sửa VÀ số lượng đã điền cho tháng actual.\nGiữ: lịch sử undo, lựa chọn tháng, bản lưu sẽ được ghi đè sau 0.6s.'))return;
  pushUndo();Object.keys(DEF).forEach(k=>IN[k]=DEF[k].v.slice());
- Object.keys(AQDEF).forEach(k=>AQ[k]=a7(null));ACCS=PTN_ACC0.map(a=>({name:a.name,type:a.type,unit:a.unit,ev:a.ev,com:a.com,qty:a.qty.slice(),price:a.price.slice(),contrib:(a.unit==='user'?'stock':'none')}));paint();scheduleSave();status('Đã về mốc ban đầu','warn');};
+ Object.keys(AQDEF).forEach(k=>AQ[k]=a7(null));ACCS=PTN_ACC0.map(a=>({name:a.name,type:a.type,unit:a.unit,ev:a.ev,com:a.com,qty:a.qty.slice(),price:a.price.slice(),contrib:(a.unit==='user'?'flow':'none')}));paint();scheduleSave();status('Đã về mốc ban đầu','warn');};
 let stT;
 function status(msg,kind='ok'){const p=document.getElementById('statusPill');
  p.className='pill-st on '+kind;p.textContent=msg;clearTimeout(stT);stT=setTimeout(()=>p.classList.remove('on'),4000);}
-document.getElementById('tgPanel').onclick=()=>document.getElementById('shell').classList.toggle('collapsed');
+document.getElementById('tgPanel').onclick=()=>{
+ const sh=document.getElementById('shell');
+ if(sh.classList.contains('focus')){setFocus(false);return;}   /* đang toàn màn hình thì ☰ đưa về */
+ sh.classList.toggle('collapsed');scheduleSave();};
+/* Chế độ xem P&L toàn màn hình: ẩn cả panel trái lẫn vùng nhập giữa. */
+function setFocus(on){
+ const sh=document.getElementById('shell'),b=document.getElementById('tgFocus');
+ sh.classList.toggle('focus',!!on);
+ b.classList.toggle('focuson',!!on);
+ b.textContent=on?'⛶ Thoát toàn màn hình':'⛶ P&L toàn màn hình';
+ b.title=on?'Hiện lại panel và vùng nhập · hoặc bấm Esc':'Ẩn panel và vùng nhập để xem P&L toàn màn hình · Esc để thoát';
+ scheduleSave();
+ if(on){document.getElementById('shell').classList.remove('nomid');
+  const bm=document.getElementById('tgMid');if(bm){bm.classList.remove('focuson');bm.textContent='▥ Ẩn vùng nhập';}
+  status('P&L toàn màn hình · Esc để thoát');}
+}
+document.getElementById('tgFocus').onclick=()=>setFocus(!document.getElementById('shell').classList.contains('focus'));
+/* Ẩn riêng vùng nhập — giữ panel trái để vẫn đổi tháng/kênh được */
+function setNoMid(on){
+ const sh=document.getElementById('shell'),b=document.getElementById('tgMid');
+ sh.classList.toggle('nomid',!!on);
+ b.classList.toggle('focuson',!!on);
+ b.textContent=on?'▥ Hiện vùng nhập':'▥ Ẩn vùng nhập';
+ scheduleSave();
+}
+document.getElementById('tgMid').onclick=()=>{
+ const sh=document.getElementById('shell');
+ if(sh.classList.contains('focus'))setFocus(false);
+ setNoMid(!sh.classList.contains('nomid'));};
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&document.getElementById('shell').classList.contains('focus')){e.preventDefault();setFocus(false);}
+});
 /* ===== Kéo giãn ranh giới =====
    Trước v0.9.3: gripR ghi thẳng style.gridTemplateColumns nên đè lên --panelw,
    khiến gripL mất tác dụng sau lần kéo đầu. Nay mỗi tay nắm ghi một biến riêng.
