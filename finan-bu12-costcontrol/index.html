@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>BU12 Cost Control Q4/2026 · v2.0</title>
+<title>BU12 Cost Control Q4/2026 · v2.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@600;700&family=Outfit:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
 <style>
@@ -177,7 +177,7 @@ footer.src{font-size:11px;color:var(--muted);line-height:1.55;margin-top:18px;bo
 </head>
 <body>
 <div class="top">
-  <h1>Kiểm soát chi phí BU12 · Q4/2026<span class="ver-badge">v2.0</span><span class="rel-stamp">Released 24/09/2026 · cơ chế điều chỉnh theo 3 nguyên tắc, seed đề xuất 24/09</span></h1>
+  <h1>Kiểm soát chi phí BU12 · Q4/2026<span class="ver-badge">v2.1</span><span class="rel-stamp">Released 25/09/2026 · ghép quy chế nhân sự 25/09 · lương 70/30 (trừ HR/Fin)</span></h1>
   <span class="sp"></span>
   <span id="status"></span>
   <button class="btn" id="btnPanel" title="Ẩn/hiện panel điều chỉnh">Ẩn panel</button>
@@ -199,7 +199,7 @@ footer.src{font-size:11px;color:var(--muted);line-height:1.55;margin-top:18px;bo
         <div class="fld"><label for="scNote">Ghi chú cho BOD</label><textarea id="scNote" class="inp"></textarea></div>
         <div class="lbl">Bản đã lưu (trình duyệt này)</div>
         <div class="saves" id="savesList"></div>
-        <div class="row" style="margin-top:8px"><button class="btn sm danger" id="btnSeed">Khôi phục đề nghị 24/09</button></div>
+        <div class="row" style="margin-top:8px"><button class="btn sm danger" id="btnSeed">Nạp kế hoạch 24/09 + quy chế 25/09</button></div>
       </div>
     </details>
 
@@ -211,9 +211,23 @@ footer.src{font-size:11px;color:var(--muted);line-height:1.55;margin-top:18px;bo
       </div>
     </details>
 
+    <details class="panel" open><summary><h3>Quy chế nhân sự</h3><span class="cnt" id="cnt_qc"></span></summary><div class="pbody">
+      <p class="hint" id="qcSrc"></p>
+      <div class="rule"><b>Cơ cấu lương 70/30.</b> Mọi nhân sự nhóm A trừ HR và Kế toán–Tài chính: 70% lương cố định, 30% biến đổi theo KPI. Phần biến đổi chi theo đường chi trả dưới đây và chỉ mở khi DT BU đạt ngưỡng.</div>
+      <span class="lbl">Chỉ tiêu KPI dùng để tính % đạt</span>
+      <div class="mode-seg" style="margin-bottom:6px"><button type="button" data-qcbasis="fc" id="qcB_fc">Forecast mới</button><button type="button" data-qcbasis="plan" id="qcB_plan">Plan gốc</button></div>
+      <div class="g2"><div><span class="lbl" id="qcAttLbl">% đạt giả định</span><input class="inp num" data-qc="attAssume" id="qc_attAssume"></div><div><span class="lbl">Mở quỹ KPI khi DT BU đạt %</span><input class="inp num" data-qc="gate" id="qc_gate"></div></div>
+      <span class="lbl" style="margin-top:6px">Đường chi trả: ngưỡng · hệ số &gt;100% · trần %</span>
+      <div class="g3"><input class="inp num" data-qc="floor" id="qc_floor" aria-label="Ngưỡng"><input class="inp num" data-qc="accel" id="qc_accel" aria-label="Hệ số"><input class="inp num" data-qc="cap" id="qc_cap" aria-label="Trần"></div>
+      <span class="lbl" style="margin-top:6px">Trần chi phí % DT: sales · BD · marketing · P+T · lương cố định</span>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px"><input class="inp num" data-qc="caps.sales" id="qc_caps_sales"><input class="inp num" data-qc="caps.bd" id="qc_caps_bd"><input class="inp num" data-qc="caps.mkt" id="qc_caps_mkt"><input class="inp num" data-qc="caps.rd" id="qc_caps_rd"><input class="inp num" data-qc="caps.staff" id="qc_caps_staff"></div>
+      <span class="lbl" style="margin-top:6px">Trigger: DT dưới % KH · số tháng · hạn nộp phương án (ngày)</span>
+      <div class="g3"><input class="inp num" data-qc="trig.rev" id="qc_trig_rev"><input class="inp num" data-qc="trig.months" id="qc_trig_months"><input class="inp num" data-qc="trig.days" id="qc_trig_days"></div>
+      <div class="row" style="margin-top:8px"><button class="btn sm" id="btnQcImport" type="button">Nạp quy chế từ file JSON</button></div>
+    </div></details>
     <details class="panel grp" open><summary><h3>A · Chi phí con người</h3><span class="cnt" id="cnt_A"></span></summary><div class="pbody">
       <div class="rule"><b>Nguyên tắc.</b> Chi phí cố định liên quan tới con người chỉ điều chỉnh bằng 2 đòn bẩy: (1) <b>giảm số lượng người</b> — nhập theo % quỹ lương cố định, BU lead chốt danh sách cụ thể; tính chi phí chấm dứt một lần ở tháng giảm; (2) <b>chuyển một phần lương cố định thành biến đổi</b> — trả theo mức đạt doanh thu, có trần. Không cắt tuỳ ý số tiền.
-      <div class="formula">③ = Plan × (1 − %giảm) × [(1 − %BĐ) + %BĐ × min(trần, DT thực ÷ DT Plan)] + chấm dứt</div></div>
+      <div class="formula">③ = Run-rate (hoặc Plan) × (1 − %giảm người) × [70% + 30% × %chi KPI] + chấm dứt</div></div>
       <div id="lines_A"></div></div></details>
     <details class="panel grp" open><summary><h3>B · Chi phí khác — ngân sách giao Tài chính kiểm soát</h3><span class="cnt" id="cnt_B"></span></summary><div class="pbody">
       <div class="rule"><b>Nguyên tắc.</b> Chi phí không phải con người được <b>cắt giảm ngân sách</b>: mỗi dòng có trần chi theo tháng (nhập % cắt so với Plan hoặc số trần), có đầu mối chịu trách nhiệm; <b>Tài chính kiểm soát</b> — chi vượt trần phải được Tài chính duyệt.</div>
@@ -252,7 +266,7 @@ footer.src{font-size:11px;color:var(--muted);line-height:1.55;margin-top:18px;bo
 <script>
 (function(){
 'use strict';
-const VERSION='2.0', LS='finan_costctl_bu12_v2_0', LS_PREFIX='finan_costctl_bu12_v';
+const VERSION='2.1', LS='finan_costctl_bu12_v2_1', LS_PREFIX='finan_costctl_bu12_v';
 const M=['T10','T11','T12'];
 const UNIT='triệu VND';
 
@@ -295,9 +309,52 @@ const PLAN_PROFIT_REF=[-593.6,-933.6,-1920.6]; /* Plan profit theo Slicer_v5 —
 
 /* ============ SEED — số team gửi, đã sửa logic ============ */
 /* Seed = đề nghị cắt hiện tại: BU12_cost_control_2026-09-24-02-08.json (tool v1.5), quy đổi sang cơ chế v2.0 */
-function blankLine(L){return {grp:L.grp,why:'',owner:'',red:[0,0,0],sev:0,varPct:0,varFrom:0,varDrv:L.ch==='own'?'own':L.ch==='pns'?'pns':'all',varCap:100,bMode:'pct',bPct:0,bCap:[null,null,null],rate:null,amt:null};}
+function blankLine(L){return {grp:L.grp,why:'',owner:'',red:[0,0,0],sev:0,varPct:0,varFrom:0,kpi:L.ch==='own'?'own':L.ch==='pns'?'pns':'all',rr:null,hcCur:null,hcAl:null,bMode:'pct',bPct:0,bCap:[null,null,null],rate:null,rateFrom:0,amt:null};}
+function defaultQc(){return {basis:'fc',attAssume:100,floor:70,accel:1.5,cap:150,gate:85,caps:{sales:50,bd:20,mkt:12,rd:50,staff:100},trig:{rev:85,months:2,days:15},effFrom:1,fixPct:70,src:''};}
+const QC_EMBED={"tool":"Finan BU12 Quy chế chi phí nhân sự","version":"1.0","exportedAt":"2026-09-24T23:21:14.647Z","state":{"sales":{"teleMgr":1,"teleTL":2,"teleStaff":23,"dirMgr":1,"dirStaff":3,"salaryCost":413.1,"commPaid":84.8},"dept":{"bd":{"hc":5,"cost":96.3},"cs":{"hc":12,"cost":218.4},"mkt":{"hc":8,"cost":166.5},"pd":{"hc":17,"cost":536.6},"tech":{"hc":12,"cost":432.8},"mgmt":{"hc":2,"cost":231.7},"acc":{"hc":1,"cost":6.3}},"cash":{"own":[707.9,672.9,939],"pns":[1415.4,373.2,298.7],"pnsPrev":[1318.6,1618,114.5],"hlb":[4.3,4.1,14.1]},"newRev":{"tele":[361,247,310],"direct":[5,8,89],"directPrev":[15,15,2]},"p":{"normQ4":17,"normQ1":19.5,"normQ2":22,"normSel":"Q4","rampM1":0,"rampM23":50,"buffer":10,"span":9,"minTeam":5,"bdNorm":170,"csNorm":490,"bdCap":20,"mktCap":12,"rdCap":50,"salesCap":50,"staffCap":100,"trigRev":85,"trigMonths":2,"trigDays":15,"commNew":15,"commRenewNow":15,"commRenew":5,"commPns":2,"clawDays":90,"clawPct":100,"mgrFixMax":50,"bdLeadFixMax":60,"mgmtFixMax":60,"otherFix":80,"payFloor":70,"payAccel":1.5,"payCap":150,"mgrCap":200,"gate":85,"oteEx":40}},"results":{"sales":[{"g":"Telesales","nm":"Nhân viên","cur":23,"al":18,"how":"DT mới bq 3T ÷ 17,0"},{"g":"Telesales","nm":"Team lead","cur":2,"al":2,"how":"1 team lead / 9 nhân viên"},{"g":"Telesales","nm":"Manager","cur":1,"al":1,"how":"Team ≥ 5 nhân viên"},{"g":"Direct","nm":"Nhân viên","cur":3,"al":2,"how":"DT mới bq 3T ÷ 17,0 (bq 6T: 22)"},{"g":"Direct","nm":"Manager","cur":1,"al":0,"how":"Dưới 5 nhân viên → gộp về telesales manager"}],"depts":[{"k":"bd","nm":"BD & Partnership","cur":5,"al":5,"how":"DT Partnership bq 6T ÷ 170/người"},{"k":"cs","nm":"Customer Operation","cur":12,"al":12,"how":"Khách đang hoạt động ÷ 490 khách/người"},{"k":"mkt","nm":"Marketing","cur":8,"al":4,"how":"Trần 12% DT thu tiền Own ÷ chi phí bq/người"},{"k":"rd","nm":"Product + Tech","cur":29,"al":22,"how":"Trần 50% DT thu tiền BU12 ÷ chi phí bq/người"},{"k":"mgmt","nm":"Management","cur":2,"al":2,"how":"Giữ định biên, đổi cơ cấu thu nhập"},{"k":"acc","nm":"Accounting & Finance (BU12)","cur":1,"al":1,"how":"Theo tỷ lệ dịch vụ dùng chung"}]}};
+/* Ghép quy chế nhân sự vào kế hoạch: định biên → % giảm người, chi phí thực tế → run-rate, 70/30 (trừ HR/Fin), hoa hồng mới, tham số chi trả + trần */
+const QC_MAP={sales:'o41',bd:'p62',cs:'i61',mkt:'o65',pd:'i63',tech:'i64',mgmt:'i71',acc:'i72'};
+const QC_KPI={o41:'own',o65:'own',p62:'pns',i61:'assume',i63:'assume',i64:'assume',i71:'all'};
+const QC_NOVAR=['i72','i73']; /* Kế toán–Tài chính, HR: không áp 70/30 */
+const QC_NORR=['i71','i72','i73']; /* dòng phân bổ CSS: phạm vi P&L khác quy chế BU12 → giữ Plan làm gốc */
+function applyQuyChe(S0,Q){
+  const S=JSON.parse(JSON.stringify(S0)), st=Q.state, res=Q.results, P=st.p, qc=S.qc||defaultQc(), eff=+qc.effFrom||1;
+  const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+  Object.assign(qc,{floor:+P.payFloor,accel:+P.payAccel,cap:+P.payCap,gate:+P.gate,
+    caps:{sales:+P.salesCap,bd:+P.bdCap,mkt:+P.mktCap,rd:+P.rdCap,staff:+P.staffCap},trig:{rev:+P.trigRev,months:+P.trigMonths,days:+P.trigDays},
+    src:`${Q.tool} v${Q.version} · xuất ${String(Q.exportedAt||'').slice(0,10)}`});
+  S.qc=qc;
+  const kpiTxt=(st.kpi||{});
+  const setA=(id,cur,al,rr,how,kpiNote)=>{const l=S.lines[id], r=cur>0?Math.round(Math.max(0,1-al/cur)*10000)/100:0;
+    l.grp='A'; l.hcCur=cur; l.hcAl=al; l.rr=QC_NORR.includes(id)?null:(rr==null?null:Math.round(rr*10)/10);
+    l.red=M.map((m,i)=>i>=eff?r:0); l.varPct=QC_NOVAR.includes(id)?0:100-(+qc.fixPct||70); l.varFrom=eff; l.kpi=QC_KPI[id]||'all';
+    l.why=`Quy chế 25/09: ${how}; định biên ${cur} → ${al} người${r>0?' (giảm '+r.toFixed(1)+'% từ '+M[eff]+')':''}.`
+      +(l.rr!==null?` Gốc tính = chi phí thực tế ${fmt(l.rr)}/tháng.`:(QC_NORR.includes(id)?' Dòng phân bổ CSS — giữ Plan làm gốc (chi phí quy chế '+fmt(rr)+' là phạm vi BU12).':''))
+      +(QC_NOVAR.includes(id)?' Không áp 70/30 (HR/Fin).':` Lương ${qc.fixPct}/${100-qc.fixPct} từ ${M[eff]}; KPI: ${kpiNote||'—'}.`)+' Danh sách cụ thể: BU lead chốt.';};
+  const sal=st.sales, sRows=res.sales||[], cur=sal.teleMgr+sal.teleTL+sal.teleStaff+sal.dirMgr+sal.dirStaff, al=sRows.reduce((a,x)=>a+x.al,0);
+  setA('o41',cur,al,sal.salaryCost,sRows.filter(x=>x.cur!==x.al).map(x=>x.g+' '+x.nm.toLowerCase()+' '+x.cur+'→'+x.al+' ('+x.how+')').join('; ')||'giữ định biên',kpiTxt.mgr);
+  const dep=k=>(res.depts||[]).find(x=>x.k===k)||{};
+  const D=st.dept;
+  setA('p62',D.bd.hc,dep('bd').al??D.bd.hc,D.bd.cost,dep('bd').how||'',kpiTxt.bd||'DT Partnership');
+  setA('i61',D.cs.hc,dep('cs').al??D.cs.hc,D.cs.cost,dep('cs').how||'',kpiTxt.cs);
+  setA('o65',D.mkt.hc,dep('mkt').al??D.mkt.hc,D.mkt.cost,dep('mkt').how||'',kpiTxt.mkt);
+  const rd=dep('rd'), rdCur=D.pd.hc+D.tech.hc, rdAl=rd.al??rdCur;
+  setA('i63',rdCur,rdAl,D.pd.cost,(rd.how||'')+' — tính chung Product + Tech',kpiTxt.pd); S.lines.i63.hcCur=D.pd.hc; S.lines.i63.hcAl=Math.round(D.pd.hc*rdAl/rdCur*10)/10;
+  setA('i64',rdCur,rdAl,D.tech.cost,(rd.how||'')+' — tính chung Product + Tech',kpiTxt.tech); S.lines.i64.hcCur=D.tech.hc; S.lines.i64.hcAl=Math.round(D.tech.hc*rdAl/rdCur*10)/10;
+  setA('i71',D.mgmt.hc,dep('mgmt').al??D.mgmt.hc,D.mgmt.cost,dep('mgmt').how||'',kpiTxt.mgmt);
+  setA('i72',D.acc.hc,dep('acc').al??D.acc.hc,D.acc.cost,dep('acc').how||'',kpiTxt.acc);
+  const h=S.lines.i73; h.varPct=0; h.why='Quy chế 25/09 chưa có định biên HR — giữ Plan. Không áp 70/30 (HR/Fin).';
+  // hoa hồng: mới 15% / renew 5% → tỷ lệ bình quân theo cơ cấu DT thu tiền 3 tháng gần nhất
+  const new3=avg(st.newRev.tele)+avg(st.newRev.direct), own3=avg(st.cash.own), sh=own3?Math.min(1,new3/own3):0;
+  const blend=Math.round((P.commNew*sh+P.commRenew*(1-sh))*10)/10;
+  Object.assign(S.lines.o42,{grp:'C',rate:blend,rateFrom:eff,why:`Quy chế 25/09: hoa hồng ${P.commNew}% DT mới, ${P.commRenew}% DT renew (hiện ${P.commRenewNow}%). Quy về ${blend}% DT Own theo cơ cấu DT thu tiền 3 tháng gần nhất (DT mới ${fmt(new3)} / ${fmt(own3)} = ${pctTxt(sh)}) — ước tính. Áp từ ${M[eff]}.`});
+  Object.assign(S.lines.p42,{grp:'C',rate:+P.commPns,why:`Quy chế 25/09: hoa hồng Partnership ${P.commPns}% DT PNS.`});
+  S.meta.name='Kế hoạch cắt giảm 24/09 + quy chế nhân sự 25/09';
+  return S;
+}
+
 function seed(){
-  const S={meta:{name:'Đề nghị cắt 24/09 — cơ chế v2.0',note:'DT Own 900/tháng; Partnership 1.200 / 700 / 454 (T10 / T11 / T12). Số người cụ thể do BU lead chốt theo % giảm quỹ lương.'},
+  const S={meta:{name:'Kế hoạch cắt giảm 24/09 + quy chế nhân sự 25/09',note:'DT Own 900/tháng; Partnership 1.200 / 700 / 454 (T10 / T11 / T12). Nhân sự theo quy chế 25/09: định biên, lương 70/30 (trừ HR/Fin), hiệu lực từ T11. Danh sách cụ thể do BU lead chốt.'},
     rev:{own:[900,900,900],pns:[1200,700,454]}, global:{pct:0,why:''}, lines:{}};
   LINES.forEach(L=>{S.lines[L.id]=blankLine(L);});
   const A=(id,o)=>Object.assign(S.lines[id],o);
@@ -324,7 +381,8 @@ function seed(){
   A('p42',{rate:2,why:'Hạ tỷ lệ hoa hồng in-house PNS từ 5% xuống 2% DT PNS.'});
   A('o42',{why:'Giữ tỷ lệ Plan (~15% DT Own). Bản cũ từng đề xuất 12% — cần xác nhận.'});
   A('o34',{why:'Chuyển sang biến đổi theo DT Own (tỷ lệ Plan ~2,3%).'});
-  return S;
+  S.qc=defaultQc();
+  return applyQuyChe(S,QC_EMBED);
 }
 
 /* ============ ENGINE ============ */
@@ -335,25 +393,41 @@ const BH=L=>S.lines[L.id].grp;
 const drvKey=L=>L.drv||(L.ch==='own'?'own':L.ch==='pns'?'pns':'all');
 const revAt=(src,k,i)=>k==='all'?(+src.own[i]||0)+(+src.pns[i]||0):(+src[k][i]||0);
 const clamp01=x=>Math.max(0,Math.min(1,x));
+const KPIN={own:'DT Own',pns:'DT PNS',all:'DT BU12',assume:'phòng ban'};
+function payoutPct(a,q){const f=+q.floor||0; if(a<f)return 0; if(a<=100)return f>=100?100:(a-f)/(100-f)*100; return Math.min(100+(a-100)*(+q.accel||0),+q.cap||100);}
+function attain(k,i,S){const q=S.qc||defaultQc(); if(q.basis!=='plan'||k==='assume')return (num(q.attAssume)??100)/100; const rp=revAt(REV_PLAN,k,i);return rp?revAt(S.rev,k,i)/rp:0;}
+function qcCaps(mo,S){const q=(S.qc||defaultQc()).caps, L=id=>mo.lines[id].prop, p=mo.sc.prop;
+  return [
+    {k:'sales',nm:'Chi phí sales (4.1 + 4.2 Own) / DT Own',v:p.revOwn?(L('o41')+L('o42'))/p.revOwn:null,cap:q.sales},
+    {k:'bd',nm:'BD & Partnership (6.2 + 4.2 PNS) / DT PNS',v:p.revPns?(L('p62')+L('p42'))/p.revPns:null,cap:q.bd},
+    {k:'mkt',nm:'Lương marketing (6.5) / DT Own',v:p.revOwn?L('o65')/p.revOwn:null,cap:q.mkt},
+    {k:'rd',nm:'Product + Tech (6.3 + 6.4) / DT BU12',v:p.rev?(L('i63')+L('i64'))/p.rev:null,cap:q.rd},
+    {k:'staff',nm:'Lương cố định nhóm A / DT BU12',v:p.rev?p.lv.fix/p.rev:null,cap:q.staff}];}
+function qcTrigger(S){const q=S.qc||defaultQc(); const r=M.map((m,i)=>{const pl=REV_PLAN.own[i]+REV_PLAN.pns[i];return pl?((+S.rev.own[i]||0)+(+S.rev.pns[i]||0))/pl:0;});
+  let run=0, hit=-1; r.forEach((x,i)=>{run=x*100<(+q.trig.rev||0)?run+1:0; if(hit<0&&run>=(+q.trig.months||1))hit=i;}); return {ratio:r,hit};}
 function bDefault(st){return st.bMode==='pct'?!(num(st.bPct)>0):st.bCap.every(x=>num(x)===null);}
 function lineVal(L,i,S){
   const plan=L.plan[i], st=S.lines[L.id];
-  const z={red:0,vr:0,sev:0,bud:0,pol:0};
+  const z={gap:0,red:0,vr:0,sev:0,bud:0,pol:0,fix:0};
   if(st.grp==='C'){
     const dk=drvKey(L), rp=revAt(REV_PLAN,dk,i), rf=revAt(S.rev,dk,i);
     if(L.mode==='step'){const u=rf>0?plan:0, a=num(st.amt), v=rf>0?(a===null?plan:a):0; z.pol=u-v;
       return {plan,unadj:u,prop:v,how:rf>0?(a===null?'= Plan (kênh có DT)':'Mức phí mới '+a+'/tháng'):'= 0 (kênh không có DT)',z};}
-    const pr=rp?plan/rp:0, o=num(st.rate), r=o===null?pr:o/100, u=pr*rf, v=r*rf; z.pol=u-v;
-    return {plan,unadj:u,prop:v,how:DRV[dk]+' × '+pctTxt(r)+(o===null?' (tỷ lệ Plan)':' (Plan '+pctTxt(pr)+')'),z};
+    const pr=rp?plan/rp:0, o0=num(st.rate), o=(o0!==null&&i>=(+st.rateFrom||0))?o0:null, r=o===null?pr:o/100, u=pr*rf, v=r*rf; z.pol=u-v;
+    return {plan,unadj:u,prop:v,how:DRV[dk]+' × '+pctTxt(r)+(o===null?' (tỷ lệ Plan'+(o0!==null?', đổi từ '+M[+st.rateFrom]:'')+')':' (Plan '+pctTxt(pr)+')'),z};
   }
   if(st.grp==='A'){
+    const q=S.qc||defaultQc(), rr=num(st.rr), base0=rr===null?plan:rr;
     const r=clamp01((num(st.red[i])||0)/100), rPrev=i===0?0:clamp01((num(st.red[i-1])||0)/100);
-    const remain=plan*(1-r), vp=i>=(+st.varFrom||0)?clamp01((num(st.varPct)||0)/100):0;
-    const dk=st.varDrv||'all', rp=revAt(REV_PLAN,dk,i), rf=revAt(S.rev,dk,i), att=rp?rf/rp:0, cap=Math.max(0,(num(st.varCap)??100)/100), pay=Math.min(cap,Math.max(0,att));
-    const sevM=Math.max(0,num(st.sev)||0), sev=Math.max(0,r-rPrev)*plan*sevM;
-    const prop=remain*(1-vp)+remain*vp*pay+sev;
-    z.red=plan*r; z.vr=remain*vp*(1-pay); z.sev=-sev;
-    const parts=[]; if(r>0)parts.push('Giảm '+pctTxt(r)+' quỹ lương'); if(vp>0)parts.push(pctTxt(vp)+' biến đổi theo '+DRV[dk]+' (chi '+pctTxt(pay)+')'); if(sev>0)parts.push('chấm dứt '+fmt(sev));
+    const remain=base0*(1-r), vp=i>=(+st.varFrom||0)?clamp01((num(st.varPct)||0)/100):0;
+    const buA=attain('all',i,S), la=attain(st.kpi||'all',i,S), open=buA*100>=(+q.gate||0);
+    const pay=vp>0?(open?payoutPct(la*100,q)/100:0):1;
+    const sevM=Math.max(0,num(st.sev)||0), sev=Math.max(0,r-rPrev)*base0*sevM;
+    const fix=remain*(1-vp), prop=fix+remain*vp*pay+sev;
+    z.gap=plan-base0; z.red=base0*r; z.vr=remain*vp*(1-pay); z.sev=-sev; z.fix=fix;
+    const parts=[]; if(rr!==null)parts.push('Run-rate '+fmt(rr)); if(r>0)parts.push('Giảm '+pctTxt(r)+' người');
+    if(vp>0)parts.push(`${Math.round((1-vp)*100)}/${Math.round(vp*100)} · KPI ${KPIN[st.kpi||'all']} đạt ${pctTxt(la)} → chi ${open?pctTxt(pay):'0% (quỹ KPI đóng)'}`);
+    if(sev>0)parts.push('chấm dứt '+fmt(sev));
     return {plan,unadj:plan,prop,how:parts.length?parts.join(' · '):'= Plan',z};
   }
   // B — ngân sách giao Tài chính kiểm soát
@@ -365,7 +439,7 @@ function lineVal(L,i,S){
   return {plan,unadj:plan,prop,how,z};
 }
 function blank(){return {revOwn:0,revPns:0,rev:0,costOwn:0,costPns:0,costInd:0,cost:0,cmOwn:0,cmPns:0,cm:0,profit:0,
-  beh:{A:0,B:0,C:0},fixBu:0,fixCss:0,lv:{red:0,vr:0,sev:0,bud:0,budCss:0,pol:0}};}
+  beh:{A:0,B:0,C:0},fixBu:0,fixCss:0,lv:{gap:0,red:0,vr:0,sev:0,bud:0,budCss:0,pol:0,fix:0}};}
 function compute(S){
   const months=M.map((m,i)=>{
     const rp={own:REV_PLAN.own[i],pns:REV_PLAN.pns[i]}, rf={own:+S.rev.own[i]||0,pns:+S.rev.pns[i]||0};
@@ -377,7 +451,7 @@ function compute(S){
         const x=v[k], s=sc[k];
         if(L.ch==='own')s.costOwn+=x; else if(L.ch==='pns')s.costPns+=x; else s.costInd+=x;
         s.cost+=x; s.beh[BH(L)]+=x;
-        if(k==='prop'){const z=v.z; s.lv.red+=z.red; s.lv.vr+=z.vr; s.lv.sev+=z.sev; s.lv.pol+=z.pol; if(L.tag==='css')s.lv.budCss+=z.bud; else s.lv.bud+=z.bud;}
+        if(k==='prop'){const z=v.z; s.lv.gap+=z.gap; s.lv.fix+=z.fix; s.lv.red+=z.red; s.lv.vr+=z.vr; s.lv.sev+=z.sev; s.lv.pol+=z.pol; if(L.tag==='css')s.lv.budCss+=z.bud; else s.lv.bud+=z.bud;}
         if(BH(L)==='B'){ if(L.tag==='css')s.fixCss+=x; else s.fixBu+=x; }
       });
     });
@@ -393,8 +467,8 @@ function compute(S){
 function bridge(P){
   const s=P.sc, l=s.prop.lv;
   const A=s.plan.profit, B=s.unadj.rev-s.plan.rev, C=-(s.unadj.beh.C-s.plan.beh.C);
-  const U=A+B+C, D=l.pol, E1=l.red, E2=l.vr, E3=l.sev, F=l.bud, G=l.budCss, Pp=U+D+E1+E2+E3+F+G;
-  return {A,B,C,U,D,E1,E2,E3,E:E1+E2+E3,F,G,P:Pp,okU:Math.abs(U-s.unadj.profit)<1e-6,okP:Math.abs(Pp-s.prop.profit)<1e-6};
+  const U=A+B+C, D=l.pol, E0=l.gap, E1=l.red, E2=l.vr, E3=l.sev, F=l.bud, G=l.budCss, Pp=U+D+E0+E1+E2+E3+F+G;
+  return {A,B,C,U,D,E0,E1,E2,E3,E:E0+E1+E2+E3,F,G,P:Pp,okU:Math.abs(U-s.unadj.profit)<1e-6,okP:Math.abs(Pp-s.prop.profit)<1e-6};
 }
 function checks(R,S){
   const out=[];
@@ -423,15 +497,21 @@ function flags(R,S){
     if(mo.sc.prop.cmOwn<0)F.push({lv:'warn',t:`${mo.m}: CM Own âm (<b>${fmt(mo.sc.prop.cmOwn)}</b>) sau điều chỉnh.`});
     if(mo.sc.prop.cmPns<0)F.push({lv:'warn',t:`${mo.m}: CM Partnership âm (<b>${fmt(mo.sc.prop.cmPns)}</b>).`});
   });
+  const tg=qcTrigger(S), qq=S.qc||defaultQc();
+  if(tg.hit>=0)F.push({lv:'warn',t:`Trigger quy chế kích hoạt ở ${M[tg.hit]}: DT BU12 dưới ${qq.trig.rev}% kế hoạch ${qq.trig.months} tháng liên tiếp (${tg.ratio.map((x,i)=>M[i]+' '+pctTxt(x)).join(', ')}) → BU lead nộp phương án trong ${qq.trig.days} ngày.`});
+  R.months.forEach(mo=>{qcCaps(mo,S).forEach(c=>{if(c.v!==null&&c.v*100>c.cap+1e-9)F.push({lv:'warn',t:`${mo.m} · Vượt trần quy chế: ${c.nm} = <b>${pctTxt(c.v)}</b> (trần ${c.cap}%).`});});});
+  const anyVar=LINES.some(L=>S.lines[L.id].grp==='A'&&(num(S.lines[L.id].varPct)||0)>0);
+  if(anyVar){ const cl=M.filter((m,i)=>attain('all',i,S)*100<qq.gate); if(cl.length)F.push({lv:'info',t:`Quỹ KPI đóng ở ${cl.join(', ')} (DT BU đạt dưới ${qq.gate}%) — phần lương biến đổi không chi.`});
+    else if(qq.basis!=='plan'&&(num(qq.attAssume)??100)===100)F.push({lv:'info',t:'Giả định đạt 100% chỉ tiêu KPI (theo forecast mới): phần 30% biến đổi chi đủ, nên 70/30 chưa tạo tiết kiệm — chỉ bảo vệ khi doanh thu hụt. Đổi "% đạt giả định" hoặc chọn chỉ tiêu Plan gốc để xem tác động.'}); }
   let noSev=[];
   LINES.forEach(L=>{
     const st=S.lines[L.id], byM=R.months.map(mo=>mo.lines[L.id]);
     if(st.grp==='A'){
       const reds=st.red.map(x=>num(x)||0);
       if(reds.some(x=>x>0)&&!(num(st.sev)>0))noSev.push(L.name);
+      if(num(st.rr)!==null&&Math.abs(num(st.rr)-L.plan[0])/L.plan[0]>0.1)F.push({lv:'info',t:`${nm(L)}: chi phí thực tế ${fmt(num(st.rr))}/tháng lệch Plan ${fmt(L.plan[0])} hơn 10% — ③ tính từ thực tế.`});
       reds.forEach((x,i)=>{const prev=i===0?0:reds[i-1]; if(x-prev>=30)F.push({lv:'info',t:`${M[i]} · ${nm(L)}: giảm thêm ${fmt(x-prev)}% quỹ lương trong 1 tháng — BU lead cần lộ trình và danh sách cụ thể.`});});
       if(reds.some((x,i)=>i>0&&x<reds[i-1]))F.push({lv:'warn',t:`${nm(L)}: % giảm quỹ lương giảm dần theo tháng (tuyển lại?) — kiểm tra lại lộ trình.`});
-      if((num(st.varPct)||0)>0)byM.forEach((v,i)=>{if(i>=(+st.varFrom||0)&&v.z.vr>0.05)F.push({lv:'info',t:`${M[i]} · ${nm(L)}: phần biến đổi chỉ chi ${fmt(v.prop)} do DT chưa đạt — người lao động nhận thấp hơn lương cũ, cần truyền thông rõ cơ chế.`});});
     }
     if(st.grp==='B'){
       byM.forEach((v,i)=>{if(v.prop>v.plan+0.05)F.push({lv:'warn',t:`${M[i]} · ${nm(L)}: trần ngân sách ${fmt(v.prop)} cao hơn Plan ${fmt(v.plan)}.`});});
@@ -475,7 +555,9 @@ function legacyV1(st,L,rev){ // v1.3–v1.5 {beh,method,v,custom,from} → v2.0
   return n;
 }
 function normalize(X){const b=seed(); if(!X)return b;
-  const o={meta:Object.assign(b.meta,X.meta||{}),rev:{own:(X.rev&&X.rev.own||b.rev.own).map(Number),pns:(X.rev&&X.rev.pns||b.rev.pns).map(Number)},global:Object.assign({pct:0,why:''},X.global||{}),lines:{}};
+  const dq=defaultQc(), xq=X.qc||(X.lines?null:null);
+  const o={meta:Object.assign(b.meta,X.meta||{}),rev:{own:(X.rev&&X.rev.own||b.rev.own).map(Number),pns:(X.rev&&X.rev.pns||b.rev.pns).map(Number)},global:Object.assign({pct:0,why:''},X.global||{}),
+    qc:Object.assign(dq,X.qc||{},{caps:Object.assign(dq.caps,(X.qc||{}).caps||{}),trig:Object.assign(dq.trig,(X.qc||{}).trig||{})}),lines:{}};
   const v1=X.lines&&Object.values(X.lines).some(l=>l&&l.method!==undefined&&l.grp===undefined);
   LINES.forEach(L=>{
     let st=(X.lines||{})[L.id];
@@ -488,7 +570,7 @@ function normalize(X){const b=seed(); if(!X)return b;
       else if(fx){ if((fx.v||[]).some(x=>num(x)!==null)){tmp.method='custom';tmp.custom=fx.v.slice();} tmp.why=fx.why||''; }
       st=legacyV1(tmp,L,o.rev);
     }
-    const m=Object.assign(blankLine(L),st||b.lines[L.id]);
+    const m=Object.assign(blankLine(L),st||b.lines[L.id]); if(st&&st.kpi===undefined&&st.varDrv)m.kpi=st.varDrv;
     ['red','bCap'].forEach(k=>{m[k]=(m[k]||[]).slice(0,3);while(m[k].length<3)m[k].push(k==='red'?0:null);});
     o.lines[L.id]=m;
   });
@@ -526,6 +608,13 @@ function status(msg,c){const el=document.getElementById('status');el.textContent
 function buildLeft(){
   document.getElementById('scName').value=S.meta.name||'';
   document.getElementById('scNote').value=S.meta.note||'';
+  {const q=S.qc; document.getElementById('qcSrc').textContent='Nguồn: '+(q.src||'chưa nạp');
+   ['fc','plan'].forEach(k=>document.getElementById('qcB_'+k).classList.toggle('on',q.basis===k));
+   document.getElementById('qcAttLbl').textContent=q.basis==='plan'?'% đạt KPI phòng ban (giả định)':'% đạt chỉ tiêu (giả định)';
+   ['attAssume','gate','floor','accel','cap'].forEach(k=>document.getElementById('qc_'+k).value=q[k]);
+   Object.keys(q.caps).forEach(k=>document.getElementById('qc_caps_'+k).value=q.caps[k]);
+   Object.keys(q.trig).forEach(k=>document.getElementById('qc_trig_'+k).value=q.trig[k]);
+   const tg=qcTrigger(S); document.getElementById('cnt_qc').textContent=tg.hit>=0?'trigger '+M[tg.hit]:'chưa trigger';}
   const gp=document.getElementById('gPct'); gp.value=S.global.pct||0; gp.classList.toggle('changed',(num(S.global.pct)||0)>0);
   document.getElementById('gWhy').value=S.global.why||'';
   document.getElementById('cntGlobal').textContent=(num(S.global.pct)||0)>0?'đang bật '+S.global.pct+'%':'đang tắt';
@@ -543,13 +632,15 @@ function buildLeft(){
     const changed=mv.some(v=>Math.abs(v.prop-v.unadj)>0.05); cnt[g][1]++; if(changed)cnt[g][0]++;
     let body='';
     if(g==='A'){
-      body=`<span class="lbl">% giảm quỹ lương cố định (≈ % người) · T10 · T11 · T12</span>
+      const ex=QC_NOVAR.includes(L.id);
+      body=`${st.hcCur!=null?`<div class="sub">Quy chế: <b>${st.hcCur}</b> → <b>${st.hcAl}</b> người${st.hcCur>st.hcAl?' (−'+Math.round((st.hcCur-st.hcAl)*10)/10+')':''}</div>`:''}
+        <div class="g2"><div><span class="lbl">Chi phí thực tế/tháng</span><input class="inp num${num(st.rr)!==null?' changed':''}" data-line="${L.id}" data-f="rr" value="${st.rr??''}" placeholder="trống = Plan"></div>
+        <div><span class="lbl">Chấm dứt (tháng lương)</span><input class="inp num${(num(st.sev)||0)>0?' changed':''}" data-line="${L.id}" data-f="sev" data-def="0" value="${st.sev??0}"></div></div>
+        <span class="lbl" style="margin-top:5px">% giảm người (quỹ lương) · T10 · T11 · T12</span>
         <div class="g3">${M.map((m,i)=>`<input class="inp num${(num(st.red[i])||0)>0?' changed':''}" data-line="${L.id}" data-f="red" data-i="${i}" data-def="0" value="${st.red[i]??0}" aria-label="% giảm ${m}">`).join('')}</div>
-        <div class="g2" style="margin-top:5px"><div><span class="lbl">Chấm dứt (tháng lương)</span><input class="inp num${(num(st.sev)||0)>0?' changed':''}" data-line="${L.id}" data-f="sev" data-def="0" value="${st.sev??0}"></div>
-        <div><span class="lbl">% chuyển sang biến đổi</span><input class="inp num${(num(st.varPct)||0)>0?' changed':''}" data-line="${L.id}" data-f="varPct" data-def="0" value="${st.varPct??0}"></div></div>
-        ${(num(st.varPct)||0)>0?`<div class="g3" style="margin-top:5px"><div><span class="lbl">Theo</span><select class="inp" data-line="${L.id}" data-f="varDrv">${['own','pns','all'].map(k=>`<option value="${k}"${st.varDrv===k?' selected':''}>${DRV[k]}</option>`).join('')}</select></div>
+        ${ex?'<p class="hint" style="margin:5px 0 0">HR / Kế toán–Tài chính: không áp 70/30.</p>':`<div class="g3" style="margin-top:5px"><div><span class="lbl">% biến đổi</span><input class="inp num${(num(st.varPct)||0)>0?' changed':''}" data-line="${L.id}" data-f="varPct" data-def="0" value="${st.varPct??0}"></div>
           <div><span class="lbl">Từ tháng</span><select class="inp" data-line="${L.id}" data-f="varFrom">${M.map((m,i)=>`<option value="${i}"${+st.varFrom===i?' selected':''}>${m}</option>`).join('')}</select></div>
-          <div><span class="lbl">Trần chi %</span><input class="inp num" data-line="${L.id}" data-f="varCap" data-def="100" value="${st.varCap??100}"></div></div>`:''}`;
+          <div><span class="lbl">KPI theo</span><select class="inp" data-line="${L.id}" data-f="kpi">${['own','pns','all','assume'].map(k=>`<option value="${k}"${(st.kpi||'all')===k?' selected':''}>${KPIN[k]}</option>`).join('')}</select></div></div>`}`;
     } else if(g==='B'){
       body=`<div class="mode-seg" role="group" aria-label="Cách giao ngân sách" style="margin-bottom:5px"><button type="button" data-line="${L.id}" data-bmode="pct" class="${st.bMode==='pct'?'on':''}">% cắt so với Plan</button><button type="button" data-line="${L.id}" data-bmode="cap" class="${st.bMode==='cap'?'on':''}">Trần theo tháng</button></div>
         ${st.bMode==='pct'?`<div class="g2"><div><span class="lbl">% cắt</span><input class="inp num${(num(st.bPct)||0)>0?' changed':''}" data-line="${L.id}" data-f="bPct" data-def="0" value="${st.bPct??0}"></div><div><span class="lbl">Đầu mối</span><input class="inp" data-line="${L.id}" data-f="owner" value="${esc(st.owner)}" placeholder="VD: BU lead"></div></div>`
@@ -559,7 +650,7 @@ function buildLeft(){
       const dk=drvKey(L);
       if(L.mode==='step') body=`<div class="g2"><div><span class="lbl">Mức phí/tháng khi có DT</span><input class="inp num${num(st.amt)!==null?' changed':''}" data-line="${L.id}" data-f="amt" data-def="${L.plan[0]}" value="${st.amt??L.plan[0]}"></div><div></div></div>`;
       else {const avg=L.plan.reduce((a,p,i)=>a+p/(revAt(REV_PLAN,dk,i)||1),0)/3;
-        body=`<div class="g2"><div><span class="lbl">Tỷ lệ % ${DRV[dk]}</span><input class="inp num${num(st.rate)!==null?' changed':''}" data-line="${L.id}" data-f="rate" data-def="${(avg*100).toFixed(1)}" value="${st.rate??(avg*100).toFixed(1)}"></div><div></div></div>`;}
+        body=`<div class="g2"><div><span class="lbl">Tỷ lệ % ${DRV[dk]}</span><input class="inp num${num(st.rate)!==null?' changed':''}" data-line="${L.id}" data-f="rate" data-def="${(avg*100).toFixed(1)}" value="${st.rate??(avg*100).toFixed(1)}"></div><div><span class="lbl">Từ tháng</span><select class="inp" data-line="${L.id}" data-f="rateFrom">${M.map((m,i)=>`<option value="${i}"${+st.rateFrom===i?' selected':''}>${m}</option>`).join('')}</select></div></div>`;}
     }
     out[g]+=`<div class="item"><div class="nm">${esc(L.name)} <span class="chip hc">${chN[L.ch]}</span>${chipT(L)} ${grpSel(L,st)}</div>
       <div class="sub">Plan <span class="mono">${L.plan.map(v=>fmt(v)).join(' · ')}</span> → ③ <span class="mono ${changed?'pos':''}">${mv.map(v=>fmt(v.prop)).join(' · ')}</span></div>
@@ -575,6 +666,7 @@ function applyInput(t){
   if(t.id==='scName'){S.meta.name=t.value;}
   else if(t.id==='scNote'){S.meta.note=t.value;}
   else if(ds.rev){S.rev[ds.rev][+ds.i]=num(t.value)??0;}
+  else if(ds.qc){const ks=ds.qc.split('.'); let o=S.qc; for(let j=0;j<ks.length-1;j++)o=o[ks[j]]; o[ks[ks.length-1]]=num(t.value)??0; rebuild=true;}
   else if(ds.g){ if(ds.g==='pct'){S.global.pct=Math.max(0,Math.min(100,num(t.value)||0));rebuild=true;} else S.global.why=t.value; }
   else if(ds.line){const st=S.lines[ds.line];
     switch(ds.f){
@@ -582,10 +674,11 @@ function applyInput(t){
       case 'bCap': st.bCap[+ds.i]=nv(); break;
       case 'sev': case 'bPct': st[ds.f]=Math.max(0,num(t.value)||0); if(ds.f==='bPct')st.bPct=Math.min(100,st.bPct); break;
       case 'varPct': st.varPct=Math.max(0,Math.min(100,num(t.value)||0)); rebuild=true; break;
-      case 'varCap': st.varCap=Math.max(0,num(t.value)??100); break;
       case 'rate': case 'amt': st[ds.f]=nv(); break;
       case 'varFrom': st.varFrom=+t.value; break;
-      case 'varDrv': st.varDrv=t.value; break;
+      case 'rateFrom': st.rateFrom=+t.value; break;
+      case 'kpi': st.kpi=t.value; break;
+      case 'rr': st.rr=num(t.value); break;
       case 'grp': st.grp=t.value; rebuild=true; break;
       default: st[ds.f]=t.value;
     }}
@@ -596,11 +689,13 @@ function applyInput(t){
   return rebuild;
 }
 const leftEl=document.getElementById('left');
-leftEl.addEventListener('change',e=>{const t=e.target; const rb=applyInput(t); if(rb===null)return; lsSet('state',S); recompute(rb||(t.classList.contains('num')&&!t.dataset.rev));});
+leftEl.addEventListener('change',e=>{const t=e.target; const rb=applyInput(t); if(rb===null)return; lsSet('state',S); recompute(rb||(t.classList.contains('num')&&!t.dataset.rev)||t.dataset.f==='rr');});
 let tLive=null;
 leftEl.addEventListener('input',e=>{const t=e.target; if(!t.classList.contains('num'))return;
   clearTimeout(tLive); tLive=setTimeout(()=>{if(applyInput(t)===null)return; lsSet('state',S); recompute(false);},250);});
-leftEl.addEventListener('click',e=>{const b=e.target.closest('[data-bmode]');if(!b)return;S.lines[b.dataset.line].bMode=b.dataset.bmode;lsSet('state',S);recompute(true);});
+leftEl.addEventListener('click',e=>{const qb=e.target.closest('[data-qcbasis]');if(qb){S.qc.basis=qb.dataset.qcbasis;lsSet('state',S);recompute(true);return;}
+  if(e.target.id==='btnQcImport'){document.getElementById('fileImport').click();return;}
+  const b=e.target.closest('[data-bmode]');if(!b)return;S.lines[b.dataset.line].bMode=b.dataset.bmode;lsSet('state',S);recompute(true);});
 leftEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT')e.target.blur();});
 
 /* ============ MAIN VIEWS ============ */
@@ -610,12 +705,12 @@ function renderMain(){
   if(view==='ov')renderOv(); if(view==='pl')renderPl(); if(view==='log')renderLog();
   document.getElementById('srcNote').innerHTML=srcHtml();
 }
-function srcHtml(){return `Nguồn số liệu. Plan (bước ①): Slicer_v5.html — file ngân sách Q4/2026, sheet "Pivot by BU-Segment", BU = SBH_BU12, Kênh = tất cả, CSS Allocation ON. Số "Team": cost-playground-ii JSON export 23/09/2026 10:43 UTC, tái lập bằng engine Slicer_v5. Seed đề xuất: BU12_cost_control_2026-09-24-02-08.json (tool v1.5), quy đổi sang cơ chế v2.0. Tỷ lệ chi phí tự động = Plan dòng ÷ DT Plan kênh driver (tính lại mỗi tháng). Đơn vị: ${UNIT} (giả định — file gốc không ghi đơn vị). Profit = lợi nhuận BU12 sau phân bổ CSS, là số P&L, chưa phải cash burn.`;}
+function srcHtml(){return `Nguồn số liệu. Plan (bước ①): Slicer_v5.html — file ngân sách Q4/2026, sheet "Pivot by BU-Segment", BU = SBH_BU12, Kênh = tất cả, CSS Allocation ON. Số "Team": cost-playground-ii JSON export 23/09/2026 10:43 UTC, tái lập bằng engine Slicer_v5. Seed đề xuất: BU12_cost_control_2026-09-24-02-08.json (tool v1.5), quy đổi sang cơ chế v2.0, ghép BU12_quy_che_nhan_su_2026-09-25.json (định biên, chi phí nhân sự thực tế T8, hoa hồng, đường chi trả, trần chi phí). Tỷ lệ chi phí tự động = Plan dòng ÷ DT Plan kênh driver (tính lại mỗi tháng). Đơn vị: ${UNIT} (giả định — file gốc không ghi đơn vị). Profit = lợi nhuận BU12 sau phân bổ CSS, là số P&L, chưa phải cash burn.`;}
 
 function reconHtml(list){return `<div class="recon"><span class="ttl">Đối chiếu</span>${list.map(c=>`<span class="ck"><span class="dot ${c.ok?'ok':'bad'}"></span>${esc(c.t)}</span>`).join('')}</div>`;}
 
 function bridgeSvg(b){
-  const steps=[['Plan',b.A,1],['Δ Doanh thu',b.B],['CP theo DT tự giảm',b.C],['Chưa điều chỉnh',b.U,1],['A · Giảm nhân sự',b.E1],['A · Chuyển biến đổi',b.E2],['A · Chi phí chấm dứt',b.E3],['B · Ngân sách BU12',b.F],['B · Ngân sách CSS',b.G],['C · Đổi tỷ lệ',b.D],['Đề xuất',b.P,1]];
+  const steps=[['Plan',b.A,1],['Δ Doanh thu',b.B],['CP theo DT tự giảm',b.C],['Chưa điều chỉnh',b.U,1],['A · Thực tế vs Plan',b.E0],['A · Giảm người',b.E1],['A · Lương 70/30',b.E2],['A · Chấm dứt',b.E3],['B · Ngân sách BU12',b.F],['B · Ngân sách CSS',b.G],['C · Đổi tỷ lệ',b.D],['Đề xuất',b.P,1]];
   let cum=0; const bars=steps.map(([l,v,tot])=>{let y0,y1; if(tot){y0=0;y1=v;cum=v;}else{y0=cum;y1=cum+v;cum=y1;} return {l,v,tot,y0,y1};});
   const all=bars.flatMap(x=>[x.y0,x.y1]).concat([0]); let mn=Math.min(...all), mx=Math.max(...all); const pad=(mx-mn)*0.08||1; mn-=pad; mx+=pad;
   const W=820,H=300,top=24,bot=62,left=10,bw=(W-left*2)/bars.length;
@@ -649,6 +744,9 @@ function renderOv(){
   h+=`<div class="sec"><div class="row" style="justify-content:space-between"><h2>Cầu nối lợi nhuận</h2>${perSeg()}</div>
     <p class="desc">Tách tác động: DT hụt và chi phí theo DT tự giảm (không cần quyết), sau đó là từng đòn bẩy theo nguyên tắc: A giảm nhân sự / chuyển lương sang biến đổi / chi phí chấm dứt, B ngân sách giao Tài chính kiểm soát, C đổi tỷ lệ.</p>
     <div class="bridge">${bridgeSvg(b)}</div>${reconHtml([{ok:b.okU,t:'Plan + ΔDT + ΔCP tự động = Chưa điều chỉnh'},{ok:b.okP,t:'Chưa điều chỉnh + các đòn bẩy = Đề xuất'}])}</div>`;
+  const tg=qcTrigger(S), capRows=qcCaps(R.months[0],S).map((c,j)=>({nm:c.nm,cap:c.cap,v:R.months.map(mo=>qcCaps(mo,S)[j].v)}));
+  h+=`<div class="sec"><h2>Trần chi phí theo quy chế (trên số ③)</h2><p class="desc">Tỷ lệ tính trên doanh thu forecast P&amp;L (quy chế gốc dùng doanh thu thu tiền). Ô đỏ = vượt trần. Trigger: DT BU12 / kế hoạch ${tg.ratio.map((x,i)=>M[i]+' '+pctTxt(x)).join(' · ')}${tg.hit>=0?' → <b class="neg">kích hoạt ở '+M[tg.hit]+'</b>':''}.</p>
+    <div class="tblwrap"><table class="mix"><thead><tr><th>Chỉ tiêu</th>${M.map(m=>`<th>${m}</th>`).join('')}<th>Trần</th></tr></thead><tbody>${capRows.map(c=>`<tr><td>${esc(c.nm)}</td>${c.v.map(v=>`<td class="num ${v!==null&&v*100>c.cap?'neg':''}">${v===null?'n/a':pctTxt(v)}</td>`).join('')}<td class="num">${c.cap}%</td></tr>`).join('')}</tbody></table></div></div>`;
   const rows=[['Doanh thu','rev'],['CM Own','cmOwn'],['CM Partnership','cmPns'],['Indirect (chung)','costInd',-1],['Profit','profit']];
   h+=`<div class="twocol"><div class="sec"><h2>Theo tháng</h2><div class="tblwrap"><table class="mix"><thead><tr><th>Chỉ tiêu</th>${[...M,'Q4'].map(m=>`<th>${m} ①</th><th>${m} ②</th><th>${m} ③</th>`).join('')}</tr></thead><tbody>`+
     rows.map(([l,k,sg])=>`<tr class="${k==='profit'?'tot':k==='rev'?'rev':''}"><td>${l}</td>${R.periods.map(P=>['plan','unadj','prop'].map(s=>{const v=P.sc[s][k]*(sg||1);return `<td class="num ${cls(v)}">${fmt(v)}</td>`;}).join('')).join('')}</tr>`).join('')+
@@ -738,7 +836,7 @@ document.getElementById('btnSave').onclick=()=>{
   const ok=(i>=0?(list[i]=rec,true):(list.unshift(rec),true))&&lsSet('saves',list.slice(0,40)); lsSet('state',S); renderSaves();
   const u=lsUsage(); if(!ok)status('Bộ nhớ trình duyệt đầy — xoá bớt bản lưu hoặc dùng Xuất JSON','err'); else if(u>4e6)status('Đã lưu "'+name+'" · bộ nhớ trình duyệt đã dùng '+(u/1e6).toFixed(1)+'/≈5 MB — nên xoá bớt bản cũ','warn'); else status('Đã lưu "'+name+'"');
 };
-document.getElementById('btnSeed').onclick=()=>{S=seed();lsSet('state',S);recompute(true);status('Đã khôi phục đề nghị cắt 24/09','warn');};
+document.getElementById('btnSeed').onclick=()=>{S=seed();lsSet('state',S);recompute(true);status('Đã nạp kế hoạch 24/09 + quy chế 25/09','warn');};
 
 let dlApi=null;
 if(window.claude&&typeof window.claude.use==='function'){window.claude.use('downloads').then(d=>{dlApi=d;}).catch(()=>{dlApi=null;});}
@@ -765,7 +863,8 @@ document.getElementById('btnImport').onclick=()=>document.getElementById('fileIm
 document.getElementById('fileImport').addEventListener('change',e=>{
   const file=e.target.files[0]; if(!file)return; const rd=new FileReader();
   rd.onload=ev=>{try{const d=JSON.parse(ev.target.result);
-      if(d.state){S=normalize(d.state);status('Đã nhập kịch bản "'+(S.meta.name||'')+'"');}
+      if(d.tool==='Finan BU12 Quy chế chi phí nhân sự'&&d.state&&d.results){S=applyQuyChe(S,d);status('Đã ghép quy chế nhân sự ('+(d.exportedAt||'').slice(0,10)+') vào kế hoạch hiện tại');}
+      else if(d.state){S=normalize(d.state);status('Đã nhập kịch bản "'+(S.meta.name||'')+'"');}
       else if(d.tool==='Cost Playground II'&&d.revenue){const b=seed();M.forEach((m,i)=>{if(d.revenue[m]){b.rev.own[i]=+d.revenue[m].own;b.rev.pns[i]=+d.revenue[m].pns;}});b.meta.name='Nhập từ Cost Playground II '+(d.exportedAt||'').slice(0,10);S=b;status('File Cost Playground II: chỉ lấy doanh thu, rule giữ theo seed (slider cũ không tương thích logic mới)','warn');}
       else throw new Error('không nhận diện được định dạng');
       lsSet('state',S);recompute(true);}catch(err){status('File JSON không hợp lệ: '+err.message,'err');}};
@@ -884,11 +983,16 @@ async function buildWorkbook(ExcelJS,mi){
     if(k==='profit')band(row,13,C.deep,'FFFFFFFF',true); if(k==='cm')band(row,13,C.grp,C.own,true);});
   const b=bridge(R.q4); let br=13;
   wq.getRow(br).getCell(1).value='Cầu nối lợi nhuận Q4'; wq.getRow(br).getCell(1).font=F({size:12,bold:true,color:{argb:C.own}}); br++;
-  const bl=[['Lợi nhuận Plan',b.A],['Doanh thu hụt',b.B],['Chi phí theo DT tự giảm',b.C],['= Lợi nhuận nếu không điều chỉnh',b.U],['A · Giảm nhân sự',b.E1],['A · Chuyển lương sang biến đổi',b.E2],['A · Chi phí chấm dứt (một lần)',b.E3],['B · Ngân sách giao TC — BU12',b.F],['B · Ngân sách giao TC — phân bổ CSS',b.G],['C · Đổi tỷ lệ chi phí theo DT',b.D],['= Lợi nhuận đề xuất',b.P]];
+  const bl=[['Lợi nhuận Plan',b.A],['Doanh thu hụt',b.B],['Chi phí theo DT tự giảm',b.C],['= Lợi nhuận nếu không điều chỉnh',b.U],['A · Chi phí thực tế (run-rate) so với Plan',b.E0],['A · Giảm người theo định biên',b.E1],['A · Lương 70/30 — phần biến đổi không chi',b.E2],['A · Chi phí chấm dứt (một lần)',b.E3],['B · Ngân sách giao TC — BU12',b.F],['B · Ngân sách giao TC — phân bổ CSS',b.G],['C · Đổi tỷ lệ chi phí theo DT',b.D],['= Lợi nhuận đề xuất',b.P]];
   const b0=br; bl.forEach(([l,v],j)=>{const row=wq.getRow(br);row.getCell(1).value=l;const c=row.getCell(2);
-    if(j===3)c.value=fx(`SUM(B${b0}:B${b0+2})`,v); else if(j===10)c.value=fx(`SUM(B${b0+3}:B${b0+9})`,v); else c.value=v;
-    c.numFmt=NFR;row.eachCell(x=>x.border=hair);if(j===3||j===10)band(row,2,j===10?C.deep:C.grp,j===10?'FFFFFFFF':C.own,true);else row.getCell(1).font=F();br++;});
+    if(j===3)c.value=fx(`SUM(B${b0}:B${b0+2})`,v); else if(j===11)c.value=fx(`SUM(B${b0+3}:B${b0+10})`,v); else c.value=v;
+    c.numFmt=NFR;row.eachCell(x=>x.border=hair);if(j===3||j===11)band(row,2,j===11?C.deep:C.grp,j===11?'FFFFFFFF':C.own,true);else row.getCell(1).font=F();br++;});
   const rq=wq.getRow(br+1); rq.getCell(1).value='Đối chiếu: cầu nối − Profit Q4 đề xuất (phải = 0)'; rq.getCell(2).value=fx(`ROUND(B${br-1}-M11,6)`,0); rq.getCell(2).numFmt='0.000;-0.000;"✓ 0"'; band(rq,2,C.okbg,'FF14532D',false);
+  let cr=br+4; wq.getRow(cr).getCell(1).value='Trần chi phí theo quy chế nhân sự (trên số đề xuất ③)'; wq.getRow(cr).getCell(1).font=F({size:12,bold:true,color:{argb:C.own}}); cr++;
+  const chr=wq.getRow(cr); ['Chỉ tiêu',...M,'Trần'].forEach((t,j)=>{const c=chr.getCell(j+1);c.value=t;c.font=F({bold:true,color:{argb:'FFFFFFFF'}});c.fill=fill(C.ink);c.alignment={horizontal:j?'center':'left'};}); cr++;
+  qcCaps(R.months[0],S).forEach((c0,j)=>{const row=wq.getRow(cr++); row.getCell(1).value=c0.nm; R.months.forEach((mo,mi2)=>{const v=qcCaps(mo,S)[j].v, c=row.getCell(2+mi2); c.value=v===null?'n/a':v; c.numFmt='0.0%'; c.alignment={horizontal:'right'}; if(v!==null&&v*100>c0.cap)c.font=F({bold:true,color:{argb:'FFB3402E'}});});
+    const cc=row.getCell(5); cc.value=c0.cap/100; cc.numFmt='0%'; row.eachCell(x=>x.border=hair);});
+  const tgx=qcTrigger(S); wq.getRow(cr).getCell(1).value=`Trigger: DT BU12 / kế hoạch ${tgx.ratio.map((x,i)=>M[i]+' '+pctTxt(x)).join(', ')}${tgx.hit>=0?' → kích hoạt ở '+M[tgx.hit]:''}. Tỷ lệ tính trên DT forecast P&L (quy chế gốc dùng DT thu tiền).`; wq.getRow(cr).getCell(1).font=F({size:9,italic:true,color:{argb:C.muted}});
 
   /* ---- Sheet 4: Nguồn & giả định ---- */
   const wn=wb.addWorksheet('Nguồn & giả định'); wn.columns=[{width:26},{width:12},{width:12},{width:12},{width:70}];
@@ -901,7 +1005,7 @@ async function buildWorkbook(ExcelJS,mi){
   put(13,['Cắt đồng loạt (nhóm B)',(num(S.global.pct)||0)/100,'',''," "+(S.global.why||'')]); wn.getCell('B13').numFmt='0.0%';
   put(15,['Nguồn'],{bold:true}); const sr=wn.getRow(16); sr.getCell(1).value=plain(srcHtml()); wn.mergeCells('A16:E16'); sr.getCell(1).alignment={wrapText:true,vertical:'top'}; sr.height=90; sr.getCell(1).font=F({size:9});
   put(18,['Quy ước'],{bold:true});
-  ['Nguyên tắc A — chi phí con người: chỉ điều chỉnh bằng giảm số người (theo % quỹ lương, BU lead chốt danh sách, có chi phí chấm dứt) và chuyển một phần lương cố định sang biến đổi theo mức đạt DT (có trần).','Nguyên tắc B — chi phí khác: cắt giảm ngân sách, mỗi dòng có trần theo tháng và đầu mối; Tài chính kiểm soát, chi vượt trần phải được duyệt.','Nguyên tắc C — chi phí biến đổi theo DT: tự chạy theo DT với tỷ lệ Plan; chỉ đổi khi đổi chính sách tỷ lệ.','Lớp ②: nhóm C co giãn theo DT, nhóm A và B giữ Plan.','Nhãn Phân bổ CSS: phần phân bổ chi phí chung vào BU12 — chỉ là tiết kiệm tiền mặt khi pool CSS toàn công ty giảm tương ứng.','Số liệu là P&L (lợi nhuận BU12 sau phân bổ), chưa phải cash burn.']
+  ['Nguyên tắc A — chi phí con người: chỉ điều chỉnh bằng giảm số người theo định biên quy chế (BU lead chốt danh sách, có chi phí chấm dứt) và cơ cấu lương 70% cố định / 30% biến đổi theo KPI (không áp cho HR, Kế toán–Tài chính); phần biến đổi chi theo đường chi trả quy chế, quỹ KPI chỉ mở khi DT BU đạt ngưỡng.',`Quy chế nhân sự: ${(S.qc&&S.qc.src)||'—'}; chỉ tiêu KPI = ${S.qc&&S.qc.basis==='plan'?'Plan gốc':'Forecast mới'}; % đạt giả định ${S.qc?S.qc.attAssume:100}%.`,'Nguyên tắc B — chi phí khác: cắt giảm ngân sách, mỗi dòng có trần theo tháng và đầu mối; Tài chính kiểm soát, chi vượt trần phải được duyệt.','Nguyên tắc C — chi phí biến đổi theo DT: tự chạy theo DT với tỷ lệ Plan; chỉ đổi khi đổi chính sách tỷ lệ.','Lớp ②: nhóm C co giãn theo DT, nhóm A và B giữ Plan.','Nhãn Phân bổ CSS: phần phân bổ chi phí chung vào BU12 — chỉ là tiết kiệm tiền mặt khi pool CSS toàn công ty giảm tương ứng.','Số liệu là P&L (lợi nhuận BU12 sau phân bổ), chưa phải cash burn.']
     .forEach((t,j)=>{const row=wn.getRow(19+j);row.getCell(1).value='• '+t;wn.mergeCells(`A${19+j}:E${19+j}`);row.getCell(1).font=F({size:9});});
   return wb;
 }
@@ -955,14 +1059,16 @@ svg{width:100%;height:auto}
 ${S.meta.note?`<p>${esc(S.meta.note)}</p>`:''}
 </div>
 <h2>Nguyên tắc điều chỉnh</h2>
-<table><tbody><tr><td><b>A · Chi phí con người</b></td><td class="t">Chỉ điều chỉnh bằng (1) giảm số người — giao theo % quỹ lương cố định, BU lead chốt danh sách cụ thể, tính chi phí chấm dứt một lần; (2) chuyển một phần lương cố định thành biến đổi theo mức đạt doanh thu, có trần chi trả.</td></tr><tr><td><b>B · Chi phí khác</b></td><td class="t">Cắt giảm ngân sách theo tháng, mỗi dòng có đầu mối; Tài chính kiểm soát — chi vượt trần phải được Tài chính duyệt.</td></tr><tr><td><b>C · Chi phí theo doanh thu</b></td><td class="t">Tự chạy theo doanh thu với tỷ lệ kế hoạch; chỉ thay đổi khi đổi chính sách tỷ lệ.</td></tr></tbody></table>
+<table><tbody><tr><td><b>A · Chi phí con người</b></td><td class="t">Theo quy chế nhân sự 25/09: (1) giảm số người về định biên — BU lead chốt danh sách cụ thể, tính chi phí chấm dứt một lần; (2) cơ cấu lương 70% cố định / 30% biến đổi theo KPI cho mọi vị trí trừ HR và Kế toán–Tài chính; phần biến đổi chi theo đường chi trả (dưới ngưỡng không chi, trên 100% có hệ số, có trần), quỹ KPI chỉ mở khi doanh thu BU đạt ngưỡng.</td></tr><tr><td><b>B · Chi phí khác</b></td><td class="t">Cắt giảm ngân sách theo tháng, mỗi dòng có đầu mối; Tài chính kiểm soát — chi vượt trần phải được Tài chính duyệt.</td></tr><tr><td><b>C · Chi phí theo doanh thu</b></td><td class="t">Tự chạy theo doanh thu với tỷ lệ kế hoạch; chỉ thay đổi khi đổi chính sách tỷ lệ.</td></tr></tbody></table>
 <h2>1. P&amp;L BU12 theo tháng</h2>
 <table><thead><tr><th>Chỉ tiêu</th>${[...M,'Q4'].map(m=>`<th>${m} KH</th><th>${m} chưa ĐC</th><th>${m} ĐX</th>`).join('')}</tr></thead><tbody>
 ${tr('Doanh thu','rev')}${tr('CM Own','cmOwn')}${tr('CM Partnership','cmPns')}${tr('Tổng CM','cm',1,'sub')}${tr('Chi phí chung (gồm CSS)','costInd',-1)}${tr('Lợi nhuận BU12','profit',1,'tot')}
 </tbody></table>
 <div class="meta">KH = kế hoạch gốc; chưa ĐC = DT mới, chi phí chưa điều chỉnh (chỉ phần theo DT tự co giãn); ĐX = đề xuất.</div>
 <h2>2. Cầu nối lợi nhuận Q4</h2>${bridgeSvg(b)}
-<table><tbody>${[['Lợi nhuận kế hoạch',b.A,'sub'],['Doanh thu hụt',b.B],['Chi phí theo doanh thu tự giảm',b.C],['Lợi nhuận nếu không điều chỉnh',b.U,'sub'],['A · Giảm nhân sự',b.E1],['A · Chuyển lương cố định sang biến đổi',b.E2],['A · Chi phí chấm dứt hợp đồng (một lần)',b.E3],['B · Ngân sách giao Tài chính kiểm soát — BU12',b.F],['B · Ngân sách giao Tài chính kiểm soát — phân bổ CSS',b.G],['C · Đổi tỷ lệ chi phí theo doanh thu',b.D],['Lợi nhuận đề xuất',b.P,'tot']].map(([l,v,c])=>`<tr${c?` class="${c}"`:''}><td>${l}</td><td class="n${v<-0.05?' neg':''}">${fmt(v)}</td></tr>`).join('')}</tbody></table>
+<table><tbody>${[['Lợi nhuận kế hoạch',b.A,'sub'],['Doanh thu hụt',b.B],['Chi phí theo doanh thu tự giảm',b.C],['Lợi nhuận nếu không điều chỉnh',b.U,'sub'],['A · Chi phí nhân sự thực tế so với kế hoạch',b.E0],['A · Giảm người theo định biên quy chế',b.E1],['A · Lương 70/30 — phần biến đổi không chi',b.E2],['A · Chi phí chấm dứt hợp đồng (một lần)',b.E3],['B · Ngân sách giao Tài chính kiểm soát — BU12',b.F],['B · Ngân sách giao Tài chính kiểm soát — phân bổ CSS',b.G],['C · Đổi tỷ lệ chi phí theo doanh thu',b.D],['Lợi nhuận đề xuất',b.P,'tot']].map(([l,v,c])=>`<tr${c?` class="${c}"`:''}><td>${l}</td><td class="n${v<-0.05?' neg':''}">${fmt(v)}</td></tr>`).join('')}</tbody></table>
+<h3 style="font-size:13px;margin:14px 0 4px">Trần chi phí theo quy chế (trên số đề xuất)</h3>
+<table><thead><tr><th>Chỉ tiêu</th>${M.map(m=>`<th>${m}</th>`).join('')}<th>Trần</th></tr></thead><tbody>${qcCaps(R.months[0],S).map((c0,j)=>`<tr><td>${esc(c0.nm)}</td>${R.months.map(mo=>{const v=qcCaps(mo,S)[j].v;return `<td class="n${v!==null&&v*100>c0.cap?' neg':''}">${v===null?'n/a':pctTxt(v)}</td>`;}).join('')}<td class="n">${c0.cap}%</td></tr>`).join('')}</tbody></table>
 <h2>3. Danh mục điều chỉnh</h2>
 <table><thead><tr><th>Khoản mục</th><th>Loại</th><th>Chưa ĐC Q4</th><th>Đề xuất Q4</th><th>Tiết kiệm</th><th style="text-align:left">Cơ sở</th></tr></thead><tbody>
 ${rows.map(r=>`<tr><td>${nm(r)}</td><td class="t">${BH(r.L)} · ${BEH[BH(r.L)][1]}${r.L.tag==='css'?' · CSS':''}</td><td class="n">${fmt(r.v.unadj)}</td><td class="n">${fmt(r.v.prop)}</td><td class="n${r.save<0?' neg':''}">${fmt(r.save)}</td><td class="t">${r.owner?'<b>'+esc(r.owner)+'</b> — ':''}${esc(r.why)}</td></tr>`).join('')}
@@ -981,8 +1087,8 @@ document.getElementById('btnDlReport').onclick=()=>saveFile(`BOD_BU12_cost_Q4_${
 
 /* init */
 R=compute(S); buildLeft(); renderMain();
-if(MIG&&(MIG.saves||MIG.stateFrom))status('Đã chuyển '+MIG.saves+' bản lưu'+(MIG.stateFrom?' và trạng thái đang làm từ '+MIG.stateFrom:'')+' (nguồn: '+MIG.from.join(', ')+')');
-window.__BU12={compute,bridge,checks,flags,seed,buildWorkbook,get S(){return S;},get R(){return R;}};
+if(MIG&&(MIG.saves||MIG.stateFrom))status('Đã chuyển '+MIG.saves+' bản lưu'+(MIG.stateFrom?' và trạng thái đang làm từ '+MIG.stateFrom:'')+' (nguồn: '+MIG.from.join(', ')+')'+(MIG.stateFrom&&!(S.qc&&S.qc.src)?' — chưa có quy chế: bấm "Nạp kế hoạch 24/09 + quy chế 25/09" hoặc "Nạp quy chế từ file JSON"':''),MIG.stateFrom&&!(S.qc&&S.qc.src)?'warn':'ok');
+window.__BU12={compute,bridge,checks,flags,seed,buildWorkbook,applyQuyChe,qcCaps,qcTrigger,get S(){return S;},get R(){return R;}};
 })();
 </script>
 </body>
