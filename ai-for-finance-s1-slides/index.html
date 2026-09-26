@@ -1,0 +1,1928 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI for Finance · S1 — Nghĩ đúng, làm đúng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap&subset=latin,latin-ext,vietnamese" rel="stylesheet">
+<style>
+:root{
+  --s-cream:#F7F5EF; --s-cream-warm:#EFEBE0; --s-white:#FFFFFF;
+  --s-green:#00704A; --s-forest:#1E3932; --s-deep:#14261F; --s-green-soft:#D4E9E2;
+  --s-ink:#1E3932; --s-muted:#5C6B66; --s-dim:#637069;
+  --s-line:#DFDBD0; --s-line-dark:#2C4A40;
+  --s-gold:#C9A227; --s-warn:#A6603A;
+  --s-serif:'Noto Serif Display',Georgia,serif;
+  --s-sans:'Outfit',system-ui,sans-serif;
+  --s-mono:'DM Mono',ui-monospace,monospace;
+  --s-r:14px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+/* theme cố định: đây là slide chiếu, giữ nguyên bảng màu Siren ở mọi chế độ */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --s-cream:#F7F5EF; --s-cream-warm:#EFEBE0; --s-white:#FFFFFF; --s-ink:#1E3932;
+}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--s-cream);color:var(--s-ink);
+  font-family:var(--s-sans);font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow:hidden}
+
+/* ---------- khung ---------- */
+#deck{height:100%;display:flex;flex-direction:column}
+#bar{display:flex;align-items:center;gap:12px;padding:8px 18px;
+  border-bottom:1px solid var(--s-line);background:var(--s-cream);flex:0 0 auto;
+  font-family:var(--s-mono);font-size:10.5px;color:var(--s-dim);
+  padding-top:calc(8px + env(safe-area-inset-top,0px))}
+#bar .grow{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bar b{color:var(--s-green);font-weight:500}
+#bar button{font:400 10.5px var(--s-mono);border:1px solid var(--s-line);background:var(--s-white);
+  color:var(--s-dim);border-radius:999px;padding:4px 12px;cursor:pointer}
+#bar button:hover{border-color:var(--s-green);color:var(--s-green)}
+#stage{flex:1 1 auto;position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;
+  padding:36px 56px;overflow-y:auto}
+.slide.on{display:flex}
+#prog{height:3px;background:var(--s-line);flex:0 0 auto}
+#prog i{display:block;height:100%;background:var(--s-green);transition:width .2s}
+#nav{display:flex;align-items:center;gap:10px;padding:8px 18px;border-top:1px solid var(--s-line);
+  flex:0 0 auto;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+#nav .sp{flex:1}
+
+/* ---------- typography ---------- */
+.eyebrow{font-family:var(--s-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--s-dim);margin:0 0 14px}
+h1{font-family:var(--s-serif);font-weight:600;font-size:clamp(30px,5.2vw,52px);
+  line-height:1.12;letter-spacing:-.015em;margin:0 0 .35em}
+h2{font-family:var(--s-serif);font-weight:600;font-size:clamp(24px,3.6vw,38px);
+  line-height:1.18;margin:0 0 .5em;max-width:22ch}
+h3{font-size:clamp(17px,2vw,21px);font-weight:600;margin:0 0 .35em}
+p{margin:0 0 .7em;max-width:60ch}
+.lead{font-size:clamp(18px,2.2vw,23px);max-width:34ch}
+.meta{font-family:var(--s-mono);font-size:10.5px;color:var(--s-dim)}
+.fill{font-family:var(--s-mono);font-size:.85em;background:#FDFAF0;border:1px dashed var(--s-gold);
+  border-radius:6px;padding:2px 8px;color:#7a6413;display:inline-block}
+em.src{font-style:normal;font-family:var(--s-mono);font-size:11px;color:var(--s-dim)}
+
+/* ---------- component ---------- */
+.card{border-radius:var(--s-r);border:1px solid var(--s-line);background:var(--s-white);
+  padding:18px 20px;box-shadow:none}
+.note{border-left:3px solid var(--s-green);background:var(--s-white);padding:12px 16px;
+  border-radius:0 10px 10px 0;max-width:62ch}
+.note.warn{border-left-color:var(--s-warn);background:#FDF6F1}
+.note.gold{border-left-color:var(--s-gold);background:#FDFAF0}
+.quote{font-family:var(--s-serif);font-style:italic;font-size:clamp(19px,2.6vw,27px);
+  line-height:1.4;border-left:3px solid var(--s-green);background:var(--s-green-soft);
+  padding:18px 24px;border-radius:0 12px 12px 0;max-width:30ch}
+table{width:100%;border-collapse:collapse;background:var(--s-white);font-size:.92em}
+th{background:var(--s-forest);color:#fff;font-family:var(--s-mono);font-size:10.5px;
+  letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:9px 12px;font-weight:400}
+td{padding:9px 12px;border-bottom:1px solid var(--s-line);vertical-align:top}
+tbody tr:nth-child(even) td{background:var(--s-cream-warm)}
+.num{font-family:var(--s-mono)}
+.btn{display:inline-block;border:1.5px solid var(--s-green);color:var(--s-green);background:transparent;
+  border-radius:999px;padding:8px 20px;font:500 14px var(--s-sans);cursor:pointer;
+  transition:background .18s,color .18s}
+.btn:hover{background:rgba(0,112,74,.07)}
+.btn-pri{background:var(--s-green);color:#fff;border-color:var(--s-green)}
+.btn-pri:hover{background:#005c3c}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:0;border-radius:var(--s-r);
+  overflow:hidden;border:1px solid var(--s-line)}
+.pane-green{background:var(--s-forest);color:#fff;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;text-align:center;padding:40px 34px}
+.pane-green h2,.pane-green h1{color:#fff}
+.pane-light{background:var(--s-white);padding:32px 34px;display:flex;flex-direction:column;justify-content:center}
+.split.rev .pane-green{order:2}
+@media(max-width:900px){.split.rev .pane-green{order:0}}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.rowlist{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none;max-width:62ch}
+.rowlist li{display:flex;gap:12px;align-items:flex-start}
+.rowlist .k{font-family:var(--s-mono);font-size:11px;color:var(--s-green);
+  border:1px solid var(--s-green);border-radius:999px;padding:1px 9px;flex:0 0 auto;margin-top:3px}
+.step{opacity:0;transform:translateY(6px);transition:opacity .28s,transform .28s}
+.step.show{opacity:1;transform:none}
+.pick{border:1.5px solid var(--s-line);background:var(--s-white);border-radius:12px;padding:16px 18px;
+  cursor:pointer;text-align:left;font:400 17px var(--s-sans);color:var(--s-ink);transition:.15s}
+.pick:hover{border-color:var(--s-green)}
+.pick.sel{border-color:var(--s-green);background:var(--s-green-soft)}
+.pick.right{border-color:var(--s-green);background:var(--s-green);color:#fff}
+.pick .kk{font-family:var(--s-mono);font-size:12px;opacity:.7;margin-right:8px}
+.chip{display:inline-block;font-family:var(--s-mono);font-size:10.5px;border:1px solid var(--s-line);
+  border-radius:999px;padding:2px 10px;color:var(--s-dim);background:var(--s-white)}
+.calc{display:flex;flex-direction:column;gap:14px;max-width:560px}
+.calc label{display:flex;align-items:center;gap:14px;font-size:14px}
+.calc label span:first-child{flex:0 0 190px;color:var(--s-muted)}
+.calc output{font-family:var(--s-mono);font-size:14px;color:var(--s-green);flex:0 0 74px;text-align:right}
+input[type=range]{flex:1;accent-color:var(--s-green);height:22px}
+.big{font-family:var(--s-mono);font-size:clamp(34px,6vw,64px);color:var(--s-green);line-height:1}
+.tl{display:flex;gap:0;align-items:stretch}
+.tl .n{flex:1;border-top:2px solid var(--s-line);padding:14px 14px 0;position:relative}
+.tl .n.on{border-top-color:var(--s-green)}
+.tl .n:before{content:"";position:absolute;top:-6px;left:0;width:10px;height:10px;border-radius:50%;
+  background:var(--s-line)}
+.tl .n.on:before{background:var(--s-green)}
+.tl .n b{display:block;font-family:var(--s-mono);font-size:11px;color:var(--s-green);margin-bottom:6px}
+.tl .n p{font-size:14px;margin:0}
+#notes{display:none;background:var(--s-forest);color:#fff;padding:14px 18px;flex:0 0 auto;
+  max-height:32vh;overflow-y:auto;font-size:14px;line-height:1.55}
+#notes.on{display:block}
+#notes b{color:var(--s-green-soft);font-weight:500}
+#notes .nq{font-family:var(--s-serif);font-style:italic}
+.iceberg{width:100%;max-width:420px;height:auto}
+
+/* ---------- responsive ---------- */
+@media(max-width:900px){
+  .slide{padding:24px 20px}
+  .split{grid-template-columns:1fr}
+  .grid2,.grid3,.grid4{grid-template-columns:1fr}
+  .tl{flex-direction:column;gap:12px}
+  .tl .n{border-top:none;border-left:2px solid var(--s-line);padding:0 0 0 16px}
+  .tl .n.on{border-left-color:var(--s-green);border-top-color:transparent}
+  .tl .n:before{top:0;left:-6px}
+  .calc label{flex-wrap:wrap}
+  .calc label span:first-child{flex:1 0 100%}
+  body{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}
+  .step{opacity:1;transform:none}}
+@media print{
+  body{overflow:visible;background:#fff}
+  #bar,#nav,#prog,#notes{display:none!important}
+  #stage{overflow:visible;position:static}
+  .slide{display:flex!important;position:static;page-break-after:always;min-height:92vh;border-bottom:1px solid #ccc}
+  .step{opacity:1;transform:none}
+  .pane-green{background:#fff;color:#000;border:1px solid #000}
+  .pane-green h2{color:#000}
+}
+:focus-visible{outline:none;border-color:var(--s-green);box-shadow:0 0 0 3px rgba(0,112,74,.18)}
+
+/* ---------- v1.6 · nhận diện OmniKey + mục lục ---------- */
+.oklogo{width:auto;height:64px;display:block}
+#bar .oklogo{height:22px}
+.title-split .oklogo{height:92px}
+.brandrow{display:flex;align-items:center;gap:14px}
+.brandname{font-family:var(--s-sans);font-weight:600;font-size:15px;color:#14376D;letter-spacing:.01em}
+#bar .brand{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+#bar .brand .bn{font-family:var(--s-sans);font-weight:600;font-size:12px;color:#14376D}
+.slide.dense{padding-top:18px;padding-bottom:18px}
+.slide.dense h2{margin-bottom:.3em}
+.slide.dense .note{padding:9px 14px}
+
+/* profile giảng viên */
+.pf{justify-content:flex-start}
+.pf-head{display:flex;gap:22px;align-items:center;margin-bottom:14px}
+.pf-photo{width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid var(--s-white);box-shadow:0 0 0 1px var(--s-line);flex:0 0 auto}
+.pf-name{max-width:none;font-size:clamp(24px,3vw,36px);margin:0 0 4px}
+.pf-sub{font-size:14.5px;color:var(--s-muted);margin:0;max-width:78ch}
+.pf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.pf-stat{border:1px solid var(--s-line);border-radius:12px;background:var(--s-white);padding:10px 16px;display:flex;flex-direction:column}
+.pf-stat.hl{background:var(--s-green-soft);border-color:var(--s-green)}
+.pf-stat .l{font-size:12.5px;color:var(--s-muted)}
+.pf-stat .v{font-family:var(--s-mono);font-size:26px;line-height:1.25;color:var(--s-ink)}
+.pf-stat .v.sm{font-size:19px;line-height:1.6}
+.pf-stat .m{font-family:var(--s-mono);font-size:10.5px;color:var(--s-dim)}
+.pf-exp{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.pf-card{border:1px solid var(--s-line);border-radius:12px;background:var(--s-white);padding:12px 16px}
+.pf-card p{font-size:13px;line-height:1.5;margin:0 0 6px;color:var(--s-muted)}
+.pf-card p b{color:var(--s-ink)}
+.pf-k{font-family:var(--s-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--s-dim);margin:0 0 6px!important}
+.pf-foot{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.pf-foot .chips{margin-top:0;gap:6px}
+.pf-foot .chip{font-size:11px;padding:2px 10px}
+.pf-foot .chip.on{border-color:var(--s-green);color:var(--s-green)}
+.pf-clients{font-size:13.5px;line-height:1.6;margin:0}
+@media(max-width:900px){.pf-stats{grid-template-columns:1fr 1fr}.pf-exp,.pf-foot{grid-template-columns:1fr}.pf-head{align-items:flex-start}}
+
+/* trang tiêu đề toàn khóa */
+.course-split .pane-light{padding:28px 40px}
+.course-split .pane-green{padding:28px 34px}
+.course-split .oklogo{height:76px}
+.course h1{font-size:clamp(38px,5.6vw,60px);margin-bottom:.2em}
+.course .lead{font-size:clamp(16px,1.8vw,19px);max-width:44ch}
+.course .tagline{font-size:clamp(20px,2.4vw,28px);max-width:21ch}
+.roadmap{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
+.rm{border:1px solid var(--s-line);border-top:3px solid var(--s-line);border-radius:10px;background:var(--s-white);padding:9px 12px;display:flex;flex-direction:column;gap:2px}
+.rm.on{border-top-color:var(--s-green);background:var(--s-green-soft)}
+.rm.wk{background:var(--s-cream-warm)}
+.rm .d{font-family:var(--s-mono);font-size:10px;color:var(--s-dim)}
+.rm b{font-size:14px;font-weight:600}
+.rm .x{font-size:12px;color:var(--s-muted);line-height:1.4}
+@media(max-width:900px){.roadmap{grid-template-columns:1fr 1fr}}
+table.tight td{padding:6px 12px} table.tight th{padding:7px 12px}
+#bar .sep{width:1px;height:18px;background:var(--s-line)}
+#crumb{font-family:var(--s-sans);font-size:12.5px;color:var(--s-ink);cursor:pointer;border:none;background:none;padding:0;text-align:left}
+#crumb b{font-family:var(--s-mono);font-size:10.5px;color:var(--s-green);font-weight:500;margin-right:6px}
+#crumb:hover{color:var(--s-green)}
+.title-split .pane-light{padding:40px 44px}
+.title-split h1{margin-top:4px}
+.trainer{margin:18px 0 4px;font-size:16px}
+.tagline{font-family:var(--s-serif);font-style:italic;font-size:clamp(22px,2.8vw,32px);line-height:1.35;margin:0;max-width:18ch}
+.mono-av{width:64px;height:64px;border-radius:50%;background:var(--s-forest);color:#fff;display:flex;align-items:center;
+  justify-content:center;font-family:var(--s-serif);font-size:24px;flex:0 0 auto}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chips .chip{font-size:12px;padding:4px 12px;color:var(--s-ink)}
+.profile .rowlist .k{border:none;background:var(--s-green);width:7px;height:7px;padding:0;border-radius:50%;margin-top:11px;font-size:0}
+#brandfoot{font-family:var(--s-mono);font-size:10.5px;color:var(--s-dim);text-align:center}
+#brandfoot b{font-family:var(--s-sans);font-weight:500;color:var(--s-ink);font-size:12px}
+/* agenda slide */
+.agenda{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:1040px}
+.agenda .part{border:1px solid var(--s-line);border-radius:var(--s-r);background:var(--s-white);overflow:hidden}
+.agenda .ph{background:var(--s-forest);color:#fff;padding:10px 16px;font-family:var(--s-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.agenda .row{display:grid;grid-template-columns:34px 1fr auto;gap:10px;padding:7px 16px;border-top:1px solid var(--s-line);align-items:baseline}
+.agenda .row:first-of-type{border-top:none}
+.agenda .c{font-family:var(--s-mono);font-size:11px;color:var(--s-green)}
+.agenda .t{font-weight:500;font-size:15px}
+.agenda .q{display:block;font-size:12px;color:var(--s-muted);font-weight:400}
+.agenda .mm{font-family:var(--s-mono);font-size:10.5px;color:var(--s-dim)}
+/* TOC drawer */
+#tocscrim{position:fixed;inset:0;background:rgba(20,38,31,.28);display:none;z-index:40}
+#toc{position:fixed;top:0;bottom:0;left:0;width:min(380px,92vw);background:var(--s-white);border-right:1px solid var(--s-line);
+  z-index:41;transform:translateX(-102%);transition:transform .22s;display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body.tocon #toc{transform:none} body.tocon #tocscrim{display:block}
+#deck{transition:margin-left .22s}
+#bar button,#bar #clock,#bar #timer,#bar #count{white-space:nowrap}
+#crumb{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+body.tocon #bar .bn,body.tocon #bar #clock{display:none}
+@media(min-width:901px){
+  #toc{width:320px}
+  body.tocon #deck{margin-left:320px}
+  body.tocon #tocscrim{display:none}
+}
+#toc .th{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--s-line)}
+#toc .th .oklogo{height:34px}
+#toc .th .tt{flex:1}
+#toc .th .tt b{display:block;font-size:14px}
+#toc .th .tt span{font-family:var(--s-mono);font-size:10.5px;color:var(--s-dim)}
+#toc .x{border:1px solid var(--s-line);background:var(--s-white);border-radius:999px;padding:4px 12px;font:400 11px var(--s-mono);color:var(--s-dim);cursor:pointer}
+#toc .tb{overflow-y:auto;padding:8px 0 16px}
+#toc .tp{font-family:var(--s-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--s-dim);padding:14px 18px 6px}
+#toc button.ti{display:grid;grid-template-columns:30px 1fr auto;gap:8px;width:100%;text-align:left;border:none;background:none;
+  padding:9px 18px 9px 15px;border-left:3px solid transparent;cursor:pointer;font:400 14px var(--s-sans);color:var(--s-ink);align-items:baseline}
+#toc button.ti:hover{background:var(--s-cream)}
+#toc .ti .c{font-family:var(--s-mono);font-size:10.5px;color:var(--s-green)}
+#toc .ti .r{font-family:var(--s-mono);font-size:10px;color:var(--s-dim)}
+#toc .ti .q{display:block;font-size:12px;color:var(--s-muted)}
+#toc .ti.done{color:var(--s-muted)}
+#toc .ti.done .c:after{content:" ✓"}
+#toc .ti.cur{background:var(--s-green-soft);border-left-color:var(--s-green);font-weight:600}
+#toc .ti.cur .q{font-weight:400}
+#toc .ti:focus-visible{box-shadow:inset 0 0 0 3px rgba(0,112,74,.18)}
+@media(max-width:900px){.agenda{grid-template-columns:1fr} #bar .bn,#bar .sep.s2,#brandfoot span.u{display:none}}
+@media print{
+  #toc,#tocscrim{display:none!important}
+  .slide{position:relative!important}
+  .slide:after{content:"OmniKey Training · AI for Finance · Buổi 1 · Trương Thành Trung · home.basicnlogic.com";
+    position:absolute;left:56px;right:56px;bottom:14px;font:10px 'DM Mono',monospace;color:#637069;border-top:1px solid #DFDBD0;padding-top:6px}
+}
+/* ---------- v2.3 · thành phần trực quan ---------- */
+h2{max-width:34ch}
+.viz{width:100%;height:auto;max-height:54vh;display:block}
+.v-ring{fill:none;stroke:var(--s-line);stroke-width:2;stroke-dasharray:4 6}
+.v-arr{fill:var(--s-green)}
+.v-node{fill:var(--s-white);stroke:var(--s-line);stroke-width:1.3}
+.v-node.hl{fill:var(--s-forest);stroke:var(--s-forest)}
+.v-t{font-family:var(--s-sans);font-size:15px;font-weight:600;fill:var(--s-ink)}
+.v-s{font-family:var(--s-sans);font-size:12px;fill:var(--s-muted)}
+.v-t.hl,.v-s.hl,.v-t.w{fill:#fff}
+.v-c{font-family:var(--s-serif);font-style:italic;font-size:22px;fill:var(--s-green)}
+.v-vA{fill:var(--s-green-soft);opacity:.85}.v-vB{fill:var(--s-cream-warm);opacity:.8;stroke:var(--s-line)}
+.v-c1{fill:var(--s-forest)}.v-c2{fill:var(--s-green-soft)}.v-c3{fill:var(--s-cream-warm);stroke:var(--s-line)}
+.v-ax{stroke:var(--s-line);stroke-width:1.5}.v-line{fill:none;stroke:var(--s-green);stroke-width:3}
+.v-pt{fill:var(--s-green)}.v-pt.hl{fill:var(--s-forest)}
+.v-ic{fill:var(--s-green)}.v-ics{stroke:var(--s-forest);stroke-width:4;stroke-linecap:round}
+.ico{width:54px;height:36px}
+.big-kicker{font-family:var(--s-serif);font-size:clamp(40px,6vw,68px);font-weight:600;color:var(--s-green);line-height:1;margin:0 0 .15em}
+/* flow */
+.flow{display:flex;align-items:stretch;margin-top:10px}
+.flow .fs{flex:1;min-width:0;background:var(--s-white);border:1px solid var(--s-line);border-radius:14px;padding:18px 16px;position:relative;display:flex;flex-direction:column;gap:6px}
+.flow .fs+.fs{margin-left:30px}
+.flow .fs+.fs::before{content:"→";position:absolute;left:-25px;top:50%;transform:translateY(-50%);color:var(--s-green);font-size:20px}
+.flow .n{font-family:var(--s-mono);font-size:13px;color:var(--s-green);border:1px solid var(--s-green);border-radius:999px;align-self:flex-start;padding:1px 10px}
+.flow .fs>b{font-size:clamp(16px,1.8vw,20px);line-height:1.25}
+.flow .fs>span:last-child{font-size:14px;color:var(--s-muted);line-height:1.4}
+.flow .fs.hl{border-color:var(--s-green);background:var(--s-green-soft)}
+.flow .fs.dk{background:var(--s-forest);border-color:var(--s-forest);color:#fff}
+.flow .fs.dk>span:last-child{color:var(--s-green-soft)}.flow .fs.dk .n{color:#fff;border-color:#fff}
+.flow.story .fs{padding:26px 20px;min-height:170px}.flow.story .fs>b{font-size:clamp(19px,2.2vw,24px)}.flow.story .fs>span:last-child{font-size:16px}
+.flow.tight7 .fs,.flow.tight6 .fs{padding:14px 10px}.flow.tight7 .fs+.fs,.flow.tight6 .fs+.fs{margin-left:22px}
+.flow.tight7 .fs+.fs::before,.flow.tight6 .fs+.fs::before{left:-19px;font-size:16px}
+.flow.tight7 .fs>b,.flow.tight6 .fs>b{font-size:15px}.flow.tight7 .fs>span:last-child,.flow.tight6 .fs>span:last-child{font-size:12.5px}
+/* stairs */
+.stairs{display:flex;align-items:flex-end;gap:12px;height:min(46vh,330px);margin-top:10px;border-bottom:2px solid var(--s-line)}
+.stairs .st{flex:1;min-width:0;background:var(--s-white);border:1px solid var(--s-line);border-bottom:none;border-radius:14px 14px 0 0;padding:16px 16px;display:flex;flex-direction:column;gap:6px}
+.stairs .st .n{font-family:var(--s-mono);font-size:12px;color:var(--s-green)}
+.stairs .st>b{font-size:clamp(17px,2vw,22px);line-height:1.2}
+.stairs .st>span:last-child{font-size:14px;color:var(--s-muted);line-height:1.45}
+.stairs .st.hl{background:var(--s-forest);border-color:var(--s-forest);color:#fff}
+.stairs .st.hl>span:last-child,.stairs .st.hl .n{color:var(--s-green-soft)}
+.stairs .st.hl .v-ic{fill:var(--s-green-soft)}.stairs .st.hl .v-ics{stroke:#fff}
+.stairs.sm{height:min(38vh,260px)}.stairs.sm .st{padding:12px}.stairs.sm .st>b{font-size:16px}.stairs.sm .st>span:last-child{font-size:12.5px}
+/* cvp bars */
+.cvp{display:flex;flex-direction:column;gap:12px;max-width:980px}
+.cvrow{display:grid;grid-template-columns:120px 1fr 80px;gap:12px;align-items:center}
+.cvrow .lb{font-size:15px;color:var(--s-muted)}.cvrow .tt{font-size:14px;text-align:right}
+.track{display:flex;height:46px;border-radius:8px;overflow:hidden;background:var(--s-cream-warm)}
+.track i{display:flex;align-items:center;padding:0 12px;font:500 13px var(--s-mono);font-style:normal;white-space:nowrap}
+.track .vc{background:var(--s-line);color:var(--s-ink)}.track .cm{background:var(--s-green);color:#fff}
+.track .cut{background:var(--s-warn)}.track .gone{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(166,96,58,.35) 5px 7px)}
+.kpi{border:1px solid var(--s-line);border-radius:14px;background:var(--s-white);padding:14px 18px;display:flex;flex-direction:column}
+.kpi .k{font-size:13px;color:var(--s-muted)}.kpi .v{font-family:var(--s-mono);font-size:clamp(30px,4vw,44px);line-height:1.15;color:var(--s-ink)}
+.kpi .v.neg{color:var(--s-warn)}.kpi .m{font-family:var(--s-mono);font-size:11px;color:var(--s-dim)}
+.kpi.hl{background:var(--s-green-soft);border-color:var(--s-green)}.kpi.hl .v{color:var(--s-green)}
+/* meter */
+.meter{position:relative;height:16px;background:var(--s-cream-warm);border-radius:999px;max-width:720px;margin:6px 0 24px}
+.meter i{position:absolute;left:0;top:0;bottom:0;background:var(--s-green);border-radius:999px;transition:width .2s}
+.meter span{position:absolute;top:20px;font:10.5px var(--s-mono);color:var(--s-dim)}
+.meter .t0{left:0}.meter .t1{left:50%;transform:translateX(-50%)}.meter .t2{right:0}
+/* before-after */
+.ba{display:grid;grid-template-columns:1fr 60px 1fr;align-items:stretch;max-width:900px}
+.ba .card{min-height:130px}.ba .rowlist{font-size:16px}.ba .rowlist .k{border:none;padding:0 2px;font-size:16px;margin-top:0}.ba .arrow{display:flex;align-items:center;justify-content:center;font-size:34px;color:var(--s-green)}
+/* temple */
+.temple{max-width:1000px}
+.temple .roof{background:var(--s-forest);color:#fff;text-align:center;padding:14px;font-family:var(--s-serif);font-size:clamp(18px,2.2vw,24px);clip-path:polygon(4% 0,96% 0,100% 100%,0 100%);border-radius:6px 6px 0 0}
+.temple .cols{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:12px 18px;background:var(--s-cream)}
+.temple .col{background:var(--s-white);border:1px solid var(--s-line);border-radius:6px;padding:16px 12px;min-height:150px;display:flex;flex-direction:column;gap:8px}
+.temple .col b{font-size:14.5px;line-height:1.3}.temple .col span{font-size:13px;color:var(--s-muted)}
+.temple .col .en{font:10px var(--s-mono);color:var(--s-dim);margin-top:-4px}
+.temple .col.hl{background:var(--s-green-soft);border-color:var(--s-green)}
+.temple .base{background:var(--s-cream-warm);border:1px solid var(--s-line);text-align:center;padding:10px;font-size:14px}
+/* amplify */
+.amp{display:flex;flex-direction:column;gap:22px;max-width:980px}
+.arow{display:grid;grid-template-columns:150px 60px 80px 160px 1fr;gap:14px;align-items:center}
+.arow .al{font-weight:600}.arow .ax{font:12px var(--s-mono);color:var(--s-green);text-align:center}
+.arow .ax::after{content:" →"}.arow .ar{font-size:15px}.arow .ar.warn{color:var(--s-warn);font-weight:500}
+.g{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.g.s{width:54px;height:54px}.g.l{width:150px;height:150px;gap:6px}
+.g::before,.g::after{content:none}
+.g.full{background:repeating-conic-gradient(var(--s-green) 0 25%,#2b8a67 0 50%) 0 0/33.4% 33.4%;border-radius:6px}
+.g.empty{border:2px dashed var(--s-line);border-radius:6px;background:var(--s-white)}
+/* legend / tiles */
+.legend{display:flex;flex-direction:column;gap:16px}
+.lg{display:flex;gap:14px;align-items:flex-start}.lg i{width:22px;height:22px;border-radius:50%;flex:0 0 auto;margin-top:3px}
+.lg .d1{background:var(--s-forest)}.lg .d2{background:var(--s-green-soft);border:1px solid var(--s-green)}.lg .d3{background:var(--s-cream-warm);border:1px solid var(--s-line)}
+.lg div>b{display:block;font-size:18px}.lg span{font-size:15px;color:var(--s-muted)}
+.tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;max-width:980px}
+.tiles .tl{height:74px;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;padding:6px;font-size:13px}
+.tiles .tl.on{background:var(--s-green);color:#fff;font-size:22px}
+.tiles .tl.off{border:1.5px dashed var(--s-line);color:var(--s-muted);background:var(--s-white)}
+.legend-row{display:flex;gap:22px;margin-top:10px;font-size:13px;color:var(--s-muted);flex-wrap:wrap}
+.legend-row i.sw{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+.sw.on{background:var(--s-green)}.sw.off{border:1.5px dashed var(--s-line)}.sw.dk{background:var(--s-forest)}.sw.on2{background:var(--s-white);border:1px solid var(--s-line)}
+/* segments */
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;max-width:1000px}
+.sg{padding:18px 16px;display:flex;flex-direction:column;gap:4px;min-height:110px}
+.sg b{font-size:17px}.sg span{font-size:14px}
+.sg.s1{background:var(--s-cream-warm);border-radius:12px 0 0 12px}.sg.s2{background:var(--s-green-soft)}
+.sg.s3{background:#8fc3ad;color:var(--s-deep)}.sg.s4{background:var(--s-forest);color:#fff;border-radius:0 12px 12px 0}
+.gapline{position:relative;max-width:1000px;height:34px}
+.gapline::before{content:"";position:absolute;left:25%;top:0;width:0;height:100%;border-left:2px dashed var(--s-warn)}
+.gapline span{position:absolute;left:calc(25% + 10px);top:8px;font:12px var(--s-mono);color:var(--s-warn)}
+/* diverging chart */
+.chart{max-width:980px;display:flex;flex-direction:column;gap:8px}
+.ch-head{display:grid;grid-template-columns:220px 1fr;font:10.5px var(--s-mono);color:var(--s-dim)}
+.ch-g{font:11px var(--s-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--s-dim);margin-top:6px}
+.ch-r{display:grid;grid-template-columns:220px 1fr;align-items:center}
+.rl{font-size:15px}
+.dv{display:grid;grid-template-columns:15% 85%;height:34px}
+.dv .neg{border-right:2px solid var(--s-ink);display:flex;justify-content:flex-end;align-items:center;position:relative}
+.dv .pos{display:flex;align-items:center;gap:8px}
+.dv .b{display:block;height:26px;background:#8fc3ad;border-radius:0 6px 6px 0}.dv .b.hl{background:var(--s-green)}
+.dv .b.bad{background:var(--s-warn);border-radius:6px 0 0 6px}
+.dv em{font:500 14px var(--s-mono);font-style:normal}.dv em.l{position:absolute;right:calc(100% + 0px);color:var(--s-warn);padding-right:8px;white-space:nowrap}
+/* pyramid */
+.pyr{display:flex;flex-direction:column;align-items:center;gap:6px;max-width:900px;margin:6px auto 0;width:100%}
+.pl{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;border-radius:8px;position:relative}
+.pl b{font-size:18px}.pl span{font-size:14px}
+.pl.p3{width:44%;background:var(--s-forest);color:#fff}.pl.p3 span{color:var(--s-green-soft)}
+.pl.p2{width:70%;background:var(--s-green-soft)}
+.pl.p1{width:96%;background:var(--s-cream-warm);border:1px solid var(--s-line)}
+.pl em{position:absolute;right:14px;top:50%;transform:translateY(-50%);font:500 12px var(--s-mono);font-style:normal;color:var(--s-warn);border:1px solid var(--s-warn);border-radius:999px;padding:2px 10px}
+/* map (điểm nghẽn → giải pháp) */
+.map{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.map>div{display:grid;grid-template-columns:130px 22px 1fr;align-items:center;background:var(--s-white);border:1px solid var(--s-line);border-radius:10px;padding:8px 12px;font-size:14.5px}
+.map i{color:var(--s-green);font-style:normal}.map b{color:var(--s-green)}
+/* multiply */
+.mult{display:flex;align-items:stretch;gap:10px;max-width:1080px}
+.mult .f{flex:1;background:var(--s-white);border:1px solid var(--s-line);border-radius:14px;padding:18px 14px;display:flex;flex-direction:column;gap:10px;min-height:150px}
+.mult .f b{font-size:clamp(16px,1.8vw,20px)}.mult .f span{font-size:13.5px;color:var(--s-warn)}
+.mult .f.res{background:var(--s-forest);color:#fff;border-color:var(--s-forest)}.mult .f.res span{color:var(--s-green-soft)}
+.mult .x{display:flex;align-items:center;font-family:var(--s-mono);font-size:30px;color:var(--s-green)}
+/* tiles */
+.tile{border:1px solid var(--s-line);background:var(--s-white);border-radius:14px;padding:18px 16px;display:flex;flex-direction:column;gap:8px;min-height:150px}
+.tile .n{font-family:var(--s-mono);font-size:12px;color:var(--s-green)}.tile b{font-size:clamp(16px,1.8vw,20px);line-height:1.25}.tile>span:last-child{font-size:14px;color:var(--s-muted)}
+.q4 .tile.done{background:var(--s-green-soft);border-color:var(--s-green)}
+.q4 .tile.next{background:var(--s-forest);color:#fff;border-color:var(--s-forest)}.q4 .tile.next .n,.q4 .tile.next>span:last-child{color:var(--s-green-soft)}
+.ladder{align-items:end}.ladder .pick{display:flex;align-items:flex-end;font-weight:600}
+/* mapping rows */
+.mapr{display:flex;flex-direction:column;gap:10px;max-width:980px}
+.mr{display:grid;grid-template-columns:120px 1fr 30px 220px;align-items:center;gap:10px;background:var(--s-white);border:1px solid var(--s-line);border-radius:12px;padding:12px 16px}
+.mr .c1{font:500 12px var(--s-mono);color:var(--s-green);text-transform:uppercase;letter-spacing:.08em}.mr .c2{font-size:15.5px}
+.mr i{font-style:normal;color:var(--s-green);font-size:18px}.mr b{font-size:16px}
+.mr.hl{background:var(--s-green-soft);border-color:var(--s-green)}
+/* pack */
+.pack{border:2px solid var(--s-forest);border-radius:16px;overflow:hidden;max-width:1060px}
+.pk-h{background:var(--s-forest);color:#fff;font:500 12px var(--s-mono);letter-spacing:.3em;padding:8px 16px}
+.pk-g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px;background:var(--s-cream)}
+.sk{background:var(--s-white);border:1px solid var(--s-line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.sk .n{font:12px var(--s-mono);color:var(--s-green)}.sk b{font-size:16px}.sk>span:last-child{font-size:13px;color:var(--s-muted)}
+.sk.hl{border-color:var(--s-green);background:var(--s-green-soft)}
+/* layers */
+.layers{display:grid;grid-template-columns:1fr 150px;grid-template-rows:repeat(3,auto);gap:8px;max-width:980px}
+.ly{grid-column:1;display:flex;align-items:center;gap:10px;background:var(--s-white);border:1px solid var(--s-line);border-radius:12px;padding:12px 14px;flex-wrap:wrap}
+.ly .ln{font:500 12px var(--s-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--s-green);width:90px}
+.ly .bd{border:1px solid var(--s-line);background:var(--s-cream);border-radius:999px;padding:4px 14px;font-size:14.5px}
+.ly .bd.warnb{border-color:var(--s-warn);color:var(--s-warn);background:#FDF6F1}
+.thru{grid-column:2;grid-row:1/4;background:var(--s-forest);color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px;font-size:15px}
+/* cases + schedule */
+.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;max-width:1000px}
+.cases span{border:1px solid var(--s-line);border-radius:999px;padding:6px 14px;font-size:14px;background:var(--s-white)}
+.cases b{font-family:var(--s-mono);font-weight:500;color:var(--s-green);margin-right:6px}
+.sched{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:760px}
+.sched>div{border:1px solid var(--s-line);border-top:3px solid var(--s-green);border-radius:10px;background:var(--s-white);padding:10px 14px;display:flex;flex-direction:column}
+.sched .d{font:10.5px var(--s-mono);color:var(--s-dim)}.sched b{font-size:17px}.sched>div>span:last-child{font-size:13.5px;color:var(--s-muted)}
+@media(max-width:900px){.flow{flex-direction:column}.flow .fs+.fs{margin-left:0;margin-top:26px}.flow .fs+.fs::before{content:"↓";left:50%;top:-22px;transform:none}
+ .stairs{height:auto;flex-direction:column;align-items:stretch}.stairs .st{height:auto!important;border-radius:12px;border-bottom:1px solid var(--s-line)}
+ .temple .cols,.pk-g,.tiles,.cases{grid-template-columns:1fr 1fr}.mult{flex-direction:column}.ba{grid-template-columns:1fr}.arow{grid-template-columns:1fr 1fr}
+ .mr{grid-template-columns:1fr}.ch-r,.ch-head{grid-template-columns:1fr}.seg{grid-template-columns:1fr 1fr}.layers{grid-template-columns:1fr}.thru{grid-column:1;grid-row:auto}}
+
+
+/* ma trận chân dung × năng lực */
+.mx-wrap{display:grid;grid-template-columns:auto 240px;gap:18px;align-items:start;max-width:1180px}
+.mx{width:auto;background:transparent;font-size:13px;border-collapse:separate;border-spacing:3px}
+.mx th,.mx td{background:transparent!important;border:none;padding:0}
+.mx th.rh{text-align:left;font:400 12.5px var(--s-sans);color:var(--s-ink);padding-right:10px;white-space:nowrap;letter-spacing:0;text-transform:none;transition:opacity .2s}
+.mx thead th{padding-bottom:4px}
+.mx thead button{font:600 10.5px var(--s-sans);color:var(--s-ink);background:var(--s-white);border:1px solid var(--s-line);border-radius:8px;padding:6px 2px;width:76px;cursor:pointer}
+.mx thead button{height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center}.mx thead button small{display:block;font:400 9.5px var(--s-sans);line-height:1.2;color:var(--s-muted);margin-top:2px}.mx thead button.sel small{color:var(--s-green-soft)}
+.mx thead button:hover{border-color:var(--s-green)}
+.mx thead button.sel{background:var(--s-forest);color:#fff;border-color:var(--s-forest)}
+.mx td i{display:block;width:76px;height:20px;border-radius:5px;transition:opacity .2s,outline .2s}
+.mx td i.v2{background:var(--s-forest)}.mx td i.v1{background:#9fcdb9}.mx td i.v0{background:var(--s-cream-warm)}
+.mx.pick-on td i{opacity:.18}.mx.pick-on td.on i{opacity:1}
+.mx.scope tr.out th.rh,.mx.scope tr.out td i{opacity:.2}
+.mx.scope tr.in th.rh{font-weight:600;color:var(--s-green)}
+.mxd{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+.mxd.d2{background:var(--s-forest)}.mxd.d1{background:#9fcdb9}.mxd.d0{background:var(--s-cream-warm);border:1px solid var(--s-line)}
+.mx-side{border:1px solid var(--s-line);border-radius:14px;background:var(--s-white);padding:16px 18px;min-height:300px}
+.mx-side h3{margin:0 0 4px}.mx-side .ds{font-size:14px;color:var(--s-muted);margin:0 0 10px}
+.mx-side .grp{font:10.5px var(--s-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--s-dim);margin:10px 0 4px}
+.mx-side ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.5}
+@media(max-width:900px){.mx-wrap{grid-template-columns:1fr}.mx td i,.mx thead button{width:34px}.mx thead button{font-size:9px}}
+.mx-side .route{display:grid;grid-template-columns:62px 1fr;gap:2px 6px;font-size:12px;line-height:1.35}.mx-side .route span{display:contents}
+.mx-side .route em{font:normal 10px var(--s-mono);color:var(--s-green);padding-top:2px}
+.mx-side ul{font-size:12px;line-height:1.3}.mx-side .grp{margin:7px 0 3px}.mx-side h3{font-size:19px}.mx-side{padding:14px 16px}.mx-side .ds{margin-bottom:6px}
+
+/* ví dụ nhỏ */
+.ex{margin-top:14px;display:flex;gap:14px;align-items:baseline;background:#FDFAF0;border:1px solid #EADFB6;border-radius:10px;padding:9px 16px;font-size:14.5px;line-height:1.5;max-width:1080px}
+.exl{font:500 10.5px var(--s-mono);letter-spacing:.14em;text-transform:uppercase;color:#7a6413;flex:0 0 auto}
+.eg{display:block;font-style:normal;font-size:12.5px;line-height:1.4;color:var(--s-green);margin-top:6px}
+.stairs .st.hl .eg,.seg .s4 .eg{color:#bfe3d3}
+.lg .eg{font-size:13px;margin-top:2px}
+
+/* độ nhạy giá */
+.ps-ctl{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 18px;max-width:1160px}
+.ps-ctl label{display:flex;flex-direction:column;gap:2px;background:var(--s-white);border:1px solid var(--s-line);border-radius:10px;padding:7px 12px}
+.ps-ctl span{font-size:13px;color:var(--s-muted)}.ps-ctl output{font:500 15px var(--s-mono);color:var(--s-green)}
+.ps-ctl input{width:100%;accent-color:var(--s-green)}
+.ps-main{display:grid;grid-template-columns:1.05fr 1fr;gap:18px;margin-top:12px;max-width:1160px;align-items:start}
+.ps-tb{font-size:13px}.ps-tb th{padding:6px 8px}.ps-tb td{padding:5px 8px;vertical-align:middle}
+.ps-tb input{width:92px;accent-color:var(--s-green);vertical-align:middle}
+.ps-tb .v{font:12px var(--s-mono);color:var(--s-green);display:inline-block;width:34px}
+.ps-tb .vol{font:13px var(--s-mono)}.ps-tb .cap{color:var(--s-warn);font:10.5px var(--s-mono);display:block}
+.ps-kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ps-kpi>div{border:1px solid var(--s-line);border-radius:12px;background:var(--s-white);padding:8px 14px;display:flex;flex-direction:column}
+.ps-kpi span{font-size:12.5px;color:var(--s-muted)}.ps-kpi b{font:500 26px var(--s-mono);line-height:1.2}
+.ps-kpi em{font:normal 12px var(--s-mono)}.ps-kpi em.up{color:var(--s-green)}.ps-kpi em.dn{color:var(--s-warn)}
+.ps-ax{stroke:var(--s-line);stroke-width:1}.ps-base{stroke:var(--s-dim);stroke-dasharray:4 4}
+.ps-ln{fill:none;stroke:var(--s-green);stroke-width:2.5}.ps-ln2{fill:none;stroke:#9fcdb9;stroke-width:2;stroke-dasharray:5 4}
+.ps-dot{fill:var(--s-forest)}.ps-t{font:11px var(--s-sans);fill:var(--s-muted)}
+@media(max-width:900px){.ps-ctl{grid-template-columns:1fr 1fr}.ps-main{grid-template-columns:1fr}}
+
+/* vùng Core/Growth/Discovery */
+.zn{display:grid;grid-template-columns:330px 1fr;gap:26px;align-items:start;max-width:1160px}
+.zn-svg{max-height:52vh}
+.zc{cursor:pointer;transition:opacity .2s,stroke-width .2s}.zc:hover{opacity:.85}
+.z1{fill:var(--s-forest)}.z2{fill:var(--s-green-soft)}.z3{fill:var(--s-cream-warm);stroke:var(--s-line)}
+.zn-svg.pick .zc{opacity:.35}.zn-svg.pick .zc.on{opacity:1;stroke:var(--s-green);stroke-width:3}
+.zn-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.zt{display:grid;grid-template-columns:18px 1fr;gap:0 8px;align-items:center;text-align:left;border:1.5px solid var(--s-line);background:var(--s-white);border-radius:12px;padding:8px 12px;cursor:pointer;font-family:var(--s-sans);color:var(--s-ink)}
+.zt i{width:16px;height:16px;border-radius:50%;grid-row:1/3}
+.zt .d1{background:var(--s-forest)}.zt .d2{background:var(--s-green-soft);border:1px solid var(--s-green)}.zt .d3{background:var(--s-cream-warm);border:1px solid var(--s-line)}
+.zt b{font-size:16px}.zt span{font-size:12px;color:var(--s-muted)}
+.zt.sel{border-color:var(--s-green);background:var(--s-green-soft)}
+.zn-box{margin-top:10px;border:1px solid var(--s-line);border-radius:14px;background:var(--s-white);padding:14px 18px;min-height:280px}
+.zn-box .zh{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px}
+.zn-box .zk{font:10.5px var(--s-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--s-dim);margin:0 0 3px}
+.zn-box p{font-size:14px;margin:0;line-height:1.45}
+.zn-box .zex{grid-column:1/-1;background:#FDFAF0;border:1px solid #EADFB6;border-radius:10px;padding:10px 14px}
+.zn-box .zex ol{margin:4px 0 0;padding-left:20px;font-size:13.5px;line-height:1.5}
+.zn-box .zstop{grid-column:1/-1;border-left:3px solid var(--s-warn);background:#FDF6F1;padding:8px 12px;border-radius:0 8px 8px 0;font-size:13.5px}
+@media(max-width:900px){.zn{grid-template-columns:1fr}.zn-box .zh{grid-template-columns:1fr}}
+
+/* mức sở hữu đầu ra */
+.own{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;max-width:1160px;position:relative;padding-bottom:26px}
+.ow{padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.ow .n{font:10.5px var(--s-mono);opacity:.75}.ow b{font-size:17px}.ow em{font-style:normal;font-size:13px;margin-bottom:4px}
+.ow .k{font:10px var(--s-mono);letter-spacing:.12em;text-transform:uppercase;opacity:.7;margin:6px 0 0}
+.ow p{font-size:13px;line-height:1.4;margin:0}.ow .exs{color:var(--s-green)}
+.ow.s1{background:var(--s-cream-warm);border-radius:12px 0 0 12px}.ow.s2{background:var(--s-green-soft)}
+.ow.s3{background:#8fc3ad;color:var(--s-deep)}.ow.s3 .exs{color:var(--s-deep);font-weight:500}
+.ow.s4{background:var(--s-forest);color:#fff;border-radius:0 12px 12px 0}.ow.s4 .exs{color:#bfe3d3}
+.own-gap{position:absolute;left:25%;top:0;bottom:0;border-left:2px dashed var(--s-warn);margin-left:-2px}
+.own-gap span{position:absolute;bottom:2px;left:10px;white-space:nowrap;font:11.5px var(--s-mono);color:var(--s-warn)}
+.own5{display:flex;flex-wrap:wrap;gap:6px;align-items:center;max-width:1160px;margin-top:4px}
+.own5 .lb{font:10.5px var(--s-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--s-dim);margin-right:4px}
+.own5 span:not(.lb){border:1px solid var(--s-line);background:var(--s-white);border-radius:999px;padding:3px 10px;font-size:12px}
+.own5 b{color:var(--s-green)}
+@media(max-width:900px){.own{grid-template-columns:1fr 1fr}.own-gap{display:none}}
+
+/* hai kiểu trả lời */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;max-width:1120px}
+.cmp .ch{display:flex;gap:10px;align-items:center}.cmp .chip.on{border-color:var(--s-green);color:var(--s-green)}
+.cmp .cap{font-size:13px;color:var(--s-muted)}
+.cmp .rowlbl{grid-column:1/-1;font:10.5px var(--s-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--s-dim);margin-top:6px}
+.cb{display:flex;flex-direction:column;gap:6px;background:var(--s-white);border:1px solid var(--s-line);border-radius:14px;padding:10px 12px}
+.cb .u{align-self:flex-end;background:var(--s-cream-warm);border-radius:12px 12px 2px 12px;padding:5px 12px;font-size:13.5px;max-width:85%}
+.cb .a{align-self:flex-start;background:var(--s-cream);border:1px solid var(--s-line);border-radius:12px 12px 12px 2px;padding:6px 12px;font-size:13.5px;line-height:1.45;max-width:92%}
+.cb.hint{border-color:var(--s-green)}.cb.hint .a{background:var(--s-green-soft);border-color:#b7dccd}
+.res{border-radius:10px;padding:8px 14px;font-size:13.5px}
+.res.bad{background:#FDF6F1;border-left:3px solid var(--s-warn)}.res.good{background:var(--s-green-soft);border-left:3px solid var(--s-green)}
+@media(max-width:900px){.cmp{grid-template-columns:1fr}}
+
+/* thực hành 5 nguyên tắc */
+.pr{display:grid;grid-template-columns:420px 1fr;gap:20px;max-width:1180px;align-items:start}
+.pr-tb{font-size:13px}.pr-tb th{padding:6px 8px;font-size:9.5px}.pr-tb td{padding:5px 8px}
+.pr-tb td:not(:first-child),.pr-tb th:not(:first-child){text-align:right;font-family:var(--s-mono)}
+.pr-tb tr.x td{color:var(--s-warn)}
+.pr-tb tfoot td{font-weight:600;border-top:2px solid var(--s-forest);background:var(--s-white)}
+.pr-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pr-tabs button{border:1.5px solid var(--s-line);background:var(--s-white);border-radius:10px;padding:6px 6px;cursor:pointer;text-align:left;font-family:var(--s-sans);color:var(--s-ink)}
+.pr-tabs button span{display:block;font:10px var(--s-mono);color:var(--s-green)}
+.pr-tabs button b{font-size:12.5px;line-height:1.2;display:block}
+.pr-tabs button.sel{background:var(--s-forest);border-color:var(--s-forest);color:#fff}.pr-tabs button.sel span{color:var(--s-green-soft)}
+.pr-tabs button.done{border-color:var(--s-green)}
+.pr-box{margin-top:8px;border:1px solid var(--s-line);border-radius:14px;background:var(--s-white);padding:10px 16px;min-height:330px;display:flex;flex-direction:column;gap:6px}
+.pr-box .k{font:10px var(--s-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--s-dim);margin:0}
+.pr-box p{margin:0;font-size:14px;line-height:1.45}
+.pr-box .pm{background:var(--s-cream);border:1px dashed var(--s-line);border-radius:10px;padding:8px 12px;font:12.5px/1.5 var(--s-mono);color:var(--s-ink);white-space:pre-wrap}
+.pr-box .ans{background:var(--s-green-soft);border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.5;display:none}
+.pr-box .ans.on{display:block}
+.pr-box .ans table{font-size:12.5px;margin-top:4px;background:transparent}.pr-box .ans td{padding:1px 8px;background:transparent!important;border-bottom:1px solid #b7dccd}
+.pr-box .ans td:nth-child(n+2){text-align:right;font-family:var(--s-mono)}
+.pr-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:4px 0}
+.pr-bar i{display:block}
+.pr-box .row{display:flex;gap:8px;margin-top:auto}
+@media(max-width:900px){.pr{grid-template-columns:1fr}.pr-tabs{grid-template-columns:repeat(3,1fr)}}
+
+/* ba lý do đóng gói */
+.why3 .wq{cursor:pointer;text-align:left;font:inherit;color:inherit;padding:10px 16px}
+.why3 .wq .v{font-size:clamp(26px,3.2vw,36px)}
+.why3 .wq.sel{background:var(--s-forest);border-color:var(--s-forest)}
+.why3 .wq.sel .k,.why3 .wq.sel .m{color:var(--s-green-soft)}.why3 .wq.sel .v{color:#fff}
+.wbox{margin-top:10px;border:1px solid var(--s-line);border-radius:14px;background:var(--s-white);padding:12px 16px;min-height:300px;max-width:1180px}
+.wbox .wh{display:grid;grid-template-columns:1.15fr 1fr;gap:12px 22px}
+.wbox .k{font:10px var(--s-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--s-dim);margin:0 0 4px}
+.wbox p,.wbox li{font-size:13.5px;line-height:1.45;margin:0}
+.wbox ul{margin:0;padding-left:18px}
+.wtl{display:flex;height:26px;border-radius:6px;overflow:hidden;font:11px var(--s-mono);color:#fff}
+.wtl i{display:flex;align-items:center;justify-content:center;font-style:normal;white-space:nowrap;overflow:hidden}
+.wtl .a{background:#A6603A}.wtl .b{background:#c9a227}.wtl .c{background:#8fc3ad;color:var(--s-deep)}.wtl .d{background:var(--s-forest)}
+.wlab{font-size:12px;color:var(--s-muted);margin:6px 0 2px}
+.wtier{display:flex;flex-direction:column;gap:6px}
+.wtier div{display:grid;grid-template-columns:120px 1fr 44px;gap:8px;align-items:center;font-size:13px}
+.wtier i{display:block;height:14px;border-radius:4px;background:var(--s-green)}
+.wtier em{font:normal 12px var(--s-mono);text-align:right}
+.wrisk{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.wrisk div{border:1px solid var(--s-line);border-left:3px solid var(--s-warn);border-radius:0 8px 8px 0;padding:6px 10px;font-size:12.5px;line-height:1.4}
+.wrisk b{display:block;font-size:13px}
+.wnote{background:#FDFAF0;border:1px solid #EADFB6;border-radius:10px;padding:8px 12px;font-size:13px;grid-column:1/-1}
+@media(max-width:900px){.wbox .wh,.wrisk{grid-template-columns:1fr}}
+
+/* quy trình 10 bước */
+.proc{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:1180px}
+.proc .ph{background:var(--s-white);border:1px solid var(--s-line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.proc .pk{font:10.5px var(--s-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--s-green);margin:0 0 2px;border-bottom:1px solid var(--s-line);padding-bottom:6px}
+.pst{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:start;padding:6px;border-radius:10px}
+.pst .n{width:26px;height:26px;border-radius:50%;border:1px solid var(--s-line);display:flex;align-items:center;justify-content:center;font:12px var(--s-mono);color:var(--s-dim)}
+.pst b{display:block;font-size:14.5px;line-height:1.25}.pst div>span{display:block;font-size:12.5px;color:var(--s-muted);line-height:1.35;margin-top:2px}
+.pst.hl{background:var(--s-forest);color:#fff}.pst.hl .n{border-color:#fff;color:#fff}.pst.hl div>span{color:var(--s-green-soft)}
+@media(max-width:900px){.proc{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="okLogo" viewBox="0 0 86 104">
+    <circle cx="43" cy="25" r="13.2" fill="none" stroke="#F8BD2D" stroke-width="7.6"/>
+    <path d="M36.2 36 H49.8 V73.5 L45.4 79 H40.6 L36.2 73.5 Z" fill="#F8BD2D"/>
+    <path d="M44.4 50.5 H49.8 V73.5 L45.4 79 H44.4 Z" fill="#14376D"/>
+    <rect x="45.4" y="55.5" width="2.4" height="2.4" fill="#fff"/><rect x="45.4" y="60.5" width="2.4" height="2.4" fill="#fff"/><rect x="45.4" y="65.5" width="2.4" height="2.4" fill="#fff"/>
+    <text x="43" y="99.5" text-anchor="middle" font-family="Outfit, 'Segoe UI', Arial, sans-serif" font-weight="700" font-size="15.5" fill="#14376D" letter-spacing=".2">OmniKey</text>
+  </symbol>
+  <symbol id="okKey" viewBox="22 4 42 80">
+    <circle cx="43" cy="25" r="13.2" fill="none" stroke="#F8BD2D" stroke-width="7.6"/>
+    <path d="M36.2 36 H49.8 V73.5 L45.4 79 H40.6 L36.2 73.5 Z" fill="#F8BD2D"/>
+    <path d="M44.4 50.5 H49.8 V73.5 L45.4 79 H44.4 Z" fill="#14376D"/>
+    <rect x="45.4" y="55.5" width="2.4" height="2.4" fill="#fff"/><rect x="45.4" y="60.5" width="2.4" height="2.4" fill="#fff"/><rect x="45.4" y="65.5" width="2.4" height="2.4" fill="#fff"/>
+  </symbol></defs></svg>
+<div id="deck">
+  <div id="bar">
+    <span class="brand"><svg class="oklogo" viewBox="0 0 42 80" aria-hidden="true"><use href="#okKey"/></svg><span class="bn">OmniKey Training</span></span>
+    <span class="sep"></span>
+    <span class="grow"><button id="crumb" title="Mở mục lục (M)"><b>00</b>Mở đầu</button></span>
+    <span id="clock">phút mục tiêu —</span>
+    <span id="timer">00:00</span>
+    <button id="btimer">Bắt đầu</button>
+    <button id="btoc">☰ Mục lục (M)</button>
+    <button id="bnotes">Ghi chú (N)</button>
+    <span class="num" id="count">1 / 1</span>
+  </div>
+
+  <div id="stage">
+    <!-- 1 · intro -->
+    <section class="slide dense course" data-sec="intro" data-min="0–5" data-notes="Trang tiêu đề toàn khóa — để sẵn trên màn hình trong lúc chờ vào lớp. Khi bắt đầu, chuyển sang trang tiêu đề Buổi 1. Thông tin lấy từ landing page khóa học.">
+      <div class="split course-split" style="flex:0 0 auto">
+        <div class="pane-light">
+          <div class="brandrow"><svg class="oklogo" viewBox="0 0 86 104" role="img" aria-label="OmniKey"><use href="#okLogo"/></svg><span class="brandname">OmniKey Training</span></div>
+          <p class="eyebrow" style="margin-top:18px">Khóa học · 4 buổi · Online</p>
+          <h1>AI for Finance</h1>
+          <p class="lead">Tư duy và phương pháp sử dụng AI để xây dựng công cụ cho các công việc tài chính lặp lại mỗi kỳ — báo cáo, kế hoạch, ngân sách — với mọi số liệu được kiểm chứng trước khi sử dụng.</p>
+          <p class="trainer"><b>Trương Thành Trung</b> · FCCA, CPA Việt Nam</p>
+        </div>
+        <div class="pane-green">
+          <p class="eyebrow" style="color:var(--s-green-soft)">Mindset → Skill set → Tool set</p>
+          <p class="tagline">AI khuếch đại chuyên môn, không thay thế chuyên môn.</p>
+          <p class="meta" style="color:var(--s-green-soft);margin-top:16px">Thủ công trước, AI sau · sáu case thực hành · 60% thời lượng</p>
+        </div>
+      </div>
+      <div class="roadmap">
+        <div class="rm on"><span class="d">Buổi 1 · T7 26/9 · 13:30</span><b>Nghĩ đúng và đóng gói</b><span class="x">Tư duy · phương pháp đóng gói</span></div>
+        <div class="rm"><span class="d">Buổi 2 · CN 27/9 · 9:00</span><b>Case 01–03</b><span class="x">Báo cáo và kế hoạch: số liệu đúng, vận hành lại được</span></div>
+        <div class="rm"><span class="d">Buổi 3 · CN 27/9 · 13:30</span><b>Case 04–06</b><span class="x">Chính sách và phương án: số liệu để ra quyết định</span></div>
+        <div class="rm wk"><span class="d">Tuần giữa · 28/9–2/10</span><b>Áp dụng vào việc thật</b><span class="x">Chọn một khuôn, kèm mẫu và checklist tự kiểm</span></div>
+        <div class="rm"><span class="d">Buổi 4 · T7 3/10 · 13:30</span><b>Trình bày · chọn công cụ</b><span class="x">Phản hồi bài làm · AI cho cả phòng tài chính</span></div>
+      </div>
+    </section>
+
+    <!-- 2 · intro -->
+    <section class="slide" data-sec="intro" data-min="0–5" data-notes="Slide chờ trước giờ học. Mở lớp đúng 13:30, không giới thiệu dài — sang slide giảng viên chỉ 1 phút.">
+      <div class="split title-split" style="flex:0 0 auto">
+        <div class="pane-light">
+          <div class="brandrow"><svg class="oklogo" viewBox="0 0 86 104" role="img" aria-label="OmniKey"><use href="#okLogo"/></svg><span class="brandname">OmniKey Training</span></div>
+          <p class="eyebrow" style="margin-top:22px">AI for Finance · Buổi 1 / 4</p>
+          <h1>Nghĩ đúng, làm đúng</h1>
+          <p class="lead">Phía sau một bài toán tài chính được giải là nền tảng kiến thức và quá trình cải tiến liên tục. AI khuếch đại hai yếu tố đó, không thay thế chúng.</p>
+          <p class="trainer"><b>Trương Thành Trung</b> · FCCA, CPA Việt Nam</p>
+          <p class="meta">Thứ Bảy 26/09/2026 · 13:30–16:30 · Mindset 90' · giải lao 10' · Skill set 80'</p>
+        </div>
+        <div class="pane-green">
+          <p class="tagline">“Knowledge is the key that opens everything”</p>
+          <p class="meta" style="margin-top:18px"><a href="https://home.basicnlogic.com/" target="_blank" rel="noopener" style="color:var(--s-green-soft)">home.basicnlogic.com</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · intro -->
+    <section class="slide dense pf" data-sec="intro" data-min="0–5" data-notes="Tối đa 1 phút. Không đọc lại từng dòng — nói một câu về lý do dạy khóa này: đã tự dựng và tự làm lại các công cụ sẽ trình bày.">
+      <div class="pf-head">
+        <img class="pf-photo" alt="Trương Thành Trung" src="data:image/jpeg;base64,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">
+        <div>
+          <p class="eyebrow" style="margin-bottom:6px">Giảng viên</p>
+          <h2 class="pf-name">Trương Thành Trung — FCCA · CPA Việt Nam</h2>
+          <p class="pf-sub">19 năm trong tài chính doanh nghiệp: kiểm toán ngân hàng, điều hành và giám đốc tài chính — giảng dạy liên tục từ năm 2010.</p>
+        </div>
+      </div>
+      <div class="pf-stats">
+        <div class="pf-stat"><span class="l">Kinh nghiệm tài chính</span><span class="v">19</span><span class="m">năm · từ 2007</span></div>
+        <div class="pf-stat"><span class="l">Giờ đào tạo</span><span class="v">2.500</span><span class="m">tính đến 2025 · từ 2010</span></div>
+        <div class="pf-stat hl"><span class="l">Kiểm toán ngân hàng</span><span class="v">6</span><span class="m">năm tại PwC Việt Nam</span></div>
+        <div class="pf-stat"><span class="l">Vai trò cao nhất</span><span class="v sm">Phó TGĐ</span><span class="m">kiêm Giám đốc Tài chính</span></div>
+      </div>
+      <div class="pf-exp">
+        <div class="pf-card"><p class="pf-k">Tài chính và đầu tư</p>
+          <p><b>Giám đốc Tài chính Kinh doanh — VinFast</b>: chính sách bán hàng, định giá, mô hình đại lý, sản phẩm tài chính ô tô.</p>
+          <p><b>Trưởng bộ phận Đầu tư — Golden Gate</b>: huy động vốn, M&amp;A, ngân sách và dự báo.</p></div>
+        <div class="pf-card"><p class="pf-k">Điều hành doanh nghiệp</p>
+          <p><b>Phó Tổng Giám đốc</b> tại chuỗi bán lẻ mỹ phẩm đa thương hiệu và doanh nghiệp phân phối ô tô.</p>
+          <p><b>Giám đốc Vận hành</b> — chuỗi cung ứng, trải nghiệm khách hàng, chuyển đổi số.</p></div>
+        <div class="pf-card"><p class="pf-k">Kiểm toán và kiểm soát</p>
+          <p><b>PwC Việt Nam, 2007–2013</b> — kiểm toán báo cáo tài chính các <b>tập đoàn đa quốc gia</b> (Samsung, Toyota, Ericsson) và <b>ngân hàng thương mại</b>.</p>
+          <p><b>Masan Resources, 2013–2016</b> — Phó Giám đốc Kiểm soát kinh doanh.</p></div>
+      </div>
+      <div class="pf-foot">
+        <div><p class="pf-k">Giảng dạy chứng chỉ quốc tế</p>
+          <div class="chips"><span class="chip on">ACCA</span><span class="chip on">CMA Hoa Kỳ</span><span class="chip on">FPAC</span><span class="chip on">CTP</span><span class="chip">Quản trị tài chính chiến lược</span><span class="chip">Quản trị nguồn vốn</span><span class="chip">Hoạch định chiến lược và kế hoạch kinh doanh</span><span class="chip">Ứng dụng AI trong tài chính</span></div></div>
+        <div><p class="pf-k">Khách hàng doanh nghiệp tiêu biểu</p>
+          <p class="pf-clients">VietinBank · Hyundai Thành Công · CEO Group · Vietsovpetro · EVN · Mekong Capital · Prudential Việt Nam · Honda Việt Nam · Ajinomoto Việt Nam · Mitsubishi Việt Nam · Lộc Trời Group · VNG</p></div>
+      </div>
+    </section>
+
+    <!-- 4 · intro -->
+    <section class="slide" data-sec="intro" data-min="0–5" data-notes="Đọc lướt mạch: nửa đầu là tư duy — vì sao và chọn việc gì; nửa sau là kỹ năng — đóng gói và kiểm soát. Nút Mục lục (phím M) mở lại bảng này ở bất kỳ slide nào.">
+      <p class="eyebrow">Nội dung buổi 1</p>
+      <h2>Mạch trình bày</h2>
+      <div class="agenda" id="agenda"></div>
+    </section>
+
+    <!-- 5 · intro -->
+    <section class="slide" data-sec="intro" data-min="0–5" data-notes="Ba câu này phải nói gọn, không diễn giải dài. Đây là chỗ chặn trước cái thất vọng lớn nhất ở buổi 2. Buổi 2 và 3 không yêu cầu thao tác đồng thời trên lớp. Tại nhà: nạp dữ liệu của đơn vị và huấn luyện dần công cụ, không lắp ghép khối có sẵn.">
+      <p class="eyebrow">Cách thức vận hành khóa học</p>
+      <h2>Quan sát · thực hành · hỗ trợ</h2>
+      <div class="flow "><div class="fs step"><span class="n">01</span><b>Buổi 2 và 3</b><span>Quan sát giảng viên xây dựng công cụ</span></div><div class="fs step"><span class="n">02</span><b>Bộ tài liệu mỗi case</b><span>Mẫu · số minh họa · checklist · demo</span></div><div class="fs step hl"><span class="n">03</span><b>Tuần giữa</b><span>Nạp dữ liệu thật của đơn vị</span></div><div class="fs step"><span class="n">04</span><b>Bài nộp</b><span>Ba mức · mức 1 là đạt</span></div></div>
+    </section>
+
+    <!-- 6 · intro -->
+    <section class="slide" data-sec="intro" data-min="0–5" data-notes="Nói rõ mức 1 là đạt. Lớp có 4/7 người mới dùng AI ở mức hỏi đáp — họ cần biết mình không bị bỏ lại. Nói thêm: bài nộp không chấm file đẹp, chấm việc anh/chị có kiểm được không — lỗi cài sẵn là để luyện đúng điều đó, không phải để bắt bẻ.">
+      <p class="eyebrow">Bài nộp tuần giữa</p>
+      <h2>Ba mức · mức 1 là đạt</h2>
+      <div class="stairs "><div class="st step hl" style="height:55%"><span class="n">Mức 1 · Đạt</span><b>Vận hành lại</b><span>Chạy công cụ mẫu trên dữ liệu thật · tìm ra <b>một lỗi cài sẵn</b></span></div><div class="st step" style="height:78%"><span class="n">Mức 2</span><b>Điều chỉnh</b><span>Xử lý <b>một điều kiện mới</b> gửi giữa tuần</span></div><div class="st step" style="height:100%"><span class="n">Mức 3</span><b>Xây dựng</b><span>Công cụ mới cho bài toán của đơn vị</span></div></div>
+    </section>
+
+    <!-- 7 · a1 -->
+    <section class="slide" data-sec="a1" data-min="5–25" data-notes="Đặt câu hỏi, không trả lời ngay. Nói chậm. Câu trả lời nằm ở slide “Bài học từ case” cuối khối: số lần công cụ được làm lại.">
+      <div class="split" style="flex:0 0 auto">
+        <div class="pane-green">
+          <p class="eyebrow" style="color:var(--s-green-soft)">Câu hỏi của Phần A</p>
+          <h2 style="font-size:clamp(24px,3.2vw,38px)">Vì sao một bài toán cũ vẫn tạo ra tiền mới?</h2>
+        </div>
+        <div class="pane-light">
+          <p class="big-kicker">CVP</p>
+          <p>Có trong giáo trình hàng chục năm.</p>
+          <p class="meta">Câu trả lời được khép lại ở cuối case mở đầu.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · a1 -->
+    <section class="slide" data-sec="a1" data-min="5–25" data-notes="Giao vai cho lớp: người phải ký tờ trình. Chỉ nói về bài toán, không nói hiện trạng doanh nghiệp. Tình huống này gặp lại ở case 06, buổi 3. Kể lý do phòng kinh doanh đề xuất giảm giá (tồn kho, đối thủ, mục tiêu quý).">
+      <p class="eyebrow">Case mở đầu · bối cảnh</p>
+      <h2>Một cuộc họp tại đại lý phân phối ô tô</h2>
+      <div class="flow story"><div class="fs step"><span class="n">1</span><b>Đại lý ô tô</b><span>Biên đóng góp ~20% mỗi xe</span></div><div class="fs step"><span class="n">2</span><b>Phòng kinh doanh</b><span>Đề xuất giảm giá bán 5%</span></div><div class="fs step dk"><span class="n">3</span><b>Phòng tài chính</b><span>Có phê duyệt?</span></div></div>
+      <p class="meta step" style="margin-top:14px">Số minh họa</p>
+      <div class="note step" style="margin-top:6px">Anh/chị là người phụ trách tài chính trong cuộc họp này.</div>
+    </section>
+
+    <!-- 9 · a1 -->
+    <section class="slide" data-sec="a1" data-min="5–25" data-notes="Để poll của Zoom chạy hết rồi mới bấm lật. Slide này chỉ để lớp nhìn câu hỏi. Sau khi có phân bố: “Hầu hết chọn A hoặc B. Đây cũng là đáp án phòng kinh doanh dùng để xin duyệt chương trình giảm giá.”">
+      <p class="eyebrow">Case mở đầu · dự đoán</p>
+      <h2>Trước khi mở bảng tính</h2>
+      <p class="lead">Biên đóng góp <b>20%</b> mỗi xe. Đại lý giảm giá bán <b>5%</b>. Sản lượng cần tăng bao nhiêu để tổng lãi đóng góp không đổi?</p>
+      <div class="grid4" style="margin-top:20px" id="poll">
+        <button class="pick" data-k="A"><span class="kk">A</span>~5%</button>
+        <button class="pick" data-k="B"><span class="kk">B</span>~10–15%</button>
+        <button class="pick" data-k="C"><span class="kk">C</span>~33%</button>
+        <button class="pick" data-k="D"><span class="kk">D</span>&gt;50%</button>
+      </div>
+      <p style="margin-top:18px"><button class="btn btn-pri" id="reveal">Công bố đáp án</button></p>
+    </section>
+
+    <!-- 10 · a1 -->
+    <section class="slide" data-sec="a1" data-min="5–25" data-notes="Lật từng dòng. Nhấn: giảm giá không cắt 5% lợi nhuận, nó cắt 25% biên. Đừng giảng CVP như bài giảng.">
+      <p class="eyebrow">Phân tích CVP</p>
+      <h2>Giảm giá 5% cắt mất 25% biên</h2>
+      <div class="cvp">
+        <div class="cvrow step"><span class="lb">Trước</span><div class="track"><i class="vc" style="width:80%">Biến phí 640</i><i class="cm" style="width:20%">Biên 160</i></div><span class="tt num">800 tr</span></div>
+        <div class="cvrow step"><span class="lb">Sau giảm 5%</span><div class="track"><i class="vc" style="width:80%">Biến phí 640</i><i class="cm cut" style="width:15%">120</i><i class="gone" style="width:5%"></i></div><span class="tt num">760 tr</span></div>
+      </div>
+      <div class="grid2 step" style="margin-top:22px;max-width:900px">
+        <div class="kpi"><span class="k">Biên mỗi xe</span><span class="v neg">−25%</span><span class="m">160 → 120 triệu</span></div>
+        <div class="kpi hl"><span class="k">Sản lượng cần để giữ 16 tỷ lãi đóng góp</span><span class="v">+33%</span><span class="m">100 xe → 133 xe</span></div>
+      </div>
+      <p class="meta step" style="margin-top:12px">Số minh họa · sản lượng cần tăng = mức giảm giá ÷ (biên đóng góp − mức giảm giá)</p>
+    </section>
+
+    <!-- 11 · a1 -->
+    <section class="slide" data-sec="a1" data-min="5–25" data-notes="Kéo biên xuống 10% để lớp thấy phải bán gấp đôi. Câu chốt: biên càng mỏng, mỗi điểm giảm giá càng đắt.">
+      <p class="eyebrow">Mô phỏng theo biên lợi nhuận của ngành</p>
+      <h2>Biên càng mỏng, mỗi điểm giảm giá càng đắt</h2>
+      <div class="calc">
+        <label><span>Biên đóng góp</span><input type="range" id="cm" min="5" max="60" value="20" step="1"><output id="cmo">20%</output></label>
+        <label><span>Mức giảm giá</span><input type="range" id="dc" min="1" max="20" value="5" step="1"><output id="dco">5%</output></label>
+      </div>
+      <p style="margin-top:22px">Sản lượng cần tăng <span class="big" id="need">33%</span></p>
+      <div class="meter"><i id="needbar"></i><span class="t0">0%</span><span class="t1">100%</span><span class="t2">200%+</span></div>
+      <p class="note warn" id="warnbox" style="display:none">Mức giảm giá bằng hoặc vượt biên đóng góp: tăng sản lượng không thể bù đắp.</p>
+    </section>
+
+    <!-- nhìn ngược lại · độ nhạy giá -->
+    <section class="slide dense" data-sec="a1" data-min="5–25" data-notes="Nhìn ngược lại: slide trước hỏi cần bán thêm bao nhiêu; slide này hỏi thị trường sẽ phản ứng bao nhiêu khi đo được độ nhạy. Cơ chế lấy từ Price Sensitivity Lab của case kế hoạch quý: thị phần mới = (1+X)·s₀ ÷ [(1+X)·s₀ + (1−s₀)], X = hệ số nhạy × mức giảm giá. Demo theo thứ tự: (1) kéo giảm giá 0→5%: sản lượng tăng nhưng tổng biên đóng góp chưa chắc tăng; (2) nguồn xe sẵn có +20% chặn phần cầu tăng thêm — biên tụt dưới mốc; (3) đối thủ phản ứng 50%: hiệu ứng giảm một nửa; (4) khu vực thị phần cao (B) nhạy ít hơn khu vực thị phần thấp (C). Câu chốt: bốn yếu tố tương tác cùng lúc, trên từng khu vực — làm tay trong Excel là lý do quyết định giá thường dựa vào cảm giác. Mọi số là số minh họa.">
+      <p class="eyebrow">Nhìn ngược lại · khi đo được độ nhạy giá</p>
+      <h2 style="max-width:none">Mỗi quyết định giá lập tức đổi tổng biên đóng góp</h2>
+      <div class="ps-ctl">
+        <label><span>Mức giảm giá</span><input type="range" id="psd" min="0" max="10" step="0.5" value="5"><output id="psdo"></output></label>
+        <label><span>Đối thủ phản ứng</span><input type="range" id="psc" min="0" max="100" step="10" value="0"><output id="psco"></output></label>
+        <label><span>Mùa vụ</span><input type="range" id="pss" min="0.6" max="1.4" step="0.1" value="1"><output id="psso"></output></label>
+        <label><span>Nguồn xe sẵn có</span><input type="range" id="psk" min="0" max="60" step="5" value="20"><output id="psko"></output></label>
+      </div>
+      <div class="ps-main">
+        <div>
+          <table class="ps-tb" id="pstb"><thead><tr><th>Khu vực</th><th>Thị phần s₀</th><th>Hệ số nhạy X</th><th>Xe/tháng</th></tr></thead><tbody></tbody></table>
+          <p class="meta" style="margin:6px 0 0">X: % thị phần tăng thêm cho mỗi 1% giảm giá · s₀ càng cao, càng khó tăng thêm</p>
+        </div>
+        <div>
+          <div class="ps-kpi"><div><span>Tổng sản lượng</span><b id="psv"></b><em id="psvd"></em></div><div><span>Tổng biên đóng góp</span><b id="pscm"></b><em id="pscmd"></em></div></div>
+          <svg class="viz" id="pschart" viewBox="0 0 460 200" style="max-height:30vh"></svg>
+        </div>
+      </div>
+      <p class="meta" style="margin-top:6px">Số minh họa · giá 800 tr, biến phí 640 tr/xe · cơ chế theo Price Sensitivity Lab: s₁ = (1+X)·s₀ ÷ [(1+X)·s₀ + (1−s₀)]</p>
+    </section>
+
+
+    <!-- 12 · a1 -->
+    <section class="slide" data-sec="a1" data-min="5–25" data-notes="Chuyển câu hỏi: CVP trả lời CẦN bán thêm bao nhiêu, không trả lời thị trường CÓ CHO bán thêm bấy nhiêu không. Kể phát hiện thực tế: dòng xe có phản ứng ngược với nhận định ban đầu.">
+      <p class="eyebrow">Hai câu hỏi khác nhau</p>
+      <h2>Quyết định nằm ở giao điểm</h2>
+      <div class="grid2" style="align-items:center">
+        <svg class="viz" viewBox="0 0 520 300" role="img" aria-label="CVP và độ nhạy giá giao nhau ở quyết định">
+          <circle class="v-vA" cx="190" cy="150" r="125"/><circle class="v-vB" cx="330" cy="150" r="125"/>
+          <text class="v-t" x="130" y="140" text-anchor="middle">CVP</text>
+          <text class="v-s" x="130" y="162" text-anchor="middle">Cần bán thêm</text><text class="v-s" x="130" y="178" text-anchor="middle">bao nhiêu?</text>
+          <text class="v-t" x="390" y="140" text-anchor="middle">Độ nhạy giá</text>
+          <text class="v-s" x="390" y="162" text-anchor="middle">Thị trường có</text><text class="v-s" x="390" y="178" text-anchor="middle">chấp nhận?</text>
+          <text class="v-c" x="260" y="156" text-anchor="middle">Quyết định</text>
+        </svg>
+        <div>
+          <h3>Đo tại showroom</h3>
+          <ul class="rowlist" style="margin-top:6px">
+            <li class="step"><span class="k">·</span><span>Lượt hỏi giá theo mức giá</span></li>
+            <li class="step"><span class="k">·</span><span>Tỷ lệ chốt theo đợt khuyến mại</span></li>
+            <li class="step"><span class="k">·</span><span>Số ngày tồn kho theo dòng xe</span></li>
+            <li class="step"><span class="k">!</span><span><b>Phát hiện thực tế</b></span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · a1 -->
+    <section class="slide" data-sec="a1" data-min="5–25" data-notes="Nói rõ ai bấm nút. Tiền chỉ về khi có người đổi hành động, không phải khi mô hình chạy xong.">
+      <p class="eyebrow">Giá trị tạo ra</p>
+      <h2>Quyết định kinh doanh đã thay đổi</h2>
+      <div class="ba">
+        <div class="card step"><span class="chip">Trước</span><h3 style="margin-top:12px">Cách làm cũ</h3><ul class="rowlist" style="margin-top:10px;gap:6px"><li><span class="k">·</span><span>Đánh giá dựa vào kinh nghiệm</span></li><li><span class="k">·</span><span>Hỏi qua lại nhiều bộ phận để có thông tin xung quanh</span></li><li><span class="k">·</span><span>Tốc độ chậm — có lúc quyết định không còn khả thi</span></li></ul></div>
+        <div class="arrow step">→</div>
+        <div class="card step" style="border-color:var(--s-green)"><span class="chip" style="border-color:var(--s-green);color:var(--s-green)">Sau</span><h3 style="margin-top:12px">Cách làm mới</h3><ul class="rowlist" style="margin-top:10px;gap:6px"><li><span class="k">·</span><span>Logic được xác lập từ đầu</span></li><li><span class="k">·</span><span>Thông tin đầu vào khoanh vùng và kết nối sẵn</span></li><li><span class="k">·</span><span>Quyết định nhanh hơn và chính xác hơn</span></li></ul></div>
+      </div>
+      <div class="grid2" style="margin-top:14px;max-width:900px">
+        <div class="note step"><b>Người ra quyết định</b></div>
+        <div class="note gold step"><b>Kết quả</b></div>
+      </div>
+      <p class="meta" style="margin-top:12px">Không công bố số tuyệt đối · không nhận diện khách hàng</p>
+    </section>
+
+    <!-- 14 · a1 -->
+    <section class="slide" data-sec="a1" data-min="5–25" data-notes="Câu này mở ra cả hai khối sau: phần chìm 1 là kiến thức nền, phần chìm 2 là số lần làm lại. Nói chậm.">
+      <p class="eyebrow">Bài học từ case</p>
+      <p class="quote">Phân tích CVP đã có trong giáo trình hàng chục năm. Khác biệt nằm ở số lần công cụ được làm lại cho đến khi vận hành được hằng ngày tại showroom.</p>
+    </section>
+
+    <!-- 15 · a2 -->
+    <section class="slide" data-sec="a2" data-min="25–42" data-notes="Hình ảnh chủ đạo của cả khóa. Phần nổi là bài toán đã giải; phần chìm là kiến thức nền cộng số lần làm lại.">
+      <p class="eyebrow">Phần chìm của một bài toán đã giải</p>
+      <h2>Kết quả chỉ là phần nổi</h2>
+      <svg class="iceberg" viewBox="0 0 400 300" role="img" aria-label="Tảng băng: phần nổi là bài toán đã giải, phần chìm là kiến thức nền và số lần làm lại">
+        <line x1="10" y1="120" x2="390" y2="120" stroke="#00704A" stroke-width="1.5"/>
+        <polygon points="200,28 258,120 142,120" fill="#1E3932"/>
+        <polygon points="142,120 258,120 316,268 84,268" fill="#D4E9E2"/>
+        <text x="270" y="72" font-family="DM Mono, monospace" font-size="12" fill="#1E3932">bài toán đã giải</text>
+        <text x="96" y="176" font-family="DM Mono, monospace" font-size="12" fill="#1E3932">kiến thức nền</text>
+        <text x="96" y="200" font-family="DM Mono, monospace" font-size="12" fill="#1E3932">số lần làm lại</text>
+      </svg>
+    </section>
+
+    <!-- 16 · a2 -->
+    <section class="slide" data-sec="a2" data-min="25–42" data-notes="Hai câu phải nói: không bài toán thật nào nằm gọn trong một ô — mức Solve là mức ghép nhiều ô. Và: tiền chỉ về khi đội bán hàng đổi hành động, đó là phần AI không làm thay được.">
+      <p class="eyebrow">Phân rã case theo năng lực</p>
+      <h2>Một quyết định, năm trụ năng lực</h2>
+      <div class="temple">
+        <div class="roof">Quyết định giảm giá 5%</div>
+        <div class="cols">
+          <div class="col step"><b>Kinh tế sản phẩm &amp; thương mại</b><span class="en">Commercial &amp; Product Economics</span><span>Biên theo dòng xe</span></div>
+          <div class="col step"><b>Kế hoạch &amp; dự báo</b><span class="en">Planning &amp; Forecasting</span><span>Sản lượng tại mỗi mức giá</span></div>
+          <div class="col step"><b>Dữ liệu &amp; phân tích kinh doanh</b><span class="en">Data &amp; Business Analytics</span><span>Hỏi giá · chốt đơn · tồn kho</span></div>
+          <div class="col step"><b>Công nghệ &amp; tự động hóa</b><span class="en">Technology &amp; Automation</span><span>Công cụ chạy hằng ngày</span></div>
+          <div class="col hl step"><b>Ảnh hưởng các bên liên quan</b><span class="en">Stakeholder Influence</span><span>Đội bán hàng đổi cách chào giá</span></div>
+        </div>
+        <div class="base">Phần AI không thay thế được: con người thay đổi hành động</div>
+      </div>
+    </section>
+
+    <!-- 17 · a2 -->
+    <section class="slide dense" data-sec="a2" data-min="25–42" data-notes="Ma trận là tấm gương tham khảo, không phải khung đánh giá. Bấm từng chân dung: cột sáng lên, bên phải hiện điểm mạnh và vùng chưa trọng tâm. Nhấn: mỗi điểm hụt là hệ quả của việc đã đi rất sâu ở chỗ khác. Bấm “Phạm vi khóa học” để tô 7 hàng khóa này đi qua. Poll: chân dung gần mình nhất hôm nay · chân dung muốn đi tới.">
+      <p class="eyebrow">Phân loại tham khảo trong nghề</p>
+      <h2 style="max-width:none">Tám chân dung × mười hai nhóm năng lực</h2>
+      <div class="mx-wrap">
+        <div class="mx-box"><table class="mx" id="mx"></table>
+          <div class="legend-row"><span><i class="mxd d2"></i>Trọng yếu</span><span><i class="mxd d1"></i>Bổ trợ</span><span><i class="mxd d0"></i>Chưa phải trọng tâm</span>
+          <button class="btn" id="mxscope" style="padding:3px 14px;font-size:12px;margin-left:auto">Phạm vi khóa học</button></div>
+        </div>
+        <div class="mx-side" id="mxside"><p class="meta" style="margin:0">Chọn một chân dung để xem năng lực trọng yếu, vùng chưa phải trọng tâm và lộ trình nghề nghiệp.</p></div>
+      </div>
+      <div class="ex step"><span class="exl">Ví dụ</span><span>Kế toán trưởng mạnh <b>Kế toán &amp; báo cáo</b> → bước liền kề là <b>Dữ liệu &amp; phân tích kinh doanh</b>: dùng AI phân tích biến động, trực quan hóa, viết bình luận quản trị.</span></div>
+    </section>
+
+    <!-- 18 · a2 -->
+    <section class="slide" data-sec="a2" data-min="25–42" data-notes="Hình ảnh dẫn bằng lời: chiếc đèn pin phóng to của Doraemon. Chỗ nguy hiểm: chiếu vào vùng trống thì output vẫn trôi chảy y hệt.">
+      <p class="eyebrow">Nguyên lý khuếch đại</p>
+      <h2>AI khuếch đại đúng vùng được chiếu vào</h2>
+      <div class="amp">
+        <div class="arow step"><span class="al">Vùng có nền tảng</span><div class="g s full"></div><span class="ax">AI ×10</span><div class="g l full"></div><span class="ar">Năng lực nhân lên</span></div>
+        <div class="arow step"><span class="al">Vùng trống</span><div class="g s empty"></div><span class="ax">AI ×10</span><div class="g l empty"></div><span class="ar warn">Con số không —<br>nhưng vẫn trôi chảy</span></div>
+      </div>
+      <div class="ex step"><span class="exl">Ví dụ</span><span>Kế toán trưởng hỏi AI về ghi nhận doanh thu: nhận ra ngay chỗ AI dẫn sai chuẩn mực. Cùng người đó hỏi về định giá DCF: nhận một WACC rất trôi chảy — nhưng không có cách nào kiểm.</span></div>
+    </section>
+
+    <!-- 19 · a2 -->
+    <section class="slide dense" data-sec="a2" data-min="25–42" data-notes="Bấm từng vùng — hoặc bấm thẳng vào vòng tròn. Mỗi vùng có bốn phần: đặc điểm, vai trò của AI, ví dụ tài chính và cách giao việc, chỗ phải dừng lại. Nhấn ở Discovery: AI chỉ lập bản đồ, không ra kết luận. Hỏi lớp: bài toán anh/chị định mang theo nằm ở vùng nào? Vai trò của AI theo tài liệu Finance Leadership Capability Development.">
+      <p class="eyebrow">Vùng lõi · chọn vùng trước, chọn công cụ sau</p>
+      <h2 style="max-width:none">Core · Growth · Discovery</h2>
+      <div class="zn">
+        <svg class="viz zn-svg" viewBox="0 0 360 330" role="img" aria-label="Ba vòng Core, Growth, Discovery">
+          <circle class="zc z3" data-z="2" cx="180" cy="165" r="155"/>
+          <circle class="zc z2" data-z="1" cx="180" cy="165" r="104"/>
+          <circle class="zc z1" data-z="0" cx="180" cy="165" r="54"/>
+          <text class="v-t w" x="180" y="170" text-anchor="middle" pointer-events="none">Core</text>
+          <text class="v-t" x="180" y="92" text-anchor="middle" pointer-events="none">Growth</text>
+          <text class="v-t" x="180" y="36" text-anchor="middle" pointer-events="none">Discovery</text>
+        </svg>
+        <div>
+          <div class="zn-tabs">
+            <button class="zt" data-z="0"><i class="d1"></i><b>Core</b><span>Việc đã thạo</span></button>
+            <button class="zt" data-z="1"><i class="d2"></i><b>Growth</b><span>Việc đang học</span></button>
+            <button class="zt" data-z="2"><i class="d3"></i><b>Discovery</b><span>Việc hoàn toàn mới</span></button>
+          </div>
+          <div class="zn-box" id="znbox"><p class="meta" style="margin:0">Chọn một vùng để xem cách dùng AI, ví dụ cụ thể và điểm cần dừng.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20 · a2 -->
+    <section class="slide" data-sec="a2" data-min="25–42" data-notes="Nói ở buổi 1 là sòng phẳng; để lớp tự phát hiện ở buổi 4 là mất lòng tin. Dòng tiền vẫn được đề cập ở kế hoạch tiền (case 03) và dòng tiền tự do (case 06); dự báo dòng tiền chuyên sâu cần chương trình riêng.">
+      <p class="eyebrow">Phạm vi khóa học</p>
+      <h2>Bảy trên mười hai nhóm năng lực</h2>
+      <div class="tiles"><div class="tl on">✓</div><div class="tl on">✓</div><div class="tl on">✓</div><div class="tl on">✓</div><div class="tl on">✓</div><div class="tl on">✓</div><div class="tl on">✓</div><div class="tl off">Ảnh hưởng các bên</div><div class="tl off">Thực thi &amp; thay đổi</div><div class="tl off">Lãnh đạo con người</div><div class="tl off">Quản trị &amp; đối ngoại</div><div class="tl off">Giá trị bền vững</div></div>
+      <div class="legend-row"><span><i class="sw on"></i>Trong khóa học</span><span><i class="sw off"></i>Không đi sâu</span></div>
+      <div class="note warn step" style="margin-top:14px"><b>Ngoài phạm vi:</b> kế hoạch thuế · chỉ số hài lòng khách hàng · dự báo dòng tiền chuyên sâu</div>
+    </section>
+
+    <!-- 21 · a3 -->
+    <section class="slide" data-sec="a3" data-min="42–60" data-notes="Dẫn: “Bản đầu tiên của công cụ này không dùng được. Không phải vì tính sai — mà vì [lý do mốc 1].” Ưu tiên các lý do sửa đến từ người dùng thật.">
+      <p class="eyebrow">Phần chìm 2 · cải tiến liên tục</p>
+      <h2>Công cụ dùng được là phiên bản thứ mấy?</h2>
+      <svg class="viz" viewBox="0 0 700 290" role="img" aria-label="Bốn phiên bản công cụ, mức tin cậy tăng dần"><line class="v-ax" x1="40" y1="265" x2="680" y2="265"/><line class="v-ax" x1="40" y1="265" x2="40" y2="20"/><text class="v-s" x="46" y="30">Mức tin cậy</text><text class="v-s" x="640" y="284" text-anchor="end">Số lần làm lại</text><polyline class="v-line" points="90,215 260,170 430,115 600,60"/><circle class="v-pt" cx="90" cy="215" r="17"/><text class="v-t w" x="90" y="220" text-anchor="middle">v1</text><text class="v-s" x="90" y="251" text-anchor="middle">Bản đầu tiên</text><circle class="v-pt" cx="260" cy="170" r="17"/><text class="v-t w" x="260" y="175" text-anchor="middle">v2</text><text class="v-s" x="260" y="206" text-anchor="middle">Lần sửa 1</text><circle class="v-pt" cx="430" cy="115" r="17"/><text class="v-t w" x="430" y="120" text-anchor="middle">v3</text><text class="v-s" x="430" y="151" text-anchor="middle">Lần sửa 2</text><circle class="v-pt hl" cx="600" cy="60" r="17"/><text class="v-t w" x="600" y="65" text-anchor="middle">v4</text><text class="v-s" x="600" y="96" text-anchor="middle">Dùng hằng ngày</text></svg>
+    </section>
+
+    <!-- 22 · a3 -->
+    <section class="slide" data-sec="a3" data-min="42–60" data-notes="Kể bằng lời người thật, đã ẩn danh: “kết quả không chính xác, tốn nhiều thời gian kiểm chứng nên quay lại cách làm cũ”. Săn bằng ném đá: mỗi bữa là một lần may rủi — phóng trượt thì nhịn. Slide sau là lối ra: chế tác công cụ. Điểm chung của ba học viên: không thiếu công cụ, thiếu cách đóng gói quy trình.">
+      <div class="split" style="flex:0 0 auto">
+        <div class="pane-green">
+          <p class="eyebrow" style="color:var(--s-green-soft)">Chạy ăn từng bữa</p>
+          <h2 style="font-size:clamp(22px,3vw,34px)">Phóng trượt thì cũng nhịn</h2>
+        </div>
+        <div class="pane-light" style="padding:18px 20px">
+          <svg class="viz" viewBox="0 0 460 300" role="img" aria-label="Hỏi lại từ đầu → Kiểm chứng lâu → Quay lại Excel"><ellipse class="v-ring" cx="230.0" cy="150.0" rx="150" ry="100"/><polygon class="v-arr" points="364.5,105.3 351.4,99.4 360.5,91.5"/><polygon class="v-arr" points="223.0,250.0 236.0,244.0 236.0,256.0"/><polygon class="v-arr" points="104.7,94.7 100.7,108.5 91.6,100.6"/><text class="v-c" x="230.0" y="156.0" text-anchor="middle">Vòng bỏ cuộc</text><rect class="v-node" x="155.0" y="23.0" width="150" height="54" rx="10"/><text class="v-t" x="230.0" y="47.0" text-anchor="middle">Hỏi lại từ đầu</text><text class="v-s" x="230.0" y="65.0" text-anchor="middle">mỗi lần một kết quả</text><rect class="v-node" x="284.9" y="173.0" width="150" height="54" rx="10"/><text class="v-t" x="359.9" y="197.0" text-anchor="middle">Kiểm chứng lâu</text><text class="v-s" x="359.9" y="215.0" text-anchor="middle">hơn cả tự làm</text><rect class="v-node hl" x="25.1" y="173.0" width="150" height="54" rx="10"/><text class="v-t hl" x="100.1" y="197.0" text-anchor="middle">Quay lại Excel</text><text class="v-s hl" x="100.1" y="215.0" text-anchor="middle">mất niềm tin</text></svg>
+          <p class="meta" style="margin:6px 0 0">Nguồn: khảo sát học viên khóa AI Builder, 07/2026 — ba học viên đã dùng công cụ trả phí rồi quay lại cách làm cũ</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 23 · a3 -->
+    <section class="slide" data-sec="a3" data-min="42–60" data-notes="Lối ra khỏi vòng bỏ cuộc: từ ném đá sang chế tác. Hỏi lớp: công việc hằng tháng của anh/chị đang ở cấp độ nào? Không cần trả lời, để tự đối chiếu.">
+      <p class="eyebrow">Tư duy công nghiệp · ba cấp độ công cụ</p>
+      <h2>Dùng một lần, hay chế tác để dùng lâu dài?</h2>
+      <div class="stairs "><div class="st step" style="height:62%"><span class="n"><svg viewBox="0 0 60 40" class="ico"><ellipse cx="30" cy="24" rx="20" ry="12" class="v-ic"/></svg></span><b>Ném đá</b><span>Hỏi lại từ đầu mỗi lần<em class="eg">VD: mỗi tháng dán file doanh thu vào chat, hỏi lại từ đầu</em></span></div><div class="st step" style="height:80%"><span class="n"><svg viewBox="0 0 60 40" class="ico"><line x1="6" y1="34" x2="46" y2="10" class="v-ics"/><polygon points="54,5 40,9 47,17" class="v-ic"/></svg></span><b>Cây lao</b><span>Đóng gói · chỉ thay dữ liệu<em class="eg">VD: bộ quy tắc phân loại chi phí dùng lại mỗi kỳ</em></span></div><div class="st step hl" style="height:100%"><span class="n"><svg viewBox="0 0 60 40" class="ico"><line x1="20" y1="38" x2="36" y2="4" class="v-ics"/><path d="M30 8 Q48 2 52 16 Q44 20 34 18 Z" class="v-ic"/></svg></span><b>Dao, rìu</b><span>Vận hành độc lập · AI chỉ ở khâu chế tác<em class="eg">VD: file đối soát có sẵn quy tắc, ai cũng chạy được</em></span></div></div>
+    </section>
+
+    <!-- 24 · a3 -->
+    <section class="slide" data-sec="a3" data-min="42–60" data-notes="Ba bước chuyển khó nhất. Nhấn bước cuối: để người khác chạy ra kết quả như mình.">
+      <p class="eyebrow">Bốn mức trưởng thành năng lực</p>
+      <h2>Learn → Apply → Solve → Lead</h2>
+      <div class="stairs "><div class="st step" style="height:56%"><span class="n">01</span><b>Learn</b><span>Hiểu công thức<em class="eg">VD: hiểu P&amp;L, variance, driver, biên đóng góp</em></span></div><div class="st step" style="height:70%"><span class="n">02</span><b>Apply</b><span>Dữ liệu thật, chưa chuẩn hóa<em class="eg">VD: variance report chính xác, đúng hạn</em></span></div><div class="st step" style="height:85%"><span class="n">03</span><b>Solve</b><span>Ghép nhiều nhóm năng lực<em class="eg">VD: tìm nguyên nhân biên giảm, lượng hóa lựa chọn</em></span></div><div class="st step hl" style="height:100%"><span class="n">04</span><b>Lead</b><span>Người khác tái lập cùng kết quả<em class="eg">VD: hệ thống để chủ kinh doanh tự nhìn driver và hành động</em></span></div></div>
+      <p class="meta" style="margin-top:10px">Ví dụ theo tài liệu Finance Leadership Capability Development</p>
+    </section>
+
+    <!-- 25 · a3 -->
+    <section class="slide dense" data-sec="a3" data-min="42–60" data-notes="Đọc từ trái sang phải như bốn bậc sở hữu. Ranh giới quan trọng nhất nằm giữa cột 1 và cột 2: có giải thích được vì sao ra con số đó không. Cột 1 không sai — đó là điểm khởi đầu, chỉ là chưa phải bằng chứng năng lực. Dùng chung một ví dụ để lớp thấy cùng một việc có thể ở bốn mức khác nhau. Dải cuối là năm điều kiện sở hữu, trùng năm chữ “được” trên landing page. Khảo sát qua chat: đầu ra AI gần nhất anh/chị dùng đang ở mức nào? Nguồn: Finance Leadership Capability Development.">
+      <p class="eyebrow">Mức độ sở hữu đầu ra</p>
+      <h2 style="max-width:none">Đầu ra trôi chảy dễ tạo cảm giác đã hiểu</h2>
+      <div class="own"><div class="ow s1 step"><span class="n">Mức 1</span><b>AI-generated</b><em>AI tạo, mình nhận</em>
+          <p class="k">Biểu hiện</p><p>Có đầu ra ban đầu; chưa kiểm tra logic, giả định và giới hạn.</p><p class="k">Cách hiểu</p><p>Điểm khởi đầu — cần tiếp tục kiểm chứng.</p><p class="k">Ví dụ</p><p class="exs">Dán nguyên bình luận biến động chi phí tháng 8 do AI viết vào báo cáo.</p></div><div class="ow s2 step"><span class="n">Mức 2</span><b>AI-assisted</b><em>AI hỗ trợ, mình kiểm</em>
+          <p class="k">Biểu hiện</p><p>Hiểu, kiểm tra và điều chỉnh được đầu ra của AI.</p><p class="k">Cách hiểu</p><p>Có năng lực tác nghiệp với sự hỗ trợ.</p><p class="k">Ví dụ</p><p class="exs">Đối chiếu bình luận với sổ chi tiết, sửa hai nhận định sai trước khi gửi.</p></div><div class="ow s3 step"><span class="n">Mức 3</span><b>AI-enabled</b><em>AI mở rộng năng lực</em>
+          <p class="k">Biểu hiện</p><p>Dùng AI giải một bài toán mới và chịu trách nhiệm về kết quả.</p><p class="k">Cách hiểu</p><p>Bằng chứng mở rộng năng lực.</p><p class="k">Ví dụ</p><p class="exs">Lần đầu dựng mô hình độ nhạy giá cùng AI, tự kiểm và đưa vào tờ trình.</p></div><div class="ow s4 step"><span class="n">Mức 4</span><b>AI-scaled</b><em>AI nhân rộng cho cả đội</em>
+          <p class="k">Biểu hiện</p><p>Thiết kế quy trình, bước kiểm soát và tri thức để cả đội làm tốt hơn.</p><p class="k">Cách hiểu</p><p>Bằng chứng năng lực Lead.</p><p class="k">Ví dụ</p><p class="exs">Cả phòng dùng chung skill lập BCQT có bước tự kiểm; người mới chạy ra cùng kết quả.</p></div>
+        <div class="own-gap"><span>Ranh giới quan trọng nhất: giải thích được vì sao ra con số đó</span></div>
+      </div>
+      <div class="own5 step"><span class="lb">Năm điều kiện để sở hữu</span>
+        <span><b>Giải thích</b> logic, nguồn</span><span><b>Kiểm chứng</b> số liệu, công thức</span><span><b>Điều chỉnh</b> khi điều kiện đổi</span><span><b>Ra quyết định</b> có căn cứ</span><span><b>Chịu trách nhiệm</b> về kết quả</span></div>
+      <p class="meta" style="margin-top:6px">Nguồn: Finance Leadership Capability Development · Khảo sát qua chat: đầu ra AI gần nhất anh/chị dùng đang ở mức nào?</p>
+    </section>
+
+    <!-- 26 · a4 -->
+    <section class="slide" data-sec="a4" data-min="60–72" data-notes="Mở bằng đúng câu hỏi của bạn học viên trong webinar. Không trả lời ngay. Câu dẫn: dùng AI có làm mình kém đi không — có thể, và có cách để không. Phần này trình bày phương pháp sử dụng AI để nâng cao năng lực — đồng thời là nguyên lý thiết kế của khóa học.">
+      <div class="split" style="flex:0 0 auto">
+        <div class="pane-green">
+          <p class="eyebrow" style="color:var(--s-green-soft)">Câu hỏi từ webinar</p>
+          <h2 style="font-size:clamp(22px,3vw,34px)">Dùng AI thường xuyên có làm suy giảm năng lực tư duy?</h2>
+        </div>
+        <div class="pane-light">
+          <p class="big-kicker">Có thể</p>
+          <p>— tùy thuộc vào <b>cách sử dụng</b>.</p>
+          <p class="meta">Hiện tượng thường gọi là “brain rot”</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 27 · a4 -->
+    <section class="slide" data-sec="a4" data-min="60–72" data-notes="Làm đúng như slide đặt cược CVP: poll Zoom chạy hết rồi mới lật. Mô tả: gần một nghìn học sinh trung học, luyện toán với ba điều kiện — không có AI, ChatGPT bình thường, và một bản ChatGPT có rào chắn chỉ gợi ý chứ không đưa đáp án. Sau đó thi không có AI.">
+      <p class="eyebrow">Dự đoán · một thí nghiệm thực tế</p>
+      <h2>Luyện tập cùng ChatGPT, kiểm tra không có AI</h2>
+      <p class="lead">So với nhóm không sử dụng AI, kết quả kiểm tra của nhóm luyện tập cùng ChatGPT thông thường như thế nào?</p>
+      <div class="grid3" style="margin-top:20px" id="poll2">
+        <button class="pick" data-k="A"><span class="kk">A</span>Cao hơn rõ rệt</button>
+        <button class="pick" data-k="B"><span class="kk">B</span>Tương đương</button>
+        <button class="pick" data-k="C"><span class="kk">C</span>Thấp hơn</button>
+      </div>
+      <p style="margin-top:18px"><button class="btn btn-pri" id="reveal2">Công bố đáp án</button></p>
+    </section>
+
+    <!-- 28 · a4 -->
+    <section class="slide" data-sec="a4" data-min="60–72" data-notes="Lật từng dòng. Câu chốt: không phải AI làm hại — cách AI giúp quyết định mình còn phải nghĩ hay không. Tác giả gọi ChatGPT bình thường là cái nạng: học sinh chống vào lúc luyện, bỏ ra thì đi kém hơn. Nói thẳng giới hạn: đây là học sinh trung học học toán, không phải người đi làm — đừng ngoại suy con số, chỉ giữ cơ chế.">
+      <p class="eyebrow">Kết quả · đáp án C</p>
+      <h2>Có AI thì tốt hơn. Bỏ AI ra thì kém hơn.</h2>
+      <div class="chart">
+        <div class="ch-head"><span></span><span>So với nhóm không dùng AI</span></div>
+        <div class="ch-g">Khi luyện tập · có AI</div>
+        <div class="ch-r step"><span class="rl">ChatGPT thông thường</span><div class="dv"><div class="neg"></div><div class="pos"><i class="b" style="width:36.9%"></i><em>+48%</em></div></div></div>
+        <div class="ch-r step"><span class="rl">ChatGPT chỉ gợi ý</span><div class="dv"><div class="neg"></div><div class="pos"><i class="b hl" style="width:97.7%"></i><em>+127%</em></div></div></div>
+        <div class="ch-g">Khi kiểm tra · không AI</div>
+        <div class="ch-r step"><span class="rl">ChatGPT thông thường</span><div class="dv"><div class="neg"><i class="b bad" style="width:85.0%"></i></div><div class="pos"><em style="color:var(--s-warn)">−17%</em></div></div></div>
+        <div class="ch-r step"><span class="rl">ChatGPT chỉ gợi ý</span><div class="dv"><div class="neg"></div><div class="pos"><i class="b hl" style="width:0.5%"></i><em>≈ 0</em></div></div></div>
+      </div>
+      <div class="note step" style="margin-top:14px"><b>Rủi ro nằm ở cách AI hỗ trợ:</b> người học còn phải tư duy hay không.</div>
+      <p class="meta" style="margin-top:8px">Nguồn: Bastani và cộng sự, <i>PNAS</i> 122(26), 2025 · gần 1.000 học sinh trung học, môn toán — không phải người đi làm</p>
+    </section>
+
+    <section class="slide dense" data-sec="a4" data-min="60–72" data-notes="Minh họa, không phải hội thoại trích từ nghiên cứu. Trong thí nghiệm, bản “chỉ gợi ý” được cài để không đưa đáp án ngay, mà gợi ý từng bước và kiểm tra lại cách làm của học sinh. Chỉ vào hàng dưới: cùng một câu hỏi tài chính, bên trái trả kết luận — mình chép; bên phải trả câu hỏi — mình phải tự tách số. Câu chốt: cách hỏi quyết định mình còn phải nghĩ hay không. Có thể tự dặn AI làm như bên phải: “đừng đưa kết luận, hãy hỏi tôi từng bước”.">
+      <p class="eyebrow">Minh họa · hai cách AI hỗ trợ</p>
+      <h2 style="max-width:none">Cùng một câu hỏi, hai kiểu trả lời</h2>
+      <div class="cmp">
+        <div class="ch"><span class="chip">ChatGPT thông thường</span><span class="cap">đưa đáp án</span></div>
+        <div class="ch"><span class="chip on">ChatGPT chỉ gợi ý</span><span class="cap">dẫn từng bước</span></div>
+        <div class="rowlbl">Bài toán trong thí nghiệm</div>
+        <div class="cb "><div class="u">Giải giúp: 3x + 5 = 20</div><div class="a">Trừ 5 hai vế: 3x = 15. Chia 3: <b>x = 5</b>.</div></div>
+        <div class="cb hint"><div class="u">Giải giúp: 3x + 5 = 20</div><div class="a">Muốn còn lại 3x ở vế trái, anh/chị cần bỏ số nào trước? Thử làm bước đó rồi gửi lại kết quả.</div></div>
+        <div class="rowlbl">Cùng cơ chế trong việc tài chính</div>
+        <div class="cb "><div class="u">Vì sao chi phí vận chuyển tháng 8 tăng 18%?</div><div class="a">Nguyên nhân chính: giá nhiên liệu tăng, số chuyến tăng do mùa cao điểm, phát sinh chuyến gấp. <b>Kiến nghị</b>: đàm phán lại hợp đồng.</div></div>
+        <div class="cb hint"><div class="u">Vì sao chi phí vận chuyển tháng 8 tăng 18%?</div><div class="a">Trước khi kết luận: anh/chị đã tách phần tăng do <b>số chuyến</b> và do <b>đơn giá mỗi chuyến</b> chưa? Có khoản trích trước nào của tháng 7 dồn sang không?</div></div>
+        <div class="res bad step">Nhận kết luận → chép vào báo cáo → lần sau vẫn phải hỏi lại</div>
+        <div class="res good step">Tự tách số → hiểu nguyên nhân → lần sau tự làm được</div>
+      </div>
+      <p class="meta" style="margin-top:6px">Hội thoại minh họa · Có thể tự dặn AI: “đừng đưa kết luận, hãy hỏi tôi từng bước”</p>
+    </section>
+
+
+    <!-- 29 · a4 -->
+    <section class="slide" data-sec="a4" data-min="60–72" data-notes="Dùng lại đúng case CVP lúc đầu buổi để lớp tự đặt mình vào. AI làm mức 1 rất rẻ — nên nếu đích cuối là có file, mình sẽ có cảm giác đã học mà hai mức sau vẫn mỏng. Nối về tảng băng: một số thao tác nền vẫn phải học, vì không có trực giác tối thiểu thì không phát hiện được đầu ra sai.">
+      <p class="eyebrow">Ba cấp độ của “làm được”</p>
+      <h2>Sở hữu sản phẩm chưa phải là làm chủ</h2>
+      <div class="pyr">
+        <div class="pl p3 step"><b>Làm chủ phán đoán</b><span>Thị trường có chấp nhận +33%?</span></div>
+        <div class="pl p2 step"><b>Hiểu cơ chế</b><span>Vì sao giảm 5% giá mất 25% biên</span></div>
+        <div class="pl p1 step"><b>Sở hữu sản phẩm</b><span>Có mô hình CVP · kết quả 33%</span><em>AI làm rất rẻ</em></div>
+      </div>
+    </section>
+
+    <!-- 30 · a4 -->
+    <section class="slide" data-sec="a4" data-min="60–72" data-notes="Đây là phương pháp, trả lời trọn câu hỏi brain rot. Chỉ ra lớp vừa làm bước 1 hai lần hôm nay: đặt cược CVP và thí nghiệm vừa rồi. Bước 4 chính là câu độ nhạy trong khung kiểm soát. Bước 5: không giải thích được cho đồng nghiệp là chưa sở hữu. Hai buổi tới lớp sẽ thấy tôi làm năm bước này trên từng case. Chi tiết: (1) ghi lại kết quả kỳ vọng để có điểm đối chiếu, kể cả khi sai; (2) dữ liệu và ràng buộc thật, không hỏi chung chung; (3) tìm giả định ngầm, kiểm điểm then chốt, yêu cầu phương án đối lập; (4) một điều kiện thay đổi thì kết luận có đổi; (5) chưa giải thích được nghĩa là chưa làm chủ.">
+      <p class="eyebrow">Phương pháp · sử dụng AI để nâng cao năng lực</p>
+      <h2>Năm nguyên tắc thực hành</h2>
+      <svg class="viz" viewBox="0 0 720 330" role="img" aria-label="Dự đoán trước → Giao việc thật → Chất vấn đầu ra → Đổi tình huống → Giải thích lại"><ellipse class="v-ring" cx="360.0" cy="165.0" rx="270" ry="118"/><polygon class="v-arr" points="525.4,71.7 511.2,73.4 514.8,62.0"/><polygon class="v-arr" points="612.6,207.1 615.6,193.1 625.2,200.2"/><polygon class="v-arr" points="353.0,283.0 366.0,277.0 366.0,289.0"/><polygon class="v-arr" points="99.0,195.8 111.6,202.7 102.0,209.9"/><polygon class="v-arr" points="208.0,67.4 197.4,77.1 193.8,65.6"/><text class="v-c" x="360.0" y="158.0" text-anchor="middle">Học</text><text class="v-c" x="360.0" y="184.0" text-anchor="middle">cùng AI</text><rect class="v-node" x="271.0" y="20.0" width="178" height="54" rx="10"/><text class="v-t" x="360.0" y="44.0" text-anchor="middle">Dự đoán trước</text><text class="v-s" x="360.0" y="62.0" text-anchor="middle">ghi kết quả kỳ vọng</text><rect class="v-node" x="527.8" y="101.5" width="178" height="54" rx="10"/><text class="v-t" x="616.8" y="125.5" text-anchor="middle">Giao việc thật</text><text class="v-s" x="616.8" y="143.5" text-anchor="middle">dữ liệu, ràng buộc thật</text><rect class="v-node" x="429.7" y="233.5" width="178" height="54" rx="10"/><text class="v-t" x="518.7" y="257.5" text-anchor="middle">Chất vấn đầu ra</text><text class="v-s" x="518.7" y="275.5" text-anchor="middle">giả định ngầm · phản biện</text><rect class="v-node" x="112.3" y="233.5" width="178" height="54" rx="10"/><text class="v-t" x="201.3" y="257.5" text-anchor="middle">Đổi tình huống</text><text class="v-s" x="201.3" y="275.5" text-anchor="middle">kết luận có đổi?</text><rect class="v-node" x="14.2" y="101.5" width="178" height="54" rx="10"/><text class="v-t" x="103.2" y="125.5" text-anchor="middle">Giải thích lại</text><text class="v-s" x="103.2" y="143.5" text-anchor="middle">cho người khác</text></svg>
+      <div class="ex step"><span class="exl">Ví dụ</span><span>Slide tiếp theo: thực hành cả năm nguyên tắc trên bài toán <b>chi phí vận chuyển tháng 8 tăng 18,5%</b> — có dữ liệu, câu lệnh mẫu và đáp án từng bước.</span></div>
+    </section>
+
+    <section class="slide dense" data-sec="a4" data-min="60–72" data-notes="Thực hành 5 nguyên tắc trên một bộ số nhỏ, khoảng 6–8 phút. Nhịp mỗi bước: đọc nhiệm vụ → lớp làm/đoán trong chat → bấm Xem đáp án. Bước 1: đa số sẽ đoán giá nhiên liệu — giữ lại câu trả lời trong chat. Bước 2: dán dữ liệu (nút Sao chép dữ liệu) và câu lệnh vào AI trên màn hình chia sẻ. Bước 3: đáp án cho thấy giá nhiên liệu (đơn giá) chỉ giải thích 12% mức tăng. Bước 4: bỏ hóa đơn trễ thì mức tăng thật chỉ +10,1%; tháng 9 hết cao điểm chỉ còn +2%. Bước 5: ba câu cho GĐ kinh doanh. Đáp án: T7 298,8 · T8 354,2 · +55,4 = số chuyến 20,0 + đơn giá 6,4 + chuyến gấp 17,0 + hóa đơn trễ 12,0. File CSV kèm theo. Số minh họa.">
+      <p class="eyebrow">Thực hành năm nguyên tắc</p>
+      <h2 style="max-width:none">Vì sao chi phí vận chuyển tháng 8 tăng 18,5%?</h2>
+      <div class="pr">
+        <div class="pr-data">
+          <table class="pr-tb">
+            <thead><tr><th>Tuyến · loại</th><th>T7 chuyến</th><th>T7 đ.giá</th><th>T8 chuyến</th><th>T8 đ.giá</th></tr></thead>
+            <tbody>
+              <tr><td>HCM–Cần Thơ</td><td>48</td><td>2,30</td><td>52</td><td>2,35</td></tr>
+              <tr><td>HCM–Đồng Nai</td><td>42</td><td>2,20</td><td>44</td><td>2,25</td></tr>
+              <tr><td>HCM–Vũng Tàu</td><td>30</td><td>3,20</td><td>32</td><td>3,25</td></tr>
+              <tr class="x"><td>Chuyến gấp</td><td>—</td><td>—</td><td>5</td><td>3,40</td></tr>
+              <tr class="x"><td>Hóa đơn T7 về trễ</td><td colspan="2">—</td><td colspan="2">12,0 tr</td></tr>
+            </tbody>
+            <tfoot><tr><td>Tổng chi phí</td><td colspan="2">298,8 tr</td><td colspan="2"><b>354,2 tr</b></td></tr></tfoot>
+          </table>
+          <p class="meta" style="margin:6px 0 0">Đơn giá: triệu đồng/chuyến · số minh họa · file <b>AIFin_S1_thuchanh_chiphi_vanchuyen.csv</b></p>
+          <button class="btn" id="prcopy" style="margin-top:8px;padding:5px 14px;font-size:13px">Sao chép dữ liệu</button>
+        </div>
+        <div class="pr-steps">
+          <div class="pr-tabs" id="prtabs"></div>
+          <div class="pr-box" id="prbox"></div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- 31 · a4 -->
+    <section class="slide" data-sec="a4" data-min="60–72" data-notes="Ba câu tự hỏi, dùng được sau khóa học. Có thể nói bằng hình ảnh của nhóm tác giả: ChatGPT không rào chắn là cái nạng — chống vào lúc luyện, bỏ ra thì đi kém hơn. Nối về bài nộp: mức 1 có lỗi cài sẵn, mức 2 có điều kiện mới. Sang khối Chọn đúng việc.">
+      <div class="split rev" style="flex:0 0 auto">
+        <div class="pane-light">
+          <h3>Ba câu hỏi tự đánh giá</h3>
+          <ul class="rowlist" style="margin-top:8px">
+            <li class="step"><span class="k">1</span><span>Không có AI, có giải thích được kết quả?</span></li>
+            <li class="step"><span class="k">2</span><span>Với một lỗi cài sẵn, có phát hiện được?</span></li>
+            <li class="step"><span class="k">3</span><span>Khi điều kiện thay đổi, có điều chỉnh được?</span></li>
+          </ul>
+          <p class="meta" style="margin-top:12px">Bài nộp tuần giữa đánh giá theo đúng ba tiêu chí này.</p>
+        </div>
+        <div class="pane-green">
+          <p class="eyebrow" style="color:var(--s-green-soft)">Tự đánh giá</p>
+          <h2 style="font-size:clamp(20px,2.6vw,30px)">Làm chủ, hay phụ thuộc?</h2>
+        </div>
+      </div>
+    </section>
+
+    <!-- 32 · a5 -->
+    <section class="slide dense" data-sec="a5" data-min="72–87" data-notes="Tầng gốc của cả khóa. Poll ở đây cho dữ liệu thật về lớp ngay phút đầu khối — dùng lại được cho cả sáu case và buổi clinic tuần giữa. Khảo sát: khâu nào đang là điểm nghẽn lớn nhất? Ví dụ điểm nghẽn: thu thập — mỗi bộ phận một mẫu; làm sạch — sửa tay phát sinh rủi ro; tính toán — dừng ở số tổng; kiểm tra — bằng mắt, không lặp lại được; trình bày — một bản cho mọi đối tượng; phân tích — mô tả chưa giải thích; phối hợp — mỗi bộ phận một số; lưu vết — không tái lập được sau ba tháng.">
+      <p class="eyebrow">Có đáng làm không · điểm nghẽn</p>
+      <h2>Mọi công việc tài chính là một chu trình dữ liệu</h2>
+      <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:center">
+        <svg class="viz" viewBox="0 0 620 330" role="img" aria-label="Thu thập → Làm sạch → Tính toán → Kiểm tra → Trình bày → Phân tích → Phối hợp → Lưu vết"><ellipse class="v-ring" cx="310.0" cy="165.0" rx="235" ry="128"/><polygon class="v-arr" points="406.8,48.3 392.8,51.3 395.4,39.6"/><polygon class="v-arr" points="531.3,121.6 518.7,114.9 528.3,107.6"/><polygon class="v-arr" points="522.9,219.6 526.0,205.6 535.5,212.8"/><polygon class="v-arr" points="393.1,284.8 404.5,276.1 407.1,287.8"/><polygon class="v-arr" points="213.2,281.7 227.2,278.7 224.6,290.4"/><polygon class="v-arr" points="88.7,208.4 101.3,215.1 91.7,222.4"/><polygon class="v-arr" points="97.1,110.4 94.0,124.4 84.5,117.2"/><polygon class="v-arr" points="226.9,45.2 215.5,53.9 212.9,42.2"/><rect class="v-node" x="254.0" y="18.0" width="112" height="38" rx="10"/><text class="v-t" x="310.0" y="42.0" text-anchor="middle">Thu thập</text><rect class="v-node" x="420.2" y="55.5" width="112" height="38" rx="10"/><text class="v-t" x="476.2" y="79.5" text-anchor="middle">Làm sạch</text><rect class="v-node" x="489.0" y="146.0" width="112" height="38" rx="10"/><text class="v-t" x="545.0" y="170.0" text-anchor="middle">Tính toán</text><rect class="v-node" x="420.2" y="236.5" width="112" height="38" rx="10"/><text class="v-t" x="476.2" y="260.5" text-anchor="middle">Kiểm tra</text><rect class="v-node" x="254.0" y="274.0" width="112" height="38" rx="10"/><text class="v-t" x="310.0" y="298.0" text-anchor="middle">Trình bày</text><rect class="v-node" x="87.8" y="236.5" width="112" height="38" rx="10"/><text class="v-t" x="143.8" y="260.5" text-anchor="middle">Phân tích</text><rect class="v-node" x="19.0" y="146.0" width="112" height="38" rx="10"/><text class="v-t" x="75.0" y="170.0" text-anchor="middle">Phối hợp</text><rect class="v-node" x="87.8" y="55.5" width="112" height="38" rx="10"/><text class="v-t" x="143.8" y="79.5" text-anchor="middle">Lưu vết</text></svg>
+        <div>
+          <h3>Điểm nghẽn quyết định giải pháp</h3>
+          <div class="map">
+            <div class="step"><span>Chậm</span><i>→</i><b>Tự động hóa</b></div>
+            <div class="step"><span>Sai sót</span><i>→</i><b>Lớp kiểm soát</b></div>
+            <div class="step"><span>Thiếu chiều sâu</span><i>→</i><b>Engine driver</b></div>
+            <div class="step"><span>Thiếu nhất quán</span><i>→</i><b>Nguồn chuẩn</b></div>
+            <div class="step"><span>Thiếu góc nhìn</span><i>→</i><b>Lăng kính</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="ex step"><span class="exl">Ví dụ</span><span>BCQT tháng: năm chi nhánh gửi năm mẫu Excel khác nhau → nghẽn ở <b>Thu thập</b> và <b>Phối hợp</b> → giải pháp là một nguồn chuẩn, chưa phải tự động hóa.</span></div>
+    </section>
+
+    <!-- 33 · a5 -->
+    <section class="slide" data-sec="a5" data-min="72–87" data-notes="Công thức lấy từ bài viết “Tôi nghĩ gì khi nghĩ về AI”. Nối ngược: thừa số thứ hai về 0 chính là vòng bỏ cuộc ở phần công nghiệp; thừa số thứ ba là mức Lead. Dòng cuối hay bị quên: thời gian kiểm lại kết quả AI là chi phí thật.">
+      <p class="eyebrow">Có đáng làm không · phép nhân giá trị</p>
+      <h2>Sự tàn nhẫn của phép nhân</h2>
+      <div class="mult">
+        <div class="f step"><b>Giá trị một lần</b><span>≈ 0 khi không gắn quyết định</span></div>
+        <div class="x">×</div>
+        <div class="f step"><b>Số lần dùng / năm</b><span>≈ 0 khi kết quả thiếu nhất quán</span></div>
+        <div class="x">×</div>
+        <div class="f step"><b>Số người dùng</b><span>= 1 khi chỉ người tạo vận hành được</span></div>
+        <div class="x">=</div>
+        <div class="f res step"><b>Giá trị</b><span>Một thừa số bằng 0 → cả tích bằng 0</span></div>
+      </div>
+      <div class="note step" style="margin-top:20px">Giá trị ròng = giá trị − (chế tác + vận hành + <b>kiểm chứng</b>)</div>
+      <div class="ex step"><span class="exl">Ví dụ</span><span>Báo cáo công nợ tuần: 2 giờ × 52 lần × 3 người = <b>312 giờ/năm</b> · Một phân tích dùng một lần: 10 giờ × 1 × 1 = <b>10 giờ</b> <span class="meta">(số minh họa)</span></span></div>
+    </section>
+
+    <!-- 34 · a5 -->
+    <section class="slide" data-sec="a5" data-min="72–87" data-notes="Kéo số người sử dụng từ 1 lên 5: cùng một công cụ, thời gian hòa vốn rút xuống năm lần. Suy ra: việc càng lặp nhiều và càng nhiều người dùng thì càng đáng đóng gói; việc một năm một lần thì hỏi AI từng lần là đúng.">
+      <p class="eyebrow">Có đáng làm không · điểm hòa vốn</p>
+      <h2>Tần suất và số người dùng nào đủ để đóng gói?</h2>
+      <div class="calc">
+        <label><span>Thời gian chế tác</span><input type="range" id="bh" min="1" max="40" value="8" step="1"><output id="bho">8 giờ</output></label>
+        <label><span>Thời gian tiết kiệm mỗi lần chạy</span><input type="range" id="bm" min="5" max="180" value="40" step="5"><output id="bmo">40 phút</output></label>
+        <label><span>Số người sử dụng</span><input type="range" id="bu" min="1" max="20" value="1" step="1"><output id="buo">1 người</output></label>
+      </div>
+      <p style="margin-top:20px">Hòa vốn khi mỗi người chạy đến lượt thứ <span class="big" id="be">12</span></p>
+      <p class="meta" id="befreq"></p>
+      <p class="meta">Số minh họa — điều chỉnh theo công việc thực tế.</p>
+    </section>
+
+    <!-- 35 · a5 -->
+    <section class="slide" data-sec="a5" data-min="72–87" data-notes="Giao ngầm: mỗi người giữ trong đầu một bài toán thỏa bốn điều này — Chủ Nhật sẽ dùng lại.">
+      <p class="eyebrow">Sàng lọc cuối cùng</p>
+      <h2>Bốn tiêu chí chọn bài toán đầu tiên</h2>
+      <div class="grid4">
+        <div class="tile step"><span class="n">1</span><b>Việc thật</b><span>Không phải bài tập</span></div>
+        <div class="tile step"><span class="n">2</span><b>Kiểm chứng được</b><span>Có một số liệu đối chiếu</span></div>
+        <div class="tile step"><span class="n">3</span><b>Rủi ro kiểm soát được</b><span>Sai không gây hậu quả lớn</span></div>
+        <div class="tile step"><span class="n">4</span><b>Tài sản tái sử dụng</b><span>Không chỉ một kết quả</span></div>
+      </div>
+      <div class="ex step"><span class="exl">Ví dụ</span><span><b>Đối soát tiền về hằng tháng</b>: đạt cả bốn tiêu chí · <b>Dự báo tỷ giá năm sau</b>: trượt tiêu chí 2 — chưa có số liệu để đối chiếu.</span></div>
+    </section>
+
+    <!-- 36 · brk -->
+    <section class="slide" data-sec="brk" data-min="87–90" data-notes="Gọi tên câu hỏi thứ tư — mức độ hoàn thiện của công cụ — để nối sang Skill set. Sau slide này nghỉ 10 phút.">
+      <p class="eyebrow">Bốn câu hỏi</p>
+      <h2>Phần A trả lời ba. Phần B trả lời câu cuối.</h2>
+      <div class="grid4 q4">
+        <div class="tile done"><span class="n">A2 ✓</span><b>Dùng AI để làm gì?</b><span>Vùng lõi</span></div>
+        <div class="tile done"><span class="n">A3 ✓</span><b>Làm như thế nào?</b><span>Tư duy công nghiệp</span></div>
+        <div class="tile done"><span class="n">A5 ✓</span><b>Có đáng làm không?</b><span>Phép nhân giá trị</span></div>
+        <div class="tile next step"><span class="n">Phần B</span><b>Làm đến mức nào là đủ?</b><span>Phương pháp đóng gói</span></div>
+      </div>
+      <p class="meta" style="margin-top:22px">Giải lao 10 phút · tiếp theo: Phần B · Skill set 80'</p>
+    </section>
+
+    <!-- 37 · brk -->
+    <section class="slide" data-sec="brk" data-min="90–100" data-notes="Bấm Bắt đầu 10 phút rồi tắt chia sẻ màn hình cũng được — đồng hồ chạy tiếp. Quay lại đúng giờ, đừng chờ người đến muộn.">
+      <div class="split" style="flex:0 0 auto">
+        <div class="pane-green">
+          <p class="eyebrow" style="color:var(--s-green-soft)">Giải lao</p>
+          <h2 style="font-size:clamp(20px,2.6vw,30px)">Tiếp tục sau</h2>
+          <p style="font-family:var(--s-mono);font-size:clamp(40px,9vw,80px);margin:8px 0 18px" id="brk">10:00</p>
+          <p><button class="btn" id="bbrk" style="border-color:#fff;color:#fff">Bắt đầu đếm 10 phút</button></p>
+        </div>
+        <div class="pane-light">
+          <h3>Phần B · Skill set 80'</h3>
+          <p>Phương pháp đóng gói kết quả để lần thực hiện sau không bắt đầu lại từ đầu.</p>
+          <p class="meta">Thang đóng gói prompt → tool · quy trình mười bước · bảy thành phần của một skill · khung kiểm soát năm mục</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 38 · b1 -->
+    <section class="slide" data-sec="b1" data-min="B 0–6" data-notes="Mở lại bằng đúng câu hỏi khối. Không tóm tắt lại nửa đầu.">
+      <p class="eyebrow">Phần B · Skill set 80' · góc nhìn skill creator</p>
+      <h1>Làm thế nào để không phải xây dựng lại?</h1>
+      <p class="lead">Phần A bàn về tư duy. Phần B tập trung vào một năng lực cụ thể: đóng gói kết quả để lần thứ hai không bắt đầu từ con số không.</p>
+    </section>
+
+    <!-- 39 · b1 -->
+    <section class="slide dense" data-sec="b1" data-min="B 0–6" data-notes="Bấm từng thẻ để mở chi tiết. Hiệu suất: thời gian của một vòng lặp, phần lớn nằm ở khâu dán lại, giải thích lại và kiểm lại — đóng gói cắt đúng các khâu đó. Tokenomics: tỷ lệ giá giữa các hạng model là minh họa; bảng giá thật thay đổi thường xuyên, xem trang giá của nhà cung cấp. Nói rõ: giá mỗi token cho cùng năng lực có xu hướng giảm, nhưng tổng chi phí tăng vì ngữ cảnh dài hơn, dùng model mạnh hơn và chạy nhiều lần hơn. Độ tin cậy: chi phí kiểm lại lặp lại mỗi kỳ nếu không có bước tự kiểm.">
+      <p class="eyebrow">Vì sao cần đóng gói</p>
+      <h2 style="max-width:none">Ba lý do</h2>
+      <div class="grid3 why3">
+        <button class="kpi wq" data-w="0"><span class="k">Hiệu suất</span><span class="v">1 → 12</span><span class="m">Đóng gói một lần · dùng 12 kỳ</span></button>
+        <button class="kpi wq" data-w="1"><span class="k">Tokenomics</span><span class="v">1 lần</span><span class="m">Nạp ngữ cảnh một lần · quy tắc nằm trong gói</span></button>
+        <button class="kpi wq" data-w="2"><span class="k">Độ tin cậy</span><span class="v">N → 1</span><span class="m">Nhiều người chạy · một kết quả</span></button>
+      </div>
+      <div class="wbox" id="wbox"><p class="meta" style="margin:0">Chọn một lý do để xem phân tích chi tiết.</p></div>
+    </section>
+
+    <!-- 40 · b1 -->
+    <section class="slide" data-sec="b1" data-min="B 0–6" data-notes="Nói chậm. Đây là định nghĩa làm việc của cả nửa buổi.">
+      <p class="quote">Khác biệt giữa một prompt tốt và một công cụ không nằm ở câu chữ, mà ở việc lần chạy thứ mười có cho kết quả đúng hay không.</p>
+    </section>
+
+    <!-- 41 · b2 -->
+    <section class="slide" data-sec="b2" data-min="B 6–16" data-notes="Chạm từng nấc cho lớp thấy dấu hiệu nhận biết. Nhấn: không phải việc nào cũng phải leo tới tool, leo tới đúng nấc mà việc đó cần.">
+      <p class="eyebrow">Thang đóng gói</p>
+      <h2>Prompt → instruction → skill → tool</h2>
+      <div class="grid4 ladder" data-picker="ladder">
+        <button class="pick" style="min-height:80px" data-d="<b>Dấu hiệu:</b> soạn lại từ đầu mỗi lần. <b>Ví dụ:</b> “Phân tích file doanh thu này”.">Prompt</button>
+        <button class="pick" style="min-height:120px" data-d="<b>Dấu hiệu:</b> tái sử dụng nhưng phải dán lại. <b>Ví dụ:</b> bộ quy tắc phân loại chi phí.">Instruction</button>
+        <button class="pick" style="min-height:160px" data-d="<b>Dấu hiệu:</b> người khác chạy cho cùng kết quả. <b>Ví dụ:</b> skill lập báo cáo quản trị từ sổ kế toán.">Skill</button>
+        <button class="pick" style="min-height:200px" data-d="<b>Dấu hiệu:</b> vận hành được khi không có AI. <b>Ví dụ:</b> file công cụ có công thức và bước kiểm tra.">Tool</button>
+      </div>
+      <p class="note" data-desc="ladder" style="margin-top:16px">Chọn một bậc để xem dấu hiệu và ví dụ.</p>
+    </section>
+
+    <!-- 42 · b2 -->
+    <section class="slide" data-sec="b2" data-min="B 6–16" data-notes="Nối ngược về điểm hòa vốn ở nửa đầu buổi — lớp vừa kéo thanh trượt đó cách đây 20 phút.">
+      <div class="split" style="flex:0 0 auto">
+        <div class="pane-green">
+          <p class="eyebrow" style="color:var(--s-green-soft)">Chọn cấp độ</p>
+          <h2 style="font-size:clamp(20px,2.6vw,30px)">Đóng gói đến cấp độ công việc cần, không phải cấp độ cao nhất</h2>
+        </div>
+        <div class="pane-light">
+          <p>Cấp độ càng cao, chi phí chế tác càng lớn — liên hệ trực tiếp với điểm hòa vốn ở Phần A.</p>
+          <p class="meta">Việc thực hiện mỗi năm một lần: hỏi AI từng lần là phù hợp.<br>Việc hằng tuần: đóng gói càng sớm càng hiệu quả.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 43 · b3 -->
+    <section class="slide dense" data-sec="b3" data-min="B 16–28" data-notes="Quy trình tổng quát cho mọi bài toán, dùng lại ở cả sáu case buổi 2 và 3. Ba bước tô đậm (2 · 3 · 5) là nội dung ba slide tiếp theo. Bước 1 đã làm ở Phần A (bốn tiêu chí chọn bài toán). Bước 6–10 sẽ thấy trong sáu case của buổi 2 và 3. Nhấn: bước 1–6 chưa cần mở AI.">
+      <p class="eyebrow">Thiết kế trước khi mở AI</p>
+      <h2 style="max-width:none">Mười bước từ bài toán đến công cụ</h2>
+      <div class="proc"><div class="ph"><p class="pk">Chẩn đoán</p><div class="pst"><span class="n">1</span><div><b>Xác định đúng bài toán</b><span>Đối chứng nhiều bài toán ứng viên · không phát minh lại cái bánh xe</span></div></div><div class="pst hl"><span class="n">2</span><div><b>Kiểm kê tài nguyên sẵn có</b><span>Dữ liệu, quy tắc, mẫu trình bày đã có trong hồ sơ hiện hành</span></div></div><div class="pst hl"><span class="n">3</span><div><b>Phân rã bài toán</b><span>Cắt thành khối · tìm công đoạn chịu lực</span></div></div></div><div class="ph"><p class="pk">Định hướng giải pháp</p><div class="pst"><span class="n">4</span><div><b>Đề xuất phương án</b><span>Ít nhất hai cách giải cho người dùng kết quả</span></div></div><div class="pst hl"><span class="n">5</span><div><b>Chọn phạm vi</b><span>Khóa công đoạn chịu lực trước · xây theo chặng</span></div></div><div class="pst"><span class="n">6</span><div><b>Thiết kế giải pháp</b><span>Mẫu đầu ra · quy tắc · tiêu chí tin cậy</span></div></div></div><div class="ph"><p class="pk">Xây dựng</p><div class="pst"><span class="n">7</span><div><b>Triển khai từng khối</b><span>Mỗi khối AI đóng một vai · người chọn và duyệt</span></div></div><div class="pst"><span class="n">8</span><div><b>Tích hợp thành công cụ</b><span>Dữ liệu, danh mục, quy tắc tách khỏi phần tính</span></div></div></div><div class="ph"><p class="pk">Kiểm soát và vận hành</p><div class="pst"><span class="n">9</span><div><b>Thiết lập kiểm soát</b><span>Khớp nguồn · báo ngoại lệ · dấu vết</span></div></div><div class="pst"><span class="n">10</span><div><b>Vận hành và cải tiến</b><span>Chạy lại mỗi kỳ · sửa quy tắc, không sửa kết quả</span></div></div></div></div>
+      <p class="meta" style="margin-top:8px">Tô đậm: ba bước trình bày ngay sau đây · bước 1–6 chưa cần mở AI</p>
+    </section>
+
+    <section class="slide" data-sec="b3" data-min="B 16–28" data-notes="Mở khối: thiết kế trên giấy trước, chưa chạm AI. Người bỏ cuộc thường mở AI ngay và gõ “làm giúp tôi báo cáo”. Câu quan trọng nhất: không ai đi từ tay trắng — ba tài nguyên đã nằm sẵn trong file cũ. Chạy quy tắc trên kỳ đã phát hành, đối chiếu từng chỉ tiêu; điểm lệch cho thấy quy tắc chưa rút đủ. Câu hỏi định vị phần khó nhất: mỗi kỳ, bước nào cần dừng lại cân nhắc?">
+      <p class="eyebrow">Bước 2 · Kiểm kê tài nguyên sẵn có</p>
+      <h2>Không bắt đầu từ con số không</h2>
+      <div class="mapr">
+        <div class="mr step"><span class="c1">Dữ liệu</span><span class="c2">File xuất từ phần mềm</span><i>→</i><b>Data contract</b></div><div class="mr step hl"><span class="c1">Quy tắc</span><span class="c2">SUMIF · VLOOKUP · kinh nghiệm</span><i>→</i><b>Bảng ánh xạ (A)</b></div><div class="mr step"><span class="c1">Trình bày</span><span class="c2">Báo cáo kỳ trước đã duyệt</span><i>→</i><b>Mẫu đầu ra</b></div><div class="mr step"><span class="c1">Ngoại lệ</span><span class="c2">Ô tô màu · ghi chú · sửa tay</span><i>→</i><b>Danh sách ngoại lệ</b></div>
+      </div>
+      <div class="note gold step" style="margin-top:14px"><b>Báo cáo kỳ trước là bộ dữ liệu huấn luyện</b> · khớp ba kỳ liên tiếp là đạt</div>
+    </section>
+
+    <!-- 44 · b3 -->
+    <section class="slide dense" data-sec="b3" data-min="B 16–28" data-notes="Khung chung cho mọi bài toán báo cáo, kế hoạch, phân tích. Hai công đoạn đậm là công đoạn chịu lực: sai ở đây thì mọi công đoạn sau sai theo, và đều do con người quyết định. Ví dụ BCQT: phân loại = chọn cấp tài khoản; ánh xạ = xử lý tài khoản lưỡng tính. Ví dụ kế hoạch: phân loại = chọn driver; ánh xạ = gán chỉ tiêu cho đơn vị.">
+      <p class="eyebrow">Bước 3 · Phân rã bài toán</p>
+      <h2>Phân rã thành các khối</h2>
+      <div class="flow tight7"><div class="fs step"><span class="n">B</span><b>Nhận dữ liệu</b><span>Kiểm cấu trúc, đủ kỳ</span></div><div class="fs step"><span class="n">B</span><b>Chuẩn hóa</b><span>Cột · định dạng · đơn vị</span></div><div class="fs step dk"><span class="n">A</span><b>Phân loại</b><span>Quy tắc nghiệp vụ</span></div><div class="fs step dk"><span class="n">A</span><b>Ánh xạ</b><span>Danh mục gốc</span></div><div class="fs step"><span class="n">C</span><b>Tính toán</b><span>Theo driver</span></div><div class="fs step"><span class="n">B+D</span><b>Kiểm tra</b><span>Khớp nguồn · ngoại lệ</span></div><div class="fs step"><span class="n">F</span><b>Trình bày</b><span>Theo người đọc</span></div></div>
+      <div class="legend-row" style="margin-top:14px"><span><i class="sw dk"></i>Công đoạn chịu lực · con người quyết định</span><span><i class="sw on2"></i>Tính toán · công cụ thực hiện</span></div>
+      <div class="note step" style="margin-top:12px">Hai điểm cắt: <b>dữ liệu đổi cấu trúc</b> · <b>đổi người ra quyết định</b></div>
+    </section>
+
+    <!-- 45 · b3 -->
+    <section class="slide" data-sec="b3" data-min="B 16–28" data-notes="Poll trước khi lật: mảnh nào anh/chị xây trước? Phần lớn chọn mảnh làm sạch dữ liệu — mảnh tốn giờ nhất. Lật bằng ba tiêu chí. Đây là khoảnh khắc chỉnh phản xạ mạnh nhất của khối. Ví dụ cảnh báo: tự động hóa khâu làm sạch khi bảng ánh xạ chưa chuẩn chỉ tạo ra dữ liệu sạch cho một quy tắc chưa được kiểm chứng.">
+      <p class="eyebrow">Bước 5 · Chọn phạm vi, xây theo chặng</p>
+      <h2>Thứ tự xây dựng</h2>
+      <div class="grid2" style="grid-template-columns:1fr 1.6fr;align-items:end">
+        <div>
+          <h3>Ba tiêu chí xếp thứ tự</h3>
+          <ul class="rowlist" style="margin-top:6px">
+            <li class="step"><span class="k">1</span><span>Giá trị trên mỗi đơn vị công</span></li>
+            <li class="step"><span class="k">2</span><span>Mức độ chịu lực</span></li>
+            <li class="step"><span class="k">3</span><span>Mức độ sẵn sàng</span></li>
+          </ul>
+          <div class="note warn step" style="margin-top:14px">Công đoạn tốn giờ nhất thường <b>không</b> nên xây trước.</div>
+        </div>
+        <div class="stairs sm"><div class="st step" style="height:45%"><span class="n">1</span><b>Bảng ánh xạ</b><span>Hết mỗi người một bản</span></div><div class="st step" style="height:62%"><span class="n">2</span><b>Bước kiểm tra</b><span>Không phát hành số chưa kiểm</span></div><div class="st step" style="height:80%"><span class="n">3</span><b>Công cụ</b><span>6 giờ → 1 giờ</span></div><div class="st step" style="height:100%"><span class="n">4</span><b>Lăng kính</b><span>Lãnh đạo đọc trực tiếp</span></div></div>
+      </div>
+      <p class="meta" style="margin-top:8px">Số giờ minh họa · mỗi chặng dùng được ngay, không chờ chặng sau</p>
+    </section>
+
+    <!-- 46 · b4 -->
+    <section class="slide" data-sec="b4" data-min="B 28–48" data-notes="Đọc nhanh bảy thành phần, đừng dừng lâu ở từng cái. Thành phần 5, 6, 7 sẽ được nói kỹ ở khung kiểm soát ngay sau đây.">
+      <p class="eyebrow">Cấu trúc một skill hoàn chỉnh</p>
+      <h2>Bảy thành phần trong một gói</h2>
+      <div class="pack">
+        <div class="pk-h">SKILL</div>
+        <div class="pk-g"><div class="sk step"><span class="n">1</span><b>Ngữ cảnh</b><span>Mô hình KD · nguồn · người dùng</span></div><div class="sk step"><span class="n">2</span><b>Quy trình</b><span>Thứ tự cố định</span></div><div class="sk step"><span class="n">3</span><b>Danh mục gốc</b><span>Tách khỏi logic</span></div><div class="sk step"><span class="n">4</span><b>Mẫu đầu ra</b><span>Đúng báo cáo cần</span></div><div class="sk step hl"><span class="n">5</span><b>Tự kiểm</b><span>Báo sau mỗi lần chạy</span></div><div class="sk step hl"><span class="n">6</span><b>Không suy đoán</b><span>Thiếu thì báo thiếu</span></div><div class="sk step hl"><span class="n">7</span><b>Cảnh báo ngoại lệ</b><span>Mã lạ · dòng thiếu</span></div></div>
+      </div>
+      <div class="ex step"><span class="exl">Ví dụ</span><span>Skill đối soát tiền về: ngữ cảnh = tiền về chậm 2–6 ngày · danh mục gốc = danh mục khách hàng · không suy đoán = hai đơn cùng số tiền thì báo, không tự ghép.</span></div>
+    </section>
+
+    <!-- 47 · b4 -->
+    <section class="slide" data-sec="b4" data-min="B 28–48" data-notes="Hình ảnh này sẽ quay lại ở mọi bài của buổi 2 và 3, mỗi lần một khối A.">
+      <div class="split" style="flex:0 0 auto">
+        <div class="pane-light">
+          <h3>Tách quy tắc khỏi logic</h3>
+          <p>Bảng mã, bảng ánh xạ, danh mục được quản lý tách biệt. Thay đổi quy tắc chỉ cần cập nhật bảng, không can thiệp phần tính toán.</p>
+          <p class="meta">Thành phần số 3 — yếu tố quyết định công cụ có tiếp tục sử dụng được ở kỳ sau.</p>
+        </div>
+        <div class="pane-green">
+          <p class="eyebrow" style="color:var(--s-green-soft)">Nguyên tắc xuyên suốt</p>
+          <h2 style="font-size:clamp(20px,2.6vw,30px)">Xe thật khác xe trưng bày ở chỗ người khác cũng lái được</h2>
+        </div>
+      </div>
+    </section>
+
+    <!-- 48 · b4 -->
+    <section class="slide" data-sec="b4" data-min="B 28–48" data-notes="Dẫn bằng đúng câu hỏi đã nhận trong khảo sát. Đây là rào cản lớn nhất của lớp, nói thẳng là mình biết điều đó.">
+      <p class="eyebrow">Câu hỏi nhiều nhất từ khảo sát đầu vào</p>
+      <h2>Không biết lập trình, làm thế nào đánh giá mô hình AI xây dựng là đúng?</h2>
+      <p class="quote" style="margin-top:10px">Kiểm tra bằng nghiệp vụ, không kiểm tra bằng code.</p>
+    </section>
+
+    <!-- 49 · b4 -->
+    <section class="slide" data-sec="b4" data-min="B 28–48" data-notes="Khối quan trọng nhất của nửa buổi. Chạm từng mục, đọc câu hỏi để kiểm. Năm mục này quay lại ở cuối mọi bài của buổi 2 và 3.">
+      <p class="eyebrow">Khung kiểm soát · áp dụng cuối mỗi case</p>
+      <h2>Năm mục kiểm soát</h2>
+      <div class="grid3" data-picker="ctrl">
+        <button class="pick" data-d="<b>Một số tổng đã biết trước phải khớp.</b> Câu hỏi kiểm tra: tổng báo cáo quản trị có bằng tổng sổ kế toán?"><span class="kk">①</span>Control total</button>
+        <button class="pick" data-d="<b>Truy ngược từ kết quả về chứng từ gốc.</b> Câu hỏi kiểm tra: chọn ngẫu nhiên một dòng, có truy được về nguồn?"><span class="kk">②</span>Đối soát ngược</button>
+        <button class="pick" data-d="<b>Chạy trên một kỳ đã biết kết quả.</b> Câu hỏi kiểm tra: chạy lại tháng trước, kết quả có trùng với số đã phát hành?"><span class="kk">③</span>Test logic</button>
+        <button class="pick" data-d="<b>Dữ liệu bất thường phải được nêu ra.</b> Câu hỏi kiểm tra: thêm một mã tài khoản mới, công cụ có cảnh báo hay bỏ qua?"><span class="kk">④</span>Báo cáo ngoại lệ</button>
+        <button class="pick" data-d="<b>Ghi nhận người chạy, phiên bản, ngày dữ liệu.</b> Câu hỏi kiểm tra: sau ba tháng, có tái lập được đúng số liệu này?"><span class="kk">⑤</span>Dấu vết kiểm tra</button>
+      </div>
+      <p class="note" data-desc="ctrl" style="margin-top:18px">Chọn một mục để xem ý nghĩa trong nghiệp vụ tài chính và câu hỏi kiểm tra.</p>
+    </section>
+
+    <!-- 50 · b4 -->
+    <section class="slide" data-sec="b4" data-min="B 28–48" data-notes="Hai câu phải nói nguyên văn. Nhấn rằng đây không phải khái niệm mới, chỉ là gọi đúng tên thứ họ đã làm bằng tay bao năm nay. Khối B và D trong bộ khối tương ứng với mục ① và ②. Không phải khái niệm mới — hệ thống hóa các bước kiểm tra vẫn làm thủ công.">
+      <p class="eyebrow">Năm mục trong ba lớp kiểm soát</p>
+      <h2>Kiểm dữ liệu · giả định · kết quả</h2>
+      <div class="layers">
+        <div class="ly step"><span class="ln">Dữ liệu</span><span class="bd">② Đối soát ngược</span><span class="bd warnb">④ Báo cáo ngoại lệ</span></div>
+        <div class="ly step"><span class="ln">Giả định</span><span class="bd">Độ nhạy: lệch 10% có đổi kết luận?</span></div>
+        <div class="ly step"><span class="ln">Kết quả</span><span class="bd">① Control total</span><span class="bd">③ Test kỳ đã biết</span></div>
+        <div class="thru step">⑤ Dấu vết kiểm tra · xuyên suốt</div>
+      </div>
+      <div class="note warn step" style="margin-top:14px"><b>④ hay bị bỏ qua nhất:</b> công cụ im lặng trước dữ liệu bất thường nguy hiểm hơn công cụ báo lỗi.</div>
+      <div class="ex step"><span class="exl">Ví dụ</span><span>BCQT tháng: ① tổng doanh thu khớp sổ cái · ② chọn một dòng, truy về hóa đơn · ③ chạy lại tháng 8, khớp số đã gửi · ④ tài khoản mới phát sinh được báo · độ nhạy: phân bổ chi phí chung lệch 10%.</span></div>
+    </section>
+
+    <!-- 52 · b5 -->
+    <section class="slide" data-sec="b4" data-min="B 28–48" data-notes="Câu chốt của khối kiểm soát. Nếu lớp chỉ nhớ một câu của Phần B, nên là câu này. Buổi 2 sẽ thấy nguyên tắc này ở từng case.">
+      <p class="quote">Sai thì sửa quy tắc, không sửa kết quả.</p>
+      <p class="meta" style="margin-top:20px">Sửa số liệu đầu ra chỉ xử lý triệu chứng. Sai lệch sẽ lặp lại ở lần chạy sau — khi không có người trực tiếp điều chỉnh.</p>
+    </section>
+
+
+
+    <!-- 53 · b6 -->
+    <section class="slide" data-sec="b5" data-min="B 48–64" data-notes="Gom sáu bước thành ba vai. Nối ngược slide Tiền về: ai bấm nút. AI tham gia sâu vào cả ba vai, nhưng vai thứ ba không giao được. Hai bước hay bị bỏ nhất đều nằm ở vai chịu trách nhiệm: Validate bị bỏ vì kết quả trông đã hợp lý; Codify bị bỏ vì đã xong việc rồi.">
+      <p class="eyebrow">Vòng đời một bài toán</p>
+      <h2>Sáu bước, ba vai trò</h2>
+      <div class="grid3">
+        <div class="card step"><span class="chip">Đặt vấn đề</span><h3 style="margin-top:10px">Frame</h3><p class="meta">Xác định bài toán, tiêu chí đạt, người sử dụng kết quả</p></div>
+        <div class="card step"><span class="chip">Điều phối</span><h3 style="margin-top:10px">Explore → Prototype</h3><p class="meta">Giao việc cho AI, điều chỉnh hướng khi bản nháp sai lệch</p></div>
+        <div class="card step" style="border-color:var(--s-green)"><span class="chip" style="border-color:var(--s-green);color:var(--s-green)">Chịu trách nhiệm</span><h3 style="margin-top:10px">Validate → Deliver → Codify</h3><p class="meta">Chịu trách nhiệm về số liệu — vai trò không thể giao cho AI</p></div>
+      </div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="note step"><b>Validate</b> thường bị bỏ qua vì kết quả có vẻ hợp lý — đây là vị trí của khung kiểm soát năm mục.</div>
+        <div class="note step"><b>Codify</b> thường bị bỏ qua vì công việc đã hoàn thành — kỳ sau lại bắt đầu từ đầu.</div>
+      </div>
+      <div class="ex step"><span class="exl">Ví dụ</span><span>Biên tháng 8 giảm · <b>Frame</b>: GĐ cần biết vì sao và làm gì · <b>Explore → Prototype</b>: AI tách giá, lượng, cơ cấu · <b>Validate</b>: tổng khớp BCQT · <b>Deliver</b>: một trang cho họp giao ban · <b>Codify</b>: lưu thành skill cho tháng sau.</span></div>
+    </section>
+
+    <!-- 54 · b6 -->
+    <section class="slide" data-sec="b5" data-min="B 48–64" data-notes="Giới thiệu một lần, gặp lại suốt hai buổi sau. Câu chốt: sáu bài toán không phải sáu công cụ khác nhau, là bảy khối lắp theo bảy cách.">
+      <p class="eyebrow">Bộ khối xây dựng · sử dụng xuyên suốt buổi 2 và 3</p>
+      <h2>Bảy khối</h2>
+      <div class="grid4" data-picker="lego">
+        <button class="pick" data-d="<b>Danh mục gốc</b> — bảng ánh xạ, danh mục; tách quy tắc khỏi logic."><span class="kk">A</span>Danh mục gốc</button>
+        <button class="pick" data-d="<b>Nạp và kiểm tra dữ liệu</b> — đối chiếu số dòng vào/ra, cảnh báo mã lạ, dữ liệu thiếu."><span class="kk">B</span>Nạp &amp; kiểm</button>
+        <button class="pick" data-d="<b>Engine theo driver</b> — xây dựng số liệu từ các driver kinh doanh."><span class="kk">C</span>Engine driver</button>
+        <button class="pick" data-d="<b>Đối soát</b> — khớp ngược về nguồn."><span class="kk">D</span>Đối soát</button>
+        <button class="pick" data-d="<b>Kịch bản và độ nhạy</b> — sai lệch 10% có làm thay đổi kết luận."><span class="kk">E</span>Kịch bản</button>
+        <button class="pick" data-d="<b>Lăng kính hiển thị</b> — một engine, nhiều đối tượng sử dụng."><span class="kk">F</span>Lăng kính</button>
+        <button class="pick" data-d="<b>Ngưỡng và cảnh báo</b> — thiết lập ngưỡng, tự động gắn cờ, xuất báo cáo ngoại lệ."><span class="kk">G</span>Ngưỡng</button>
+      </div>
+      <p class="note" data-desc="lego" style="margin-top:18px"><b>Mục tiêu của bước phân rã:</b> mỗi công đoạn được gán vào một khối. Công đoạn không gán được cho thấy cách phân rã chưa phù hợp. Sáu case của buổi 2 và 3 là sáu cách kết hợp bảy khối này.</p>
+    </section>
+
+    <!-- 55 · b6 -->
+    <section class="slide" data-sec="b5" data-min="B 48–64" data-notes="Đây là bốn bước công bố trên landing page. Lớp sẽ thấy đúng bốn bước này lặp sáu lần ở hai buổi tới.">
+      <p class="eyebrow">Quy trình lặp lại ở mỗi case</p>
+      <h2>Bốn bước, sáu lần</h2>
+      <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:center">
+        <svg class="viz" viewBox="-24 0 608 320" role="img" aria-label="Mẫu nhỏ → Huấn luyện dần → Kiểm tra → Đóng gói"><ellipse class="v-ring" cx="280.0" cy="160.0" rx="190" ry="112"/><polygon class="v-arr" points="420.4,84.4 406.1,82.9 412.2,72.6"/><polygon class="v-arr" points="408.3,242.8 416.5,231.0 422.6,241.3"/><polygon class="v-arr" points="139.6,235.6 153.9,237.1 147.8,247.4"/><polygon class="v-arr" points="151.7,77.2 143.5,89.0 137.4,78.7"/><text class="v-c" x="280.0" y="166.0" text-anchor="middle">Mỗi case</text><rect class="v-node" x="185.0" y="21.0" width="190" height="54" rx="10"/><text class="v-t" x="280.0" y="45.0" text-anchor="middle">Mẫu nhỏ</text><text class="v-s" x="280.0" y="63.0" text-anchor="middle">dữ liệu thật</text><rect class="v-node" x="375.0" y="133.0" width="190" height="54" rx="10"/><text class="v-t" x="470.0" y="157.0" text-anchor="middle">Huấn luyện dần</text><text class="v-s" x="470.0" y="175.0" text-anchor="middle">sửa quy tắc</text><rect class="v-node" x="185.0" y="245.0" width="190" height="54" rx="10"/><text class="v-t" x="280.0" y="269.0" text-anchor="middle">Kiểm tra</text><text class="v-s" x="280.0" y="287.0" text-anchor="middle">dữ liệu · giả định · kết quả</text><rect class="v-node hl" x="-5.0" y="133.0" width="190" height="54" rx="10"/><text class="v-t hl" x="90.0" y="157.0" text-anchor="middle">Đóng gói</text><text class="v-s hl" x="90.0" y="175.0" text-anchor="middle">kỳ sau chỉ thay dữ liệu</text></svg>
+        <div class="note">Sau sáu case, phần đã đóng gói trở thành <b>bộ công cụ riêng</b> của mỗi học viên — các case cuối nhanh hơn rõ rệt.</div>
+      </div>
+    </section>
+
+    <!-- 56 · b7 -->
+    <section class="slide" data-sec="b6" data-min="B 64–80" data-notes="Nhắc lại lần cuối cách vận hành: hai buổi tới là xem dựng, mẫu và checklist phát theo từng case, tuần giữa mới tự làm.">
+      <p class="eyebrow">Chuẩn bị cho buổi 2 và 3</p>
+      <h2>Bốn việc trước Chủ Nhật</h2>
+      <div class="grid4">
+        <div class="tile step"><span class="n">1</span><b>Một bài toán</b><span>Đạt bốn tiêu chí</span></div>
+        <div class="tile step"><span class="n">2</span><b>Bộ ba trang</b><span>Skill v0 · khối A–G · kiểm soát</span></div>
+        <div class="tile step"><span class="n">3</span><b>Đọc sáu case</b><span>Đánh dấu case gần nhất</span></div>
+        <div class="tile step"><span class="n">4</span><b>Quan sát xây dựng</b><span>Thực hành ở tuần giữa</span></div>
+      </div>
+      <div class="cases step">
+        <span><b>01</b> Trình bày BCTC</span><span><b>02</b> Trình bày BCQT</span><span><b>03</b> Kế hoạch quý &amp; ngân sách</span>
+        <span><b>04</b> Năng suất đội bán hàng</span><span><b>05</b> Đầu tư resort</span><span><b>06</b> Kinh doanh đại lý ô tô</span>
+      </div>
+    </section>
+
+    <!-- 57 · b7 -->
+    <section class="slide" data-sec="b6" data-min="B 64–80" data-notes="Đóng buổi. Không tóm tắt dài, không nhắc bán khóa tiếp. Câu vàng là câu cuối cùng nói ra — nối về khối Làm chủ và bài thực hành chi phí vận chuyển.">
+      <p class="quote">Buổi 1: tư duy đúng và đóng gói. Buổi 2 và 3: sáu case — cùng bảy khối kết hợp theo những cách khác nhau.</p>
+      <div class="note gold" style="margin-top:18px"><b>Dấu hiệu của sự làm chủ</b> không phải là làm lại giống bản mẫu, mà là nhận biết khi nào bản mẫu không còn đúng.</div>
+      <div class="sched" style="margin-top:22px">
+        <div><span class="d">CN 27/09 · 9:00–12:00</span><b>Case 01–03</b><span>Số liệu đúng · vận hành lại được</span></div>
+        <div><span class="d">CN 27/09 · 13:30–16:30</span><b>Case 04–06</b><span>Số liệu để ra quyết định</span></div>
+      </div>
+      <p class="meta" style="margin-top:14px">Tài liệu đọc lại và bộ ba trang: gửi trong chat Zoom sau buổi học</p>
+    </section>
+  </div>
+
+  <div id="prog"><i></i></div>
+  <div id="notes"></div>
+  <div id="nav">
+    <button class="btn" id="prev">← Lùi</button>
+    <span class="sp"></span>
+    <span id="brandfoot" title="← → chuyển slide · M mục lục · N ghi chú · P in PDF"><b>Trương Thành Trung</b> · FCCA, CPA Việt Nam<span class="u"> · <a href="https://home.basicnlogic.com/" target="_blank" rel="noopener" style="color:inherit">home.basicnlogic.com</a> · AI for Finance · Buổi 1 · <span data-ver></span></span></span>
+    <span class="sp"></span>
+    <button class="btn btn-pri" id="next">Tiếp →</button>
+  </div>
+</div>
+
+<div id="tocscrim"></div>
+<aside id="toc" aria-label="Mục lục" aria-hidden="true">
+  <div class="th"><svg class="oklogo" viewBox="0 0 86 104" aria-hidden="true"><use href="#okLogo"/></svg>
+    <div class="tt"><b>AI for Finance · Buổi 1</b><span>Nghĩ đúng, làm đúng · <span data-ver></span></span></div>
+    <button class="x" id="tocx">Thu gọn (M)</button></div>
+  <div class="tb" id="tocbody"></div>
+  <p class="meta" style="padding:10px 18px;margin:0;border-top:1px solid var(--s-line)" data-stamp></p>
+</aside>
+
+<script>
+/* ===== version: một const duy nhất ===== */
+const APP_VERSION = 'v3.7';
+const BUILD_STAMP = '26/09/2026 · v3.7 — bỏ khối demo khỏi S1, dời sang buổi 2';
+document.querySelectorAll('[data-ver]').forEach(e=>e.textContent=APP_VERSION);
+document.querySelectorAll('[data-stamp]').forEach(e=>e.textContent=BUILD_STAMP);
+
+/* ===== điều hướng slide + reveal từng bước ===== */
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const $=s=>document.querySelector(s);
+function steps(){return [...slides[i].querySelectorAll('.step')];}
+function render(){
+  slides.forEach((s,n)=>s.classList.toggle('on',n===i));
+  $('#count').textContent=(i+1)+' / '+slides.length;
+  $('#prog i').style.width=((i+1)/slides.length*100)+'%';
+  $('#clock').textContent='phút mục tiêu '+(slides[i].dataset.min||'—');
+  $('#notes').innerHTML='<b>Ghi chú giảng:</b> <span class="nq">'+(slides[i].dataset.notes||'—')+'</span>';
+  $('#prev').disabled=(i===0);
+  if(typeof updateToc==='function')updateToc();
+}
+const narrow=()=>matchMedia('(max-width:900px)').matches;
+function go(d){
+  if(narrow()&&document.body.classList.contains('tocon'))return;
+  if(d>0){
+    const s=steps().find(e=>!e.classList.contains('show'));
+    if(s){s.classList.add('show');return;}
+    if(i<slides.length-1){i++;render();}
+  }else{
+    if(i>0){i--;render();steps().forEach(e=>e.classList.add('show'));}
+  }
+}
+$('#next').onclick=()=>go(1);
+$('#prev').onclick=()=>go(-1);
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(1);}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(-1);}
+  else if(e.key.toLowerCase()==='n'){$('#notes').classList.toggle('on');}
+  else if(e.key.toLowerCase()==='p'){e.preventDefault();print();}
+});
+$('#bnotes').onclick=()=>$('#notes').classList.toggle('on');
+
+/* vuốt trên điện thoại */
+let x0=null;
+addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});
+addEventListener('touchend',e=>{
+  if(x0===null)return;
+  const dx=e.changedTouches[0].clientX-x0;
+  if(Math.abs(dx)>60) go(dx<0?1:-1);
+  x0=null;
+},{passive:true});
+
+/* ===== đồng hồ buổi học ===== */
+let t0=null,tick=null;
+$('#btimer').onclick=()=>{
+  if(tick){clearInterval(tick);tick=null;$('#btimer').textContent='Tiếp tục';return;}
+  if(!t0)t0=Date.now();else t0=Date.now()-paused;
+  $('#btimer').textContent='Tạm dừng';
+  tick=setInterval(()=>{
+    paused=Date.now()-t0;
+    const s=Math.floor(paused/1000);
+    $('#timer').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  },1000);
+};
+let paused=0;
+
+/* ===== poll đặt cược ===== */
+document.querySelectorAll('#poll .pick').forEach(b=>{
+  b.onclick=()=>{document.querySelectorAll('#poll .pick').forEach(o=>o.classList.remove('sel'));b.classList.add('sel');};
+});
+$('#reveal').onclick=()=>{
+  document.querySelectorAll('#poll .pick').forEach(b=>{
+    b.classList.remove('sel');
+    if(b.dataset.k==='C')b.classList.add('right');
+  });
+};
+
+/* ===== poll 2: thí nghiệm ===== */
+document.querySelectorAll('#poll2 .pick').forEach(b=>{
+  b.onclick=()=>{document.querySelectorAll('#poll2 .pick').forEach(o=>o.classList.remove('sel'));b.classList.add('sel');};
+});
+$('#reveal2').onclick=()=>{
+  document.querySelectorAll('#poll2 .pick').forEach(b=>{b.classList.remove('sel');if(b.dataset.k==='C')b.classList.add('right');});
+};
+
+/* ===== máy tính CVP ===== */
+function cvp(){
+  const cm=+$('#cm').value, dc=+$('#dc').value;
+  $('#cmo').textContent=cm+'%'; $('#dco').textContent=dc+'%';
+  const gap=cm-dc;
+  if(gap<=0){
+    $('#need').textContent='∞';
+    $('#needbar').style.width='100%';
+    $('#warnbox').style.display='block';
+  }else{
+    $('#need').textContent=Math.round(dc/gap*100)+'%';
+    $('#needbar').style.width=Math.min(dc/gap*100,200)/2+'%';
+    $('#warnbox').style.display='none';
+  }
+}
+$('#cm').oninput=cvp; $('#dc').oninput=cvp; cvp();
+
+/* ===== máy tính điểm hòa vốn chế tác ===== */
+function be(){
+  const h=+$('#bh').value, m=+$('#bm').value, u=+$('#bu').value;
+  $('#bho').textContent=h+' giờ'; $('#bmo').textContent=m+' phút'; $('#buo').textContent=u+' người';
+  const n=Math.ceil(h*60/m), per=Math.ceil(n/u);
+  $('#be').textContent=per;
+  $('#befreq').textContent='Tổng cộng '+n+' lượt chạy · việc hằng tháng: hòa vốn sau khoảng '+per+' tháng · việc hằng tuần: khoảng '+per+' tuần';
+}
+$('#bh').oninput=be; $('#bm').oninput=be; $('#bu').oninput=be; be();
+
+/* ===== 8 chân dung ===== */
+document.querySelectorAll('#portraits .pick').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('#portraits .pick').forEach(o=>o.classList.remove('sel'));
+    b.classList.add('sel');
+    $('#pdesc').innerHTML='<b>'+b.textContent+'</b> — '+b.dataset.d;
+  };
+});
+
+
+/* ===== ma trận 8 chân dung × 12 nhóm năng lực — một nguồn dữ liệu ===== */
+const MX_SKILL=["Kế toán & báo cáo", "Kiểm soát, rủi ro & tuân thủ", "Dữ liệu & phân tích kinh doanh", "Kế hoạch & dự báo", "Tài chính chiến lược & vốn", "Công nghệ & tự động hóa", "Kinh tế sản phẩm & thương mại", "Ảnh hưởng các bên liên quan", "Thực thi hiệu suất & thay đổi", "Lãnh đạo con người & năng lực", "Quản trị & quan hệ bên ngoài", "Giá trị bền vững"];
+const MX_SKILL_EN=["Accounting & Reporting", "Control, Risk & Compliance", "Data & Business Analytics", "Planning & Forecasting", "Strategic Finance & Capital", "Technology & Automation", "Commercial & Product Economics", "Stakeholder Influence", "Performance & Change Execution", "People & Capability Leadership", "Governance & External Relations", "Sustainable Value"];
+const MX_SUB=["Closing; GL; chuẩn mực; management reporting", "Internal control; tax; audit; treasury; risk", "Data prep; KPI; variance; visualization; root cause", "Budget; driver model; rolling forecast; scenario", "Valuation; business case; capital allocation; M&A", "ERP; BI; SQL; data model; workflow; AI", "Pricing; unit economics; customer and channel profitability", "Storytelling; facilitation; negotiation; partnership", "Operating rhythm; PMO; process improvement; change", "Coaching; delegation; org design; succession", "Board; investor; lender; regulator; policy", "ESG; long-term risk; materiality; resilience; impact economics"];
+const MX_INSCOPE=7; // 7 hàng đầu nằm trong phạm vi khóa học
+/* Nguồn: Finance Leadership Capability Development — ma trận skill set × chân dung. 2 = trọng yếu (☑) · 1 = bổ trợ (◐) · 0 = chưa phải trọng tâm (☐). Cột 4: career route Entry → Mid → Manager → Executive */
+const MX_PORT=[["Steward", "Nền tảng và kiểm soát", [2, 2, 1, 1, 1, 1, 0, 1, 1, 1, 2, 1], ["Accountant", "Senior Accountant", "Financial Controller", "Finance Director"]], ["Analyst", "Phân tích và quyết định", [1, 1, 2, 2, 1, 1, 2, 1, 1, 1, 0, 1], ["Finance Analyst", "FP&A Analyst", "FP&A Manager", "Head of FP&A"]], ["Strategist", "Chiến lược và vốn", [1, 1, 2, 2, 2, 1, 2, 2, 1, 1, 1, 2], ["Corporate Finance Analyst", "Valuation Analyst", "Strategic Finance Manager", "Finance Strategy Director"]], ["Technologist", "Hệ thống và dữ liệu", [1, 1, 2, 1, 0, 2, 1, 1, 2, 1, 1, 1], ["Finance Systems Analyst", "Automation Specialist", "Finance Transformation Manager", "Digital Finance Director"]], ["Innovator", "Mô hình kinh doanh", [0, 0, 2, 1, 2, 1, 2, 2, 2, 1, 1, 1], ["Pricing Analyst", "Product Finance", "Commercial Finance Manager", "Growth Finance Director"]], ["Connector", "Ảnh hưởng và đồng thuận", [1, 1, 1, 1, 1, 0, 1, 2, 2, 2, 2, 2], ["Finance BP Analyst", "Finance Business Partner", "IR Manager", "Investor Relations Director"]], ["Executor", "Hiệu suất và thực thi", [1, 1, 2, 2, 1, 2, 1, 2, 2, 2, 1, 1], ["Cost Analyst", "Performance Analyst", "Finance Operations Manager", "Performance Director"]], ["Sustainable", "Giá trị dài hạn", [1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2], ["Risk Analyst", "ESG Reporting Specialist", "ERM Manager", "Sustainable Finance Director"]]];
+(function(){
+  const t=document.getElementById('mx'); if(!t)return;
+  let h='<thead><tr><th></th>'+MX_PORT.map((p,j)=>'<th><button data-j="'+j+'">'+p[0]+'<small>'+p[1]+'</small></button></th>').join('')+'</tr></thead><tbody>';
+  MX_SKILL.forEach((sk,r)=>{
+    h+='<tr class="'+(r<MX_INSCOPE?'in':'out')+'"><th class="rh" title="'+MX_SKILL_EN[r]+' · '+MX_SUB[r]+'">'+sk+'</th>'+MX_PORT.map((p,j)=>'<td data-j="'+j+'"><i class="v'+p[2][r]+'"></i></td>').join('')+'</tr>';
+  });
+  t.innerHTML=h+'</tbody>';
+  const side=document.getElementById('mxside');
+  t.querySelectorAll('thead button').forEach(b=>b.onclick=()=>{
+    const j=+b.dataset.j, was=b.classList.contains('sel');
+    t.querySelectorAll('thead button').forEach(x=>x.classList.remove('sel'));
+    t.querySelectorAll('td').forEach(td=>td.classList.toggle('on',!was&&+td.dataset.j===j));
+    t.classList.toggle('pick-on',!was);
+    if(was){side.innerHTML='<p class="meta" style="margin:0">Chọn một chân dung để xem năng lực trọng yếu, vùng chưa phải trọng tâm và lộ trình nghề nghiệp.</p>';return;}
+    b.classList.add('sel');
+    const p=MX_PORT[j], by=v=>MX_SKILL.filter((_,r)=>p[2][r]===v);
+    const li=a=>a.length?'<ul>'+a.map(x=>'<li>'+x.replace('&','&amp;')+'</li>').join('')+'</ul>':'<p class="meta">—</p>';
+    side.innerHTML='<h3>'+p[0]+'</h3><p class="ds">'+p[1]+'</p><div class="grp">Trọng yếu · '+by(2).length+'</div>'+li(by(2))+'<div class="grp">Chưa phải trọng tâm · '+by(0).length+'</div>'+li(by(0))+'<div class="grp">Lộ trình nghề nghiệp</div><div class="route">'+p[3].map((x,k)=>'<span><em>'+['Entry','Mid','Manager','Executive'][k]+'</em>'+x+'</span>').join('')+'</div>';
+  });
+  document.getElementById('mxscope').onclick=()=>{t.classList.toggle('scope');document.getElementById('mxscope').classList.toggle('btn-pri');};
+})();
+
+
+/* ===== độ nhạy giá — cơ chế logit theo Price Sensitivity Lab (số minh họa) ===== */
+(function(){
+  if(!document.getElementById('pstb'))return;
+  const P=800, VC=640;
+  const MK=[{n:'Khu vực A',base:40,s0:20,X:12},{n:'Khu vực B',base:35,s0:45,X:8},{n:'Khu vực C',base:25,s0:10,X:18}];
+  const tb=document.querySelector('#pstb tbody');
+  tb.innerHTML=MK.map((m,k)=>'<tr><td>'+m.n+'<span class="meta" style="display:block">gốc '+m.base+' xe</span></td>'+
+    '<td><input type="range" min="5" max="70" step="5" value="'+m.s0+'" data-k="'+k+'" data-f="s0"> <span class="v" id="ps0'+k+'"></span></td>'+
+    '<td><input type="range" min="2" max="30" step="1" value="'+m.X+'" data-k="'+k+'" data-f="X"> <span class="v" id="psx'+k+'"></span></td>'+
+    '<td class="vol" id="psvol'+k+'"></td></tr>').join('');
+  const share=(s0,x)=>{s0/=100;const f=Math.max(.05,1+x/100),a=f*s0;return a/(a+1-s0)*100;};
+  function calc(d,comp,sea,cap,noCap){
+    let V=0;const per=MK.map(m=>{const x=m.X*d*(1-comp/100)*sea;const s1=share(m.s0,x);let v=m.base*(1+(s1-m.s0)/m.s0);const lim=m.base*(1+cap/100);const capped=!noCap&&v>lim;if(capped)v=lim;V+=v;return {v,capped};});
+    return {V,per,CM:V*(P*(1-d/100)-VC)};
+  }
+  const $v=id=>document.getElementById(id);
+  function draw(){
+    const d=+$v('psd').value,c=+$v('psc').value,sa=+$v('pss').value,k=+$v('psk').value;
+    $v('psdo').textContent=d+'%';$v('psco').textContent=c+'%';$v('psso').textContent='×'+sa.toFixed(1);$v('psko').textContent='+'+k+'%';
+    MK.forEach((m,i)=>{$v('ps0'+i).textContent=m.s0+'%';$v('psx'+i).textContent=m.X+'%';});
+    const r=calc(d,c,sa,k), base=MK.reduce((a,m)=>a+m.base,0), cm0=base*(P-VC);
+    r.per.forEach((p,i)=>{$v('psvol'+i).innerHTML=p.v.toFixed(1)+(p.capped?'<span class="cap">chạm nguồn xe</span>':'');});
+    $v('psv').textContent=r.V.toFixed(0)+' xe';const dv=(r.V/base-1)*100;
+    $v('psvd').textContent=(dv>=0?'+':'')+dv.toFixed(0)+'% so với '+base+' xe';$v('psvd').className=dv>=0?'up':'dn';
+    $v('pscm').textContent=(r.CM/1000).toFixed(1)+' tỷ';const dc=(r.CM/cm0-1)*100;
+    $v('pscmd').textContent=(dc>=0?'+':'')+dc.toFixed(1)+'% so với '+(cm0/1000).toFixed(0)+' tỷ';$v('pscmd').className=dc>=0?'up':'dn';
+    // chart: tổng biên theo mức giảm giá 0–10%
+    const W=460,H=200,L=40,R=12,T=14,B=30,xs=[];for(let q=0;q<=10;q+=0.5)xs.push(q);
+    const ys=xs.map(q=>calc(q,c,sa,k).CM/1000), yu=xs.map(q=>calc(q,c,sa,k,true).CM/1000);
+    const all=ys.concat(yu,[cm0/1000]);let lo=Math.min(...all),hi=Math.max(...all);const pad=(hi-lo)*.1||1;lo-=pad;hi+=pad;
+    const X=q=>L+(W-L-R)*q/10, Y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+    const path=a=>a.map((v,j)=>(j?'L':'M')+X(xs[j]).toFixed(1)+','+Y(v).toFixed(1)).join('');
+    let g='<line class="ps-ax" x1="'+L+'" y1="'+(H-B)+'" x2="'+(W-R)+'" y2="'+(H-B)+'"/>';
+    [0,2,4,6,8,10].forEach(q=>g+='<text class="ps-t" x="'+X(q)+'" y="'+(H-B+15)+'" text-anchor="middle">'+q+'%</text>');
+    g+='<text class="ps-t" x="'+(W-R)+'" y="'+(H-4)+'" text-anchor="end">← mức giảm giá</text>';
+    g+='<line class="ps-base" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(cm0/1000)+'" y2="'+Y(cm0/1000)+'"/><text class="ps-t" x="'+(W-R)+'" y="'+(Y(cm0/1000)+14)+'" text-anchor="end">mốc '+(cm0/1000).toFixed(0)+' tỷ</text>';
+    g+='<path class="ps-ln2" d="'+path(yu)+'"/><path class="ps-ln" d="'+path(ys)+'"/>';
+    const cy=calc(d,c,sa,k).CM/1000;g+='<circle class="ps-dot" cx="'+X(d)+'" cy="'+Y(cy)+'" r="6"/>';
+    g+='<text class="ps-t" x="'+L+'" y="'+(H-4)+'">— có giới hạn nguồn xe · - - nếu không giới hạn</text>';
+    $v('pschart').innerHTML=g;
+  }
+  ['psd','psc','pss','psk'].forEach(id=>$v(id).oninput=draw);
+  tb.querySelectorAll('input').forEach(inp=>inp.oninput=()=>{MK[+inp.dataset.k][inp.dataset.f]=+inp.value;draw();});
+  draw();
+})();
+
+
+/* ===== vùng Core / Growth / Discovery — hộp chi tiết ===== */
+(function(){
+  const box=document.getElementById('znbox'); if(!box)return;
+  const Z=[
+   {n:'Core',t:'Việc đã thạo, tự chịu trách nhiệm được',
+    ai:'Tự động hóa · tăng tốc · chuẩn hóa. AI sản xuất, người dùng kiểm tra.',
+    you:'Viết quy tắc, đặt control total, đọc kết quả trong vài phút.',
+    ex:'Kế toán trưởng lập BCQT tháng từ sổ chi tiết',
+    st:['Đưa bảng ánh xạ tài khoản và mẫu báo cáo kỳ trước đã duyệt','AI dựng báo cáo, tự đối chiếu tổng với sổ cái','Người dùng soát các dòng lệch, sửa quy tắc — không sửa số','Chốt thành skill, tháng sau chỉ thay dữ liệu'],
+    stop:'Rủi ro lớn nhất là chủ quan: đã thạo nên bỏ qua bước kiểm. Giữ control total ở mọi lần chạy.'},
+   {n:'Growth',t:'Đã hiểu một phần, chưa làm độc lập ổn định',
+    ai:'Hướng dẫn · phản biện · tạo khung sườn. AI cùng làm, người dùng đối chiếu chặt.',
+    you:'Làm từng bước cùng AI, yêu cầu giải thích lý do của mỗi bước.',
+    ex:'Kế toán tập làm dự báo dòng tiền 13 tuần',
+    st:['Hỏi AI khung dự báo trực tiếp và các giả định chính','Tự điền số thu–chi của 4 tuần đã qua','Đối chiếu dự báo với số dư ngân hàng thực tế','Nhờ AI chỉ ra giả định nào nhạy nhất, rồi hỏi lại người phụ trách'],
+    stop:'Mỗi con số phải giải thích được bằng lời của mình. Chưa giải thích được thì chưa gửi lên cấp trên.'},
+   {n:'Discovery',t:'Lĩnh vực mới, chưa có nền tảng',
+    ai:'Giải thích · đặt câu hỏi · mô phỏng · dựng bản thử đầu tiên. AI lập bản đồ.',
+    you:'Học khái niệm, liệt kê câu hỏi cần hỏi chuyên gia.',
+    ex:'Lần đầu tham gia định giá một thương vụ M&A',
+    st:['Nhờ AI giải thích DCF, bội số so sánh và các điều khoản thường gặp','Nhờ AI liệt kê các câu hỏi cần làm rõ với bên tư vấn','Dựng bản thử đầu tiên để hiểu cấu trúc, không dùng làm kết quả','Mang câu hỏi và bản thử đi trao đổi với chuyên gia'],
+    stop:'AI không đưa ra kết luận ở vùng này. Kết quả trôi chảy nhưng người dùng chưa có cách kiểm — không dùng cho quyết định.'}
+  ];
+  const svg=document.querySelector('.zn-svg');
+  function show(k){
+    document.querySelectorAll('.zt').forEach(b=>b.classList.toggle('sel',+b.dataset.z===k));
+    svg.classList.add('pick'); svg.querySelectorAll('.zc').forEach(c=>c.classList.toggle('on',+c.dataset.z===k));
+    const z=Z[k];
+    box.innerHTML='<div class="zh"><div><p class="zk">Đặc điểm</p><p><b>'+z.n+'</b> · '+z.t+'</p></div>'+
+      '<div><p class="zk">Vai trò của AI</p><p>'+z.ai+'</p></div>'+
+      '<div style="grid-column:1/-1"><p class="zk">Người dùng làm gì</p><p>'+z.you+'</p></div>'+
+      '<div class="zex"><p class="zk" style="color:#7a6413">Ví dụ · '+z.ex+'</p><ol>'+z.st.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>'+
+      '<div class="zstop"><b>Điểm dừng:</b> '+z.stop+'</div></div>';
+  }
+  document.querySelectorAll('.zt').forEach(b=>b.onclick=()=>show(+b.dataset.z));
+  svg.querySelectorAll('.zc').forEach(c=>c.onclick=()=>show(+c.dataset.z));
+})();
+
+
+/* ===== thực hành 5 nguyên tắc — chi phí vận chuyển (số minh họa) ===== */
+(function(){
+  const box=document.getElementById('prbox'); if(!box)return;
+  const CSV='ky,tuyen,loai,so_chuyen,don_gia_trieu,thanh_tien_trieu,ghi_chu\n07/2026,HCM–Cần Thơ,Thường,48,2.30,110.4,\n07/2026,HCM–Đồng Nai,Thường,42,2.20,92.4,\n07/2026,HCM–Vũng Tàu,Thường,30,3.20,96.0,\n08/2026,HCM–Cần Thơ,Thường,52,2.35,122.2,\n08/2026,HCM–Đồng Nai,Thường,44,2.25,99.0,\n08/2026,HCM–Vũng Tàu,Thường,32,3.25,104.0,\n08/2026,HCM–Đồng Nai,Gấp,5,3.40,17.0,Chuyến gấp cho đơn hàng cuối tháng\n08/2026,—,Hóa đơn ghi nhận trễ,0,0,12.0,Hóa đơn nhà xe tháng 07 nhận ngày 05/08';
+  const bar='<div class="pr-bar"><i style="width:36.1%;background:#1E3932"></i><i style="width:11.6%;background:#00704A"></i><i style="width:30.7%;background:#8fc3ad"></i><i style="width:21.7%;background:#A6603A"></i></div>';
+  const S=[
+   {t:'Dự đoán trước',task:'Trước khi mở AI, mỗi người ghi <b>một nguyên nhân</b> chính khiến chi phí tăng 18,5%, kèm ước lượng nó chiếm bao nhiêu phần.',pm:'(Không dùng AI ở bước này.)\nGõ vào chat Zoom: “Nguyên nhân chính: … — chiếm khoảng …%”',
+    ans:'Không có đáp án đúng ở bước này. Mục đích là có một <b>điểm đối chiếu</b>. Phần lớn sẽ đoán <b>giá nhiên liệu</b> — giữ lại để so ở bước 3.'},
+   {t:'Giao việc thật',task:'Giao cho AI <b>đúng dữ liệu và đúng ràng buộc</b>, không hỏi chung chung. Dán bảng bên trái (nút Sao chép dữ liệu) kèm câu lệnh.',pm:'Đây là sổ chi tiết chi phí vận chuyển T7 và T8 (đơn vị triệu đồng).\nHãy tách mức tăng T8 so với T7 thành 4 phần:\n(1) do số chuyến thường, (2) do đơn giá, (3) chuyến gấp, (4) hóa đơn ghi nhận trễ.\nTrình bày bảng: số tiền, % trên tổng mức tăng. Tổng phải khớp 55,4.',
+    ans:'Câu lệnh tốt có ba thứ: <b>dữ liệu thật</b>, <b>cách tách cụ thể</b> và <b>một con số kiểm tra</b> (55,4). So với câu “vì sao chi phí tăng?”, AI không còn chỗ để đoán.'},
+   {t:'Chất vấn đầu ra',task:'Không nhận ngay kết quả. Hỏi AI ba câu: đang <b>giả định ngầm</b> điều gì · kiểm lại <b>một dòng</b> bằng tay · nêu <b>cách hiểu ngược lại</b>.',pm:'Bạn đang giả định gì khi tách phần “đơn giá”?\nTính lại riêng tuyến HCM–Cần Thơ để tôi đối chiếu.\nCó cách diễn giải nào khiến kết luận khác đi không?',
+    ans:'Kết quả đúng:<table><tr><td>Số chuyến thường</td><td>+20,0</td><td>36%</td></tr><tr><td>Đơn giá (nhiên liệu)</td><td>+6,4</td><td>12%</td></tr><tr><td>Chuyến gấp</td><td>+17,0</td><td>31%</td></tr><tr><td>Hóa đơn T7 ghi nhận trễ</td><td>+12,0</td><td>22%</td></tr><tr><td><b>Tổng</b></td><td><b>+55,4</b></td><td>100%</td></tr></table>'+bar+'Giá nhiên liệu chỉ giải thích <b>12%</b> — dự đoán ở bước 1 đã lệch. Giả định ngầm: đơn giá được tính trên số chuyến tháng 8.'},
+   {t:'Đổi tình huống',task:'Thay một điều kiện và xem <b>kết luận có đổi</b> không.',pm:'(a) Đưa hóa đơn 12 triệu về đúng tháng 7. Mức tăng thật còn bao nhiêu %?\n(b) Tháng 9 hết cao điểm: số chuyến như T7, không có chuyến gấp, đơn giá giữ như T8. Chi phí tháng 9 bao nhiêu?',
+    ans:'(a) T7 đúng kỳ = 310,8 · T8 đúng kỳ = 342,2 → tăng thật <b>+10,1%</b>, không phải 18,5%.<br>(b) Tháng 9 ≈ <b>304,8 tr</b> — chỉ cao hơn T7 khoảng 2%.<br>Kết luận đổi: vấn đề chính là <b>ghi nhận sai kỳ và chuyến gấp</b>, không phải đàm phán lại giá với nhà xe.'},
+   {t:'Giải thích lại',task:'Viết <b>ba câu</b> gửi Giám đốc kinh doanh, không dùng thuật ngữ kế toán. Không giải thích được thì chưa sở hữu kết quả.',pm:'(Tự viết trước, sau đó mới nhờ AI góp ý.)\nGóp ý giúp: ba câu này đã đủ rõ cho một người không làm tài chính chưa?',
+    ans:'Mẫu tham khảo:<br>① Chi phí vận chuyển tháng 8 chỉ tăng thật khoảng 10%; phần còn lại là hóa đơn tháng 7 về trễ.<br>② Hai lý do chính là mùa cao điểm tăng số chuyến và 5 chuyến gấp cuối tháng.<br>③ Đề xuất: chốt lịch giao sớm hơn để giảm chuyến gấp; chưa cần đàm phán lại giá.'}
+  ];
+  const tabs=document.getElementById('prtabs');
+  tabs.innerHTML=S.map((x,k)=>'<button data-k="'+k+'"><span>Bước '+(k+1)+'</span><b>'+x.t+'</b></button>').join('');
+  function show(k){
+    tabs.querySelectorAll('button').forEach((b,j)=>{b.classList.toggle('sel',j===k);if(j<k)b.classList.add('done');});
+    const x=S[k];
+    box.innerHTML='<p class="k">Nhiệm vụ</p><p>'+x.task+'</p><p class="k">Câu lệnh mẫu</p><div class="pm">'+x.pm+'</div>'+
+      '<div class="ans" id="prans">'+x.ans+'</div><div class="row"><button class="btn btn-pri" id="prshow" style="padding:5px 14px;font-size:13px">Xem đáp án</button>'+
+      (k<4?'<button class="btn" id="prnext" style="padding:5px 14px;font-size:13px">Bước tiếp →</button>':'')+'</div>';
+    document.getElementById('prshow').onclick=()=>document.getElementById('prans').classList.toggle('on');
+    const n=document.getElementById('prnext'); if(n)n.onclick=()=>show(k+1);
+  }
+  tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>show(+b.dataset.k));
+  show(0);
+  document.getElementById('prcopy').onclick=()=>{
+    const done=()=>{const b=document.getElementById('prcopy');b.textContent='Đã sao chép';setTimeout(()=>b.textContent='Sao chép dữ liệu',1500);};
+    if(navigator.clipboard)navigator.clipboard.writeText(CSV).then(done,()=>{});else{const t=document.createElement('textarea');t.value=CSV;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();done();}
+  };
+})();
+
+
+/* ===== ba lý do đóng gói — chi tiết ===== */
+(function(){
+  const box=document.getElementById('wbox'); if(!box)return;
+  const W=[
+`<div class="wh"><div>
+  <p class="k">Thời gian một vòng lặp · BCQT tháng</p><p style="font-size:12.5px;color:var(--s-muted);margin-bottom:4px">Dán dữ liệu và giải thích lại · sửa và hỏi lại · kiểm lại toàn bộ · trình bày</p>
+  <p class="wlab">Hỏi AI lại từ đầu mỗi tháng · ~180 phút</p>
+  <div class="wtl"><i class="a" style="width:22%">dán lại 40′</i><i class="b" style="width:28%">sửa, hỏi lại 50′</i><i class="c" style="width:33%">kiểm lại 60′</i><i class="d" style="width:17%">trình bày 30′</i></div>
+  <p class="wlab">Đã đóng gói thành skill · ~35 phút</p>
+  <div class="wtl" style="width:19.4%"><i class="a" style="width:15%"></i><i class="c" style="width:43%">kiểm</i><i class="d" style="width:42%">đọc</i></div>
+  <p class="meta" style="margin-top:6px">Số phút minh họa</p>
+</div><div>
+  <p class="k">Tối ưu ở đâu</p>
+  <ul><li><b>Bỏ khâu giải thích lại:</b> ngữ cảnh, quy tắc, danh mục nằm sẵn trong gói</li>
+  <li><b>Bỏ vòng sửa–hỏi lại:</b> quy trình cố định, AI không tự chọn thứ tự</li>
+  <li><b>Thu hẹp khâu kiểm:</b> bước tự kiểm báo sẵn — người chỉ đọc các dòng ngoại lệ</li>
+  <li><b>Mẫu đầu ra cố định:</b> không định dạng lại mỗi kỳ</li></ul>
+</div><div class="wnote"><b>Tiết kiệm ~145 phút × 12 kỳ ≈ 29 giờ/năm</b> cho một báo cáo. Càng lặp nhiều, càng đáng đóng gói — nối lại điểm hòa vốn ở Phần A.</div></div>`,
+`<div class="wh"><div>
+  <p class="k">Model khác nhau, giá khác nhau</p>
+  <div class="wtier">
+   <div><span>Model nhỏ, nhanh</span><i style="width:4%"></i><em>1×</em></div>
+   <div><span>Model trung</span><i style="width:20%"></i><em>~5×</em></div>
+   <div><span>Model mạnh nhất</span><i style="width:100%"></i><em>~25×</em></div>
+  </div>
+  <p class="meta" style="margin-top:6px">Tỷ lệ minh họa theo giá mỗi token · bảng giá thật thay đổi thường xuyên</p>
+  <p class="k" style="margin-top:10px">Chọn model theo việc</p>
+  <ul><li>Phân loại, trích xuất, định dạng → model nhỏ</li><li>Phân tích, viết bình luận → model trung</li><li>Thiết kế quy tắc, bài toán mới → model mạnh nhất</li></ul>
+</div><div>
+  <p class="k">Vì sao tổng chi phí tăng</p>
+  <ul><li><b>Ngữ cảnh dài:</b> mỗi lần hỏi lại phải nạp lại toàn bộ file, quy tắc, lịch sử hội thoại — trả tiền cho cùng nội dung nhiều lần</li>
+  <li><b>Làm việc nhiều bước:</b> một yêu cầu có thể chạy hàng chục lượt bên trong</li>
+  <li><b>Dùng model mạnh cho mọi việc</b> vì tiện</li>
+  <li>Giá mỗi token cho cùng năng lực có xu hướng giảm, nhưng <b>lượng token tiêu thụ tăng nhanh hơn</b></li></ul>
+</div><div class="wnote"><b>Đóng gói giảm token:</b> quy tắc gọn thay cho giải thích dài · chỉ nạp phần dữ liệu cần · việc lặp lại giao model nhỏ · phép tính cố định chạy bằng công thức, không cần AI.</div></div>`,
+`<div class="wh"><div>
+  <p class="k">AI có thể sai theo những cách nào</p>
+  <div class="wrisk">
+   <div><b>Bịa số</b>Điền giá trị “hợp lý” khi dữ liệu thiếu</div>
+   <div><b>Bịa nguồn</b>Dẫn chuẩn mực, điều khoản không tồn tại</div>
+   <div><b>Lặng lẽ bỏ dòng</b>Mã lạ, dòng trống bị bỏ qua không báo</div>
+   <div><b>Mỗi lần một kết quả</b>Cùng dữ liệu, hai lần hỏi ra hai con số</div>
+   <div><b>Hiểu sai quy tắc</b>Phân loại theo tên tài khoản thay vì bảng ánh xạ</div>
+   <div><b>Làm tròn, đổi đơn vị</b>Triệu thành nghìn, tổng không khớp</div>
+  </div>
+</div><div>
+  <p class="k">Chi phí kiểm lại lặp lại mỗi kỳ</p>
+  <p>Không đóng gói: mỗi lần chạy là một lần phải <b>kiểm lại từ đầu</b> — vì không biết lần này AI làm khác lần trước ở đâu.</p>
+  <p style="margin-top:6px">Đóng gói: quy tắc cố định + bước tự kiểm → chỉ cần <b>đọc báo cáo ngoại lệ</b>.</p>
+  <p class="k" style="margin-top:10px">Bước kiểm cài trong gói</p>
+  <ul><li>Tổng khớp sổ cái (control total)</li><li>Số dòng vào = số dòng ra</li><li>Thiếu dữ liệu thì báo thiếu, không tự điền</li><li>Mã lạ phải được liệt kê</li></ul>
+</div><div class="wnote"><b>N → 1:</b> nhiều người chạy, nhiều kỳ chạy, vẫn ra một kết quả — điều kiện để giao việc và để kiểm toán được.</div></div>`];
+  document.querySelectorAll('.wq').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('.wq').forEach(x=>x.classList.toggle('sel',x===b));
+    box.innerHTML=W[+b.dataset.w];
+  });
+})();
+
+/* ===== picker dùng chung: thang đóng gói · khung kiểm soát · bộ lego ===== */
+document.querySelectorAll('[data-picker]').forEach(box=>{
+  const key=box.dataset.picker;
+  const desc=document.querySelector('[data-desc="'+key+'"]');
+  box.querySelectorAll('.pick').forEach(b=>{
+    b.onclick=()=>{
+      box.querySelectorAll('.pick').forEach(o=>o.classList.remove('sel'));
+      b.classList.add('sel');
+      if(desc)desc.innerHTML=b.dataset.d;
+    };
+  });
+});
+
+/* ===== đếm ngược giờ nghỉ ===== */
+(function(){
+  const el=document.getElementById('brk'), btn=document.getElementById('bbrk');
+  if(!el||!btn)return;
+  let left=600,run=null;
+  const show=()=>el.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
+  btn.onclick=()=>{
+    if(run){clearInterval(run);run=null;btn.textContent='Tiếp tục';return;}
+    btn.textContent='Tạm dừng';
+    run=setInterval(()=>{
+      left--; show();
+      if(left<=0){clearInterval(run);run=null;el.textContent='Hết giờ';btn.textContent='Đặt lại 10 phút';left=600;}
+    },1000);
+  };
+  show();
+})();
+
+const SECT=[{"id": "intro", "part": "", "name": "Mở đầu", "q": "Giảng viên · mạch buổi học · cách vận hành", "min": "0–5"}, {"id": "a1", "part": "A", "name": "Case mở đầu · đại lý ô tô", "q": "Vì sao một bài toán cũ vẫn tạo ra tiền mới", "min": "5–25"}, {"id": "a2", "part": "A", "name": "Dùng AI để làm gì · vùng lõi", "q": "AI khuếch đại đúng vùng được chiếu vào", "min": "25–42"}, {"id": "a3", "part": "A", "name": "Làm như thế nào · tư duy công nghiệp", "q": "Từ ném đá từng bữa đến chế tác công cụ", "min": "42–60"}, {"id": "a4", "part": "A", "name": "Làm chủ tri thức khi dùng AI", "q": "Sử dụng AI mà vẫn nâng cao năng lực", "min": "60–72"}, {"id": "a5", "part": "A", "name": "Có đáng làm không · giá trị", "q": "Phép nhân giá trị và điểm hòa vốn", "min": "72–87"}, {"id": "brk", "part": "", "name": "Chuyển tiếp · giải lao", "q": "", "min": "87–100"}, {"id": "b1", "part": "B", "name": "Vì sao cần đóng gói", "q": "Để lần thứ hai không bắt đầu từ đầu", "min": "0–6"}, {"id": "b2", "part": "B", "name": "Thang đóng gói", "q": "Đóng gói đến cấp độ nào là đủ", "min": "6–16"}, {"id": "b3", "part": "B", "name": "Thiết kế trước khi mở AI", "q": "Tài nguyên sẵn có · phân rã · thứ tự xây", "min": "16–28"}, {"id": "b4", "part": "B", "name": "Cấu trúc skill · khung kiểm soát", "q": "Làm sao biết kết quả là đúng", "min": "28–48"}, {"id": "b5", "part": "B", "name": "Vòng đời · bộ khối xây dựng", "q": "Ngôn ngữ chung cho buổi 2 và 3", "min": "48–64"}, {"id": "b6", "part": "B", "name": "Tổng kết · hỏi đáp", "q": "Chuẩn bị cho Chủ Nhật", "min": "64–80"}];
+const CODE={"intro": "00", "a1": "A1", "a2": "A2", "a3": "A3", "a4": "A4", "a5": "A5", "brk": "—", "b1": "B1", "b2": "B2", "b3": "B3", "b4": "B4", "b5": "B5", "b6": "B6"};
+
+/* ===== mục lục: một nguồn cấu hình cho trang mục lục, panel và breadcrumb ===== */
+const secFirst={},secLast={};
+slides.forEach((sl,n)=>{const k=sl.dataset.sec;if(!(k in secFirst))secFirst[k]=n;secLast[k]=n;});
+const PARTS=[['','Mở đầu'],['A',"Phần A · Mindset · 90'"],['B',"Phần B · Skill set · 80'"]];
+function buildToc(){
+  let h='';
+  PARTS.forEach(([p,label])=>{
+    const list=SECT.filter(x=>x.part===p||(p===''&&x.part===''));
+    if(p===''){ // mở đầu + giải lao nằm đúng vị trí thời gian
+      h+='<div class="tp">'+label+'</div>'+item(SECT[0]);
+      return;
+    }
+    h+='<div class="tp">'+label+'</div>'+list.map(item).join('');
+    if(p==='A')h+=item(SECT.find(x=>x.id==='brk'));
+  });
+  document.getElementById('tocbody').innerHTML=h;
+  document.querySelectorAll('#toc .ti').forEach(b=>b.onclick=()=>{jump(secFirst[b.dataset.s]);if(narrow())toggleToc(false);b.blur();});
+  function item(x){
+    const a=secFirst[x.id]+1,b=secLast[x.id]+1;
+    return '<button class="ti" data-s="'+x.id+'"><span class="c">'+CODE[x.id]+'</span><span>'+x.name+
+      (x.q?'<span class="q">'+x.q+'</span>':'')+'</span><span class="r">'+(a===b?a:a+'–'+b)+'</span></button>';
+  }
+}
+function buildAgenda(){
+  const el=document.getElementById('agenda'); if(!el)return;
+  el.innerHTML=[['A',"Phần A · Mindset · 90'"],['B',"Phần B · Skill set · 80'"]].map(([p,l])=>
+    '<div class="part"><div class="ph">'+l+'</div>'+SECT.filter(x=>x.part===p).map(x=>
+      '<div class="row"><span class="c">'+CODE[x.id]+'</span><span class="t">'+x.name+'<span class="q">'+x.q+'</span></span><span class="mm">'+(p==='B'?'B ':'')+x.min+'′</span></div>').join('')+'</div>').join('');
+}
+function updateToc(){
+  const cur=slides[i].dataset.sec, order=SECT.map(x=>x.id), ci=order.indexOf(cur);
+  document.querySelectorAll('#toc .ti').forEach(b=>{
+    const k=order.indexOf(b.dataset.s);
+    b.classList.toggle('cur',k===ci); b.classList.toggle('done',k<ci);
+  });
+  const x=SECT[ci];
+  $('#crumb').innerHTML='<b>'+CODE[cur]+'</b>'+x.name;
+  if(document.body.classList.contains('tocon')){const c=document.querySelector('#toc .ti.cur');if(c)c.scrollIntoView({block:'nearest'});}
+}
+function toggleToc(on){
+  const v=(on===undefined)?!document.body.classList.contains('tocon'):on;
+  document.body.classList.toggle('tocon',v);
+  $('#toc').setAttribute('aria-hidden',v?'false':'true');
+  if(v){const c=document.querySelector('#toc .ti.cur');if(c){c.scrollIntoView({block:'center'});if(narrow())c.focus({preventScroll:true});}}
+}
+function jump(n){i=n;render();}
+$('#btoc').onclick=()=>toggleToc();
+$('#crumb').onclick=()=>toggleToc(true);
+$('#tocx').onclick=()=>toggleToc(false);
+$('#tocscrim').onclick=()=>toggleToc(false);
+addEventListener('keydown',e=>{
+  if(e.key==='Escape')toggleToc(false);
+  else if(e.key.toLowerCase()==='m'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();toggleToc();}
+},true);
+buildToc(); buildAgenda();
+
+render();
+</script>
+</body>
+</html>
